@@ -9,7 +9,7 @@
 
     /* ===== RESET ===== */
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; overflow-x: hidden; }
     body {
       font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
       background: #080808;
@@ -194,7 +194,8 @@
       font-size: 22px;
       color: #ffffff;
       line-height: 1.2;
-      max-width: 600px;
+      max-width: 560px;
+      font-weight: 400;
       margin: 0 auto 30px;
       font-weight: 400;
       line-height: 1.2;
@@ -313,8 +314,8 @@
     .edu-card p { color: rgba(255,255,255,0.5); font-size: 0.88rem; line-height: 1.4; }
 
     /* Calendar table */
-    .cal-wrap { margin-top: 48px; border-radius: 16px; border: 1px solid var(--card-border); overflow: hidden; }
-    .cal-table { width: 100%; border-collapse: collapse; }
+    .cal-wrap { margin-top: 48px; border-radius: 16px; border: 1px solid var(--card-border); overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .cal-table { width: 100%; border-collapse: collapse; min-width: 600px; }
     .cal-table thead { background: rgba(16,40,255,0.12); }
     .cal-table th {
       padding: 16px 20px; text-align: left;
@@ -460,7 +461,7 @@
       .fizio-layout { grid-template-columns: 1fr; }
       .hero-content { padding: 0 16px; }
       .hero-content h1 { font-size: 48px; letter-spacing: -0.5px; }
-      .hero-content p { font-size: 0.95rem; }
+      .hero-content p { font-size: 22px; }
       .section-heading { font-size: 48px; }
       .footer-grid { grid-template-columns: 1fr; }
       .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
