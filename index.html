@@ -366,15 +366,15 @@
     .view-all a:hover { border-color: var(--blue); color: var(--blue); }
 
     /* ===== CTA BANNER ===== */
-    .cta-section { text-align: center; padding: 100px 48px; position: relative; overflow: hidden; }
+    .cta-section { text-align: center; padding: 100px 48px; position: relative; overflow: hidden; background: #1028FF; }
     .cta-section::before {
       content: ''; position: absolute; top: 50%; left: 50%;
       width: 600px; height: 600px;
-      background: radial-gradient(circle, rgba(16,40,255,0.08) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
       transform: translate(-50%, -50%); border-radius: 50%;
     }
-    .cta-section h2 { font-size: clamp(2.4rem, 5vw, 3.6rem); font-weight: 400; letter-spacing: -1px; line-height: 1; margin-bottom: 14px; position: relative; }
-    .cta-section p { font-size: 22px; color: rgba(255,255,255,0.5); margin-bottom: 28px; position: relative; font-weight: 400; line-height: 1.2; }
+    .cta-section h2 { font-size: clamp(2.4rem, 5vw, 3.6rem); font-weight: 400; letter-spacing: -1px; line-height: 1; margin-bottom: 14px; position: relative; color: #fff; }
+    .cta-section p { font-size: 22px; color: rgba(255,255,255,0.75); margin-bottom: 28px; position: relative; font-weight: 400; line-height: 1.2; }
 
     /* ===== KONTAKT ===== */
     .contact-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; margin-top: 64px; }
@@ -745,7 +745,7 @@
     <div style="max-width:700px;margin:0 auto;">
       <h2>Pridruži se zajednici sportskih fizioterapeuta</h2>
       <p class="section-sub" style="margin: 0 auto 28px; text-align: center;">Postani dio rastuće mreže stručnjaka koji oblikuju budućnost sportske fizioterapije u Hrvatskoj.</p>
-      <a href="uclani-se.html" class="btn btn-primary" style="position:relative;">Učlani se danas <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></a>
+      <a href="uclani-se.html" class="btn btn-primary" style="position:relative;background:#fff;color:#1028FF;">Učlani se danas <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></a>
     </div>
   </div>
 
