@@ -435,24 +435,27 @@
     @media (max-width: 768px) {
       .nav { padding: 16px 20px; }
       .nav-right .nav-links {
-        display: none;
+        display: none !important;
         position: fixed;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(8,8,8,0.97);
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(8,8,8,0.98);
         flex-direction: column;
         align-items: center;
         justify-content: center;
         gap: 32px;
-        z-index: 999;
+        z-index: 9999;
       }
       .nav-right .nav-links.show {
-        display: flex;
+        display: flex !important;
       }
+      .nav-right .nav-links li { list-style: none; }
       .nav-right .nav-links li a {
-        font-size: 1.2rem;
-        color: rgba(255,255,255,0.7);
+        font-size: 1.4rem;
+        color: rgba(255,255,255,0.8);
+        padding: 12px 24px;
+        display: block;
       }
-      .menu-toggle { display: block; z-index: 1000; }
+      .menu-toggle { display: block; z-index: 10000; position: relative; }
       .section { padding: 60px 16px; }
       .fizio-layout { grid-template-columns: 1fr; }
       .hero-content { padding: 0 16px; }
@@ -464,7 +467,7 @@
       .btn-outline { margin-left: 0; margin-top: 12px; }
       .hero-actions { display: flex; flex-direction: column; align-items: center; gap: 12px; }
       .cta-section { padding: 60px 16px; }
-      .cta-section h2 { font-size: 1.6rem; }
+      .cta-section h2 { font-size: 48px; }
       .contact-layout { gap: 40px; }
       .blog-body { padding: 20px; }
       .cal-table { font-size: 0.75rem; }
