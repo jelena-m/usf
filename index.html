@@ -113,6 +113,9 @@
     .menu-toggle span:nth-child(1) { top: 0; }
     .menu-toggle span:nth-child(2) { top: 9px; }
     .menu-toggle span:nth-child(3) { top: 18px; }
+    .menu-toggle.open span:nth-child(1) { top: 9px; transform: rotate(45deg); }
+    .menu-toggle.open span:nth-child(2) { opacity: 0; }
+    .menu-toggle.open span:nth-child(3) { top: 9px; transform: rotate(-45deg); }
 
     /* ===== HERO (GCV style - full screen, mosaic bg, centered text) ===== */
     .hero {
@@ -431,14 +434,31 @@
     }
     @media (max-width: 768px) {
       .nav { padding: 16px 20px; }
-      .nav-right .nav-links { display: none; }
-      .menu-toggle { display: block; }
+      .nav-right .nav-links {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(8,8,8,0.97);
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 32px;
+        z-index: 999;
+      }
+      .nav-right .nav-links.show {
+        display: flex;
+      }
+      .nav-right .nav-links li a {
+        font-size: 1.2rem;
+        color: rgba(255,255,255,0.7);
+      }
+      .menu-toggle { display: block; z-index: 1000; }
       .section { padding: 60px 16px; }
       .fizio-layout { grid-template-columns: 1fr; }
       .hero-content { padding: 0 16px; }
-      .hero-content h1 { font-size: 2.2rem; letter-spacing: -0.5px; }
+      .hero-content h1 { font-size: 2.8rem; letter-spacing: -0.5px; }
       .hero-content p { font-size: 0.95rem; }
-      .section-heading { font-size: 1.8rem; }
+      .section-heading { font-size: 2.2rem; }
       .footer-grid { grid-template-columns: 1fr; }
       .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
       .btn-outline { margin-left: 0; margin-top: 12px; }
@@ -453,8 +473,8 @@
     }
     @media (max-width: 480px) {
       .hero { min-height: 600px; }
-      .hero-content h1 { font-size: 1.8rem; }
-      .section-heading { font-size: 1.5rem; }
+      .hero-content h1 { font-size: 2.4rem; }
+      .section-heading { font-size: 1.8rem; }
       .pillar, .edu-card { padding: 20px 16px; }
       .cal-table th, .cal-table td { padding: 8px 6px; font-size: 0.7rem; }
       .btn { padding: 10px 16px; font-size: 0.85rem; }
@@ -476,7 +496,7 @@
         <li><a href="#blog">Blog</a></li>
         <li><a href="#kontakt">Kontakt</a></li>
       </ul>
-      <button class="menu-toggle" onclick="document.querySelector('.nav-links').classList.toggle('show')" aria-label="Menu">
+      <button class="menu-toggle" onclick="var nl=document.querySelector('.nav-links');nl.classList.toggle('show');this.classList.toggle('open')" aria-label="Menu">
         <span></span><span></span><span></span>
       </button>
       <a href="uclani-se.html" class="nav-cta">Učlani se <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></a>
@@ -782,6 +802,14 @@
         e.preventDefault();
         const t = document.querySelector(this.getAttribute('href'));
         if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  </script>
+  <script>
+    document.querySelectorAll('.nav-links a').forEach(function(a){
+      a.addEventListener('click',function(){
+        document.querySelector('.nav-links').classList.remove('show');
+        document.querySelector('.menu-toggle').classList.remove('open');
       });
     });
   </script>
