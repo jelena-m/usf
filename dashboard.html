@@ -71,7 +71,7 @@
       padding: 28px 16px 20px; display: flex; flex-direction: column;
       position: fixed; top: 64px; left: 0; bottom: 0; overflow-y: auto;
     }
-    .sidebar-profile { text-align: center; margin-bottom: 24px; padding-bottom: 20px; }
+    .sidebar-profile { text-align: center; margin-bottom: 20px; padding-bottom: 16px; }
     .sidebar-avatar {
       width: 64px; height: 64px; border-radius: 50%; background: var(--blue);
       display: flex; align-items: center; justify-content: center;
@@ -587,15 +587,15 @@
 
     /* ===== ADMIN SIDEBAR SECTION ===== */
     .sidebar-admin-wrap {
-      margin-top: 12px; background: var(--blue-subtle); border-radius: 10px; padding: 10px 8px;
+      margin-top: 12px; background: rgba(255,255,255,0.04); border: none; border-radius: 10px; padding: 10px 8px;
     }
     .sidebar-admin-header {
       display: flex; align-items: center; gap: 10px;
-      padding: 4px 8px 6px;
-      font-size: 0.72rem; font-weight: 700; color: var(--blue);
+      padding: 4px 8px 10px;
+      font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.5);
       text-transform: uppercase; letter-spacing: 0.8px;
     }
-    .sidebar-admin-header svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.7; }
+    .sidebar-admin-header svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.5; }
     .sidebar-admin-link { font-size: 0.82rem !important; }
 
     /* ===== ADMIN PANEL STYLES ===== */
@@ -1418,12 +1418,13 @@
 
       <!-- ===== ADMIN PANEL: SPONSORS ===== -->
       <div class="panel" id="panel-admin-sponsors">
-        <h2 class="panel-title"><span data-hr="Sponzori" data-en="Sponsors">Sponzori</span></h2>
+        <h2 class="panel-title"><span data-hr="Partneri" data-en="Partners">Partneri</span></h2>
+        <p style="font-size:13px;color:var(--text-muted);margin:-8px 0 18px;"><span data-hr="Logotipi partnera prikazani su na naslovnoj stranici u sekciji O nama." data-en="Partner logos are displayed on the landing page in the About section.">Logotipi partnera prikazani su na naslovnoj stranici u sekciji O nama.</span></p>
         <div class="admin-filters-row" style="justify-content:space-between;">
-          <input type="text" class="admin-search-input" id="admin-sponsorSearch" oninput="window._adminSponsorPage=1;adminRenderSponsors()" data-placeholder-hr="Pretraži sponzore..." data-placeholder-en="Search sponsors..." placeholder="Pretraži sponzore...">
+          <input type="text" class="admin-search-input" id="admin-sponsorSearch" oninput="window._adminSponsorPage=1;adminRenderSponsors()" data-placeholder-hr="Pretraži partnere..." data-placeholder-en="Search partners..." placeholder="Pretraži partnere...">
           <button class="admin-btn admin-btn-primary" onclick="adminOpenSponsorModal()" style="white-space:nowrap;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            <span data-hr="Dodaj sponzora" data-en="Add sponsor">Dodaj sponzora</span>
+            <span data-hr="Dodaj partnera" data-en="Add partner">Dodaj partnera</span>
           </button>
         </div>
         <div id="admin-sponsorsList"></div>
@@ -1439,7 +1440,7 @@
       <h3><span id="admin-benefitModalTitle" data-hr="Dodaj pogodnost" data-en="Add benefit">Dodaj pogodnost</span></h3>
       <input type="hidden" id="admin-editBenefitId" value="">
       <div class="form-group">
-        <label><span data-hr="Naziv sponzora / partnera" data-en="Sponsor / partner name">Naziv sponzora / partnera</span></label>
+        <label><span data-hr="Naziv partnera" data-en="Partner name">Naziv partnera</span></label>
         <input type="text" id="admin-benefitName" placeholder="SportPro">
       </div>
       <div class="form-group">
@@ -1468,10 +1469,10 @@
   <!-- ===== ADMIN SPONSOR MODAL ===== -->
   <div class="admin-modal-overlay" id="admin-sponsorModalOverlay" onclick="if(event.target===this)adminCloseSponsorModal()">
     <div class="admin-modal-card">
-      <h3><span id="admin-sponsorModalTitle" data-hr="Dodaj sponzora" data-en="Add sponsor">Dodaj sponzora</span></h3>
+      <h3><span id="admin-sponsorModalTitle" data-hr="Dodaj partnera" data-en="Add partner">Dodaj partnera</span></h3>
       <input type="hidden" id="admin-editSponsorId" value="">
       <div class="form-group">
-        <label><span data-hr="Naziv sponzora" data-en="Sponsor name">Naziv sponzora</span></label>
+        <label><span data-hr="Naziv partnera" data-en="Partner name">Naziv partnera</span></label>
         <input type="text" id="admin-sponsorName">
       </div>
       <div class="form-group">
@@ -2127,7 +2128,7 @@
           { panel: 'admin-members', hr: 'Članovi', en: 'Members', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>' },
           { panel: 'admin-payments', hr: 'Uplate', en: 'Payments', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>' },
           { panel: 'admin-membership', hr: 'Članstvo', en: 'Membership', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M16 11l2 2 4-4"/></svg>' },
-          { panel: 'admin-sponsors', hr: 'Sponzori', en: 'Sponsors', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><path d="M12 12v4"/><path d="M8 12h8"/></svg>' }
+          { panel: 'admin-sponsors', hr: 'Partneri', en: 'Partners', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><path d="M12 12v4"/><path d="M8 12h8"/></svg>' }
         ];
         adminLinks.forEach(function(link) {
           html += '<button class="sidebar-link sidebar-admin-link" data-panel="' + link.panel + '" onclick="switchPanel(\'' + link.panel + '\')">' + link.icon + '<span data-hr="' + link.hr + '" data-en="' + link.en + '">' + link.hr + '</span></button>';
@@ -3856,7 +3857,7 @@
       }
 
       if (sponsors.length === 0) {
-        container.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:20px 0;">' + (lang === 'hr' ? 'Nema sponzora.' : 'No sponsors.') + '</p>';
+        container.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:20px 0;">' + (lang === 'hr' ? 'Nema partnera.' : 'No partners.') + '</p>';
         var pagEl = document.getElementById('admin-sponsorsPagination');
         if (pagEl) pagEl.innerHTML = '';
         applyLang();
@@ -3920,9 +3921,9 @@
       preview.innerHTML = '';
       window._adminSponsorLogoData = '';
       if (editId) {
-        titleEl.setAttribute('data-hr', 'Uredi sponzora');
-        titleEl.setAttribute('data-en', 'Edit sponsor');
-        titleEl.textContent = lang === 'hr' ? 'Uredi sponzora' : 'Edit sponsor';
+        titleEl.setAttribute('data-hr', 'Uredi partnera');
+        titleEl.setAttribute('data-en', 'Edit partner');
+        titleEl.textContent = lang === 'hr' ? 'Uredi partnera' : 'Edit partner';
         deleteBtn.style.display = '';
         var sponsors = adminGetSponsors();
         var s = sponsors.find(function(x) { return x.id === editId; });
@@ -3938,9 +3939,9 @@
           }
         }
       } else {
-        titleEl.setAttribute('data-hr', 'Dodaj sponzora');
-        titleEl.setAttribute('data-en', 'Add sponsor');
-        titleEl.textContent = lang === 'hr' ? 'Dodaj sponzora' : 'Add sponsor';
+        titleEl.setAttribute('data-hr', 'Dodaj partnera');
+        titleEl.setAttribute('data-en', 'Add partner');
+        titleEl.textContent = lang === 'hr' ? 'Dodaj partnera' : 'Add partner';
         deleteBtn.style.display = 'none';
       }
       document.getElementById('admin-sponsorModalOverlay').classList.add('active');
@@ -3955,7 +3956,7 @@
       var name = document.getElementById('admin-sponsorName').value.trim();
       var logoUrl = window._adminSponsorLogoData || document.getElementById('admin-sponsorLogoUrl').value.trim();
       var linkUrl = document.getElementById('admin-sponsorLinkUrl').value.trim();
-      if (!name) { showToast(currentLang === 'hr' ? 'Unesite naziv sponzora.' : 'Enter sponsor name.'); return; }
+      if (!name) { showToast(currentLang === 'hr' ? 'Unesite naziv partnera.' : 'Enter partner name.'); return; }
       var sponsors = adminGetSponsors();
       if (editId) {
         var s = sponsors.find(function(x) { return x.id === parseInt(editId); });
@@ -3967,15 +3968,15 @@
       adminSaveSponsorsData(sponsors);
       adminCloseSponsorModal();
       adminRenderSponsors();
-      showToast(currentLang === 'hr' ? (editId ? 'Sponzor ažuriran.' : 'Sponzor dodan.') : (editId ? 'Sponsor updated.' : 'Sponsor added.'));
+      showToast(currentLang === 'hr' ? (editId ? 'Partner ažuriran.' : 'Partner dodan.') : (editId ? 'Partner updated.' : 'Partner added.'));
     }
     function adminDeleteSponsor() {
       var editId = document.getElementById('admin-editSponsorId').value;
       if (!editId) return;
       var id = parseInt(editId);
       adminShowConfirm({
-        title: currentLang === 'hr' ? 'Obriši sponzora' : 'Delete sponsor',
-        message: currentLang === 'hr' ? 'Jeste li sigurni da želite obrisati ovog sponzora?' : 'Are you sure you want to delete this sponsor?',
+        title: currentLang === 'hr' ? 'Obriši partnera' : 'Delete partner',
+        message: currentLang === 'hr' ? 'Jeste li sigurni da želite obrisati ovog partnera?' : 'Are you sure you want to delete this partner?',
         danger: true,
         onConfirm: function() {
           var sponsors = adminGetSponsors();
@@ -3983,7 +3984,7 @@
           adminSaveSponsorsData(sponsors);
           adminCloseSponsorModal();
           adminRenderSponsors();
-          showToast(currentLang === 'hr' ? 'Sponzor obrisan.' : 'Sponsor deleted.');
+          showToast(currentLang === 'hr' ? 'Partner obrisan.' : 'Partner deleted.');
         }
       });
     }

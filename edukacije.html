@@ -105,6 +105,9 @@
       max-width: 1300px; margin: 0 auto;
     }
     .section-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 3.5px; color: var(--blue); margin-bottom: 16px; }
+    .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; color: rgba(255,255,255,0.45); transition: color 0.3s; margin-bottom: 40px; }
+    .back-link:hover { color: #fff; }
+    .back-link svg { width: 16px; height: 16px; }
     .page-hero h1 { font-size: clamp(2.6rem, 5vw, 4rem); font-weight: 400; letter-spacing: -1px; line-height: 1; }
     .membership-note { margin-top: 20px; font-size: 0.88rem; color: rgba(255,255,255,0.5); line-height: 1.5; }
 
@@ -261,7 +264,7 @@
         <li><a href="index.html#about"><span data-hr="O nama" data-en="About">O nama</span></a></li>
         <li><a href="index.html#ekspertiza"><span data-hr="Ekspertiza" data-en="Expertise">Ekspertiza</span></a></li>
         <li><a href="index.html#fizioterapija"><span data-hr="Fizioterapija" data-en="Physiotherapy">Fizioterapija</span></a></li>
-        <li><a href="edukacije.html" class="active"><span data-hr="Edukacije" data-en="Education">Edukacije</span></a></li>
+        <li><a href="edukacije.html"><span data-hr="Edukacije" data-en="Education">Edukacije</span></a></li>
         <li><a href="blog.html"><span data-hr="Blog" data-en="Blog">Blog</span></a></li>
         <li><a href="index.html#clanstvo"><span data-hr="Članstvo" data-en="Membership">Članstvo</span></a></li>
         <li><a href="index.html#kontakt"><span data-hr="Kontakt" data-en="Contact">Kontakt</span></a></li>
@@ -282,6 +285,7 @@
 
   <!-- PAGE HERO -->
   <div class="page-hero">
+    <a href="index.html#edukacije" class="back-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg> <span data-hr="Povratak" data-en="Back">Povratak</span></a>
     <div class="section-label"><span data-hr="Edukacije" data-en="Education">Edukacije</span></div>
     <h1><span data-hr="Nadolazeće edukacije" data-en="Upcoming education programs">Nadolazeće edukacije</span></h1>
   </div>
