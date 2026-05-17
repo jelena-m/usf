@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>USF — Prijava</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;700;800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; overflow-x: hidden; }
+    body {
+      font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #080808;
+      color: #ffffff;
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    h1, h2, h3 { font-family: 'Bricolage Grotesque', sans-serif; }
+    a { text-decoration: none; color: inherit; }
+    ::selection { background: #3B5BFF; color: #fff; }
+
+    :root {
+      --blue: #3B5BFF;
+      --blue-hover: #2a48e0;
+      --blue-glow: rgba(59, 91, 255, 0.35);
+      --bg: #080808;
+      --text: #ffffff;
+      --text-muted: rgba(255,255,255,0.35);
+      --text-faint: rgba(255,255,255,0.2);
+    }
+
+    /* PAGE LOADER */
+    .page-loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #080808; display: flex; align-items: center; justify-content: center; z-index: 99999; transition: opacity 0.5s; }
+    .page-loader.hide { opacity: 0; pointer-events: none; }
+    .page-loader.skip { display: none; }
+    .page-loader svg { width: 80px; height: auto; }
+    .page-loader .logo-bg { fill: rgba(255,255,255,0.08); }
+    .page-loader .logo-fill { fill: #fff; clip-path: inset(100% 0 0 0); animation: fillUp 2.2s ease-out forwards; }
+    @keyframes fillUp { 0% { clip-path: inset(100% 0 0 0); } 100% { clip-path: inset(0% 0 0 0); } }
+
+    /* NAV */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      padding: 20px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(8,8,8,0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .nav-logo { display: flex; align-items: center; }
+    .nav-logo svg { display: block; }
+    .nav-right { display: flex; align-items: center; gap: 8px; }
+    .lang-switch { display: flex; align-items: center; gap: 0; font-size: 0.72rem; font-weight: 600; letter-spacing: 1px; margin-right: 4px; }
+    .lang-switch button { background: none; border: none; color: rgba(255,255,255,0.4); padding: 6px 10px; cursor: pointer; font-family: inherit; font-size: 0.72rem; font-weight: 600; letter-spacing: 1px; transition: all 0.3s; display: flex; align-items: center; gap: 6px; border-radius: 6px; }
+    .lang-switch button.active { background: rgba(255,255,255,0.1); color: #fff; }
+    .lang-switch button:hover { color: #fff; }
+    .lang-flag { width: 18px; height: 13px; border-radius: 2px; display: inline-block; overflow: hidden; flex-shrink: 0; }
+
+    /* MAIN LAYOUT */
+    .main-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 120px 24px 60px;
+    }
+    .form-container {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    /* SWITCH TABS */
+    .tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 40px;
+    }
+    .tab-switch {
+      display: flex;
+      background: rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 4px;
+      gap: 4px;
+    }
+    .tab {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.4);
+      background: none;
+      border: none;
+      padding: 10px 32px;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.25s;
+    }
+    .tab:hover { color: rgba(255,255,255,0.7); }
+    .tab.active {
+      color: #fff;
+      background: var(--blue);
+    }
+
+    /* SOCIAL BUTTONS */
+    .social-buttons { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+    .social-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: transform 0.2s;
+      border: none;
+    }
+    .social-btn:hover { transform: translateY(-1px); }
+    .social-btn svg { flex-shrink: 0; }
+    .social-btn--google {
+      background: #fff;
+      color: #333;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .social-btn--apple {
+      background: #000;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+
+    /* DIVIDER */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+    }
+    .divider span {
+      font-size: 13px;
+      color: rgba(255,255,255,0.25);
+    }
+
+    /* FORM FIELDS */
+    .form-group { margin-bottom: 20px; }
+    .form-row { display: flex; gap: 16px; }
+    .form-row .form-group { flex: 1; }
+    .form-label {
+      display: block;
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+    .form-input, .form-select {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      padding: 12px 14px;
+      color: #fff;
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .form-input::placeholder { color: rgba(255,255,255,0.3); }
+    .form-input:focus, .form-select:focus {
+      border-color: var(--blue);
+      background: rgba(59, 91, 255, 0.06);
+    }
+    .form-select {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='rgba(255,255,255,0.3)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+    }
+    .form-select option {
+      background: #1a1a1a;
+      color: #fff;
+    }
+
+    /* SUBMIT BUTTON */
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      margin-top: 8px;
+    }
+    .submit-btn:hover { background: var(--blue-hover); transform: translateY(-1px); }
+
+    /* MEMBERSHIP PAYMENT INFO */
+    .membership-payment-info {
+      background: rgba(59, 91, 255, 0.08);
+      border: 1px solid rgba(59, 91, 255, 0.2);
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 24px;
+      margin-bottom: 8px;
+    }
+    .membership-payment-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.7);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .membership-payment-header svg { color: var(--blue); }
+    .membership-payment-price {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .membership-payment-price span {
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: rgba(255,255,255,0.5);
+    }
+    .membership-payment-desc {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.5;
+    }
+
+    /* FORGOT PASSWORD LINK */
+    .forgot-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.4);
+      transition: color 0.2s;
+    }
+    .forgot-link:hover { color: var(--blue); }
+
+    /* CHECKBOXES */
+    .checkbox-group { margin-bottom: 14px; }
+    .checkbox-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      cursor: pointer;
+      font-size: 14px;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.4;
+    }
+    .checkbox-label input[type="checkbox"] {
+      display: none;
+    }
+    .checkbox-custom {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      margin-top: 2px;
+    }
+    .checkbox-custom svg { opacity: 0; transition: opacity 0.2s; }
+    .checkbox-label input[type="checkbox"]:checked + .checkbox-custom {
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+    .checkbox-label input[type="checkbox"]:checked + .checkbox-custom svg { opacity: 1; }
+    .checkbox-text a {
+      color: var(--blue);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .checkbox-text a:hover { text-decoration: none; }
+    .optional-note {
+      font-size: 12px;
+      color: rgba(255,255,255,0.3);
+      font-style: italic;
+    }
+    .consents-section { margin-top: 28px; margin-bottom: 24px; }
+
+    /* ERROR */
+    .error-msg {
+      color: #FF6B6B;
+      font-size: 13px;
+      margin-top: 8px;
+      display: none;
+    }
+    .error-msg.visible { display: block; }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 8px;
+      padding: 12px 24px;
+      color: #fff;
+      font-size: 14px;
+      font-family: 'Instrument Sans', sans-serif;
+      z-index: 9999;
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* VIEW TOGGLE */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* RESPONSIVE */
+    @media (max-width: 600px) {
+      .nav { padding: 16px 20px; }
+      .main-content { padding: 100px 20px 40px; }
+      .form-row { flex-direction: column; gap: 0; }
+      .tab { padding: 10px 24px; font-size: 13px; }
+
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PAGE LOADER -->
+  <div class="page-loader" id="pageLoader">
+    <svg width="80" height="38" viewBox="0 0 50 24" xmlns="http://www.w3.org/2000/svg">
+      <path class="logo-bg" d="M49.7738 4.31636L42.0684 4.95287L41.8768 8.25898L49.5822 7.58349L49.356 11.8998L41.6506 12.5753L41.2208 21.0053L35.8397 21.4874L36.7292 5.43369L27.0818 6.19803C26.3994 6.26961 26.2083 6.30437 25.8923 6.40624C25.5394 6.51634 25.2728 6.68022 25.094 6.89573C24.9152 7.11179 24.8146 7.36621 24.793 7.65491C24.7679 7.8914 24.8397 8.12208 24.9257 8.31948C25.0187 8.51114 25.1723 8.68926 25.3826 8.85486C25.593 9.0138 25.8647 9.16305 26.1982 9.30275C26.5322 9.44261 26.9315 9.57448 27.3953 9.69539L28.9956 10.1269C30.0752 10.4153 30.9945 10.7683 31.7518 11.1879C32.5091 11.6076 33.1216 12.0884 33.5892 12.6281C34.0572 13.1615 34.3899 13.7528 34.5878 14.4008C34.7919 15.0488 34.8782 15.7484 34.8453 16.4998C34.7709 17.797 34.3883 18.8797 33.6988 19.7452C33.0094 20.6105 32.0565 21.1271 30.8375 21.5333C29.6258 21.9394 26.5168 22.1313 26.5111 22.1317C26.5111 22.1317 15.2865 23.0198 10.7197 23.3748C10.1194 23.473 9.48793 23.521 8.82536 23.5189C8.82346 23.519 8.8222 23.5192 8.82166 23.5192V23.5189C8.59995 23.5181 8.37475 23.5121 8.14607 23.5001C6.44395 23.4109 4.96929 23.0373 3.72206 22.3794C2.47516 21.715 1.52387 20.8182 0.868127 19.6889C0.219151 18.5535 -0.065976 17.2344 0.0127857 15.7314L0.619679 4.05953L6.00202 3.57365L5.39386 15.5496C5.36188 16.1598 5.46823 16.7129 5.71275 17.2087C5.95761 17.6982 6.31057 18.0902 6.77172 18.3849C7.23932 18.6799 7.77828 18.8434 8.38848 18.8754C9.00508 18.9077 9.55809 18.8014 10.0475 18.5566C10.537 18.3117 10.929 17.9587 11.2237 17.4975C11.5187 17.0299 11.6823 16.491 11.7143 15.8809L12.3746 3.02502L17.7324 2.55151L17.0469 16.6241C17.0111 17.3079 16.9027 17.9459 16.7223 18.5382C21.375 18.1801 26.4588 17.7876 26.6641 17.773C27.3172 17.7088 27.7198 17.7183 28.1126 17.5972C28.505 17.4761 28.8078 17.2956 29.0199 17.0558C29.2322 16.8157 29.3486 16.5338 29.3719 16.213C29.3811 15.911 29.296 15.6417 29.1152 15.407C28.941 15.1662 28.6429 14.9446 28.2224 14.7424C27.8018 14.5336 27.2288 14.3311 26.5053 14.1322L24.5624 13.6053C22.8353 13.1347 21.4905 12.429 20.5286 11.4898C19.5735 10.5445 19.0973 9.28733 19.1845 7.7462C19.2438 6.49344 19.6356 5.41565 20.3592 4.51327C21.0894 3.60513 22.0682 2.91909 23.2965 2.45544C24.479 2.01178 25.6752 1.99987 27.2921 1.87661L40.2368 0.844721L50 0L49.7738 4.31636Z"/>
+      <path class="logo-fill" d="M49.7738 4.31636L42.0684 4.95287L41.8768 8.25898L49.5822 7.58349L49.356 11.8998L41.6506 12.5753L41.2208 21.0053L35.8397 21.4874L36.7292 5.43369L27.0818 6.19803C26.3994 6.26961 26.2083 6.30437 25.8923 6.40624C25.5394 6.51634 25.2728 6.68022 25.094 6.89573C24.9152 7.11179 24.8146 7.36621 24.793 7.65491C24.7679 7.8914 24.8397 8.12208 24.9257 8.31948C25.0187 8.51114 25.1723 8.68926 25.3826 8.85486C25.593 9.0138 25.8647 9.16305 26.1982 9.30275C26.5322 9.44261 26.9315 9.57448 27.3953 9.69539L28.9956 10.1269C30.0752 10.4153 30.9945 10.7683 31.7518 11.1879C32.5091 11.6076 33.1216 12.0884 33.5892 12.6281C34.0572 13.1615 34.3899 13.7528 34.5878 14.4008C34.7919 15.0488 34.8782 15.7484 34.8453 16.4998C34.7709 17.797 34.3883 18.8797 33.6988 19.7452C33.0094 20.6105 32.0565 21.1271 30.8375 21.5333C29.6258 21.9394 26.5168 22.1313 26.5111 22.1317C26.5111 22.1317 15.2865 23.0198 10.7197 23.3748C10.1194 23.473 9.48793 23.521 8.82536 23.5189C8.82346 23.519 8.8222 23.5192 8.82166 23.5192V23.5189C8.59995 23.5181 8.37475 23.5121 8.14607 23.5001C6.44395 23.4109 4.96929 23.0373 3.72206 22.3794C2.47516 21.715 1.52387 20.8182 0.868127 19.6889C0.219151 18.5535 -0.065976 17.2344 0.0127857 15.7314L0.619679 4.05953L6.00202 3.57365L5.39386 15.5496C5.36188 16.1598 5.46823 16.7129 5.71275 17.2087C5.95761 17.6982 6.31057 18.0902 6.77172 18.3849C7.23932 18.6799 7.77828 18.8434 8.38848 18.8754C9.00508 18.9077 9.55809 18.8014 10.0475 18.5566C10.537 18.3117 10.929 17.9587 11.2237 17.4975C11.5187 17.0299 11.6823 16.491 11.7143 15.8809L12.3746 3.02502L17.7324 2.55151L17.0469 16.6241C17.0111 17.3079 16.9027 17.9459 16.7223 18.5382C21.375 18.1801 26.4588 17.7876 26.6641 17.773C27.3172 17.7088 27.7198 17.7183 28.1126 17.5972C28.505 17.4761 28.8078 17.2956 29.0199 17.0558C29.2322 16.8157 29.3486 16.5338 29.3719 16.213C29.3811 15.911 29.296 15.6417 29.1152 15.407C28.941 15.1662 28.6429 14.9446 28.2224 14.7424C27.8018 14.5336 27.2288 14.3311 26.5053 14.1322L24.5624 13.6053C22.8353 13.1347 21.4905 12.429 20.5286 11.4898C19.5735 10.5445 19.0973 9.28733 19.1845 7.7462C19.2438 6.49344 19.6356 5.41565 20.3592 4.51327C21.0894 3.60513 22.0682 2.91909 23.2965 2.45544C24.479 2.01178 25.6752 1.99987 27.2921 1.87661L40.2368 0.844721L50 0L49.7738 4.31636Z"/>
+    </svg>
+  </div>
+  <script>
+    // Loader only on refresh, not on navigation
+    (function() {
+      var loader = document.getElementById('pageLoader');
+      var navEntries = performance.getEntriesByType('navigation');
+      var isReload = navEntries.length > 0 && navEntries[0].type === 'reload';
+      if (!isReload) {
+        loader.classList.add('skip');
+      }
+    })();
+  </script>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">
+      <svg width="50" height="24" viewBox="0 0 50 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M49.7738 4.31636L42.0684 4.95287L41.8768 8.25898L49.5822 7.58349L49.356 11.8998L41.6506 12.5753L41.2208 21.0053L35.8397 21.4874L36.7292 5.43369L27.0818 6.19803C26.3994 6.26961 26.2083 6.30437 25.8923 6.40624C25.5394 6.51634 25.2728 6.68022 25.094 6.89573C24.9152 7.11179 24.8146 7.36621 24.793 7.65491C24.7679 7.8914 24.8397 8.12208 24.9257 8.31948C25.0187 8.51114 25.1723 8.68926 25.3826 8.85486C25.593 9.0138 25.8647 9.16305 26.1982 9.30275C26.5322 9.44261 26.9315 9.57448 27.3953 9.69539L28.9956 10.1269C30.0752 10.4153 30.9945 10.7683 31.7518 11.1879C32.5091 11.6076 33.1216 12.0884 33.5892 12.6281C34.0572 13.1615 34.3899 13.7528 34.5878 14.4008C34.7919 15.0488 34.8782 15.7484 34.8453 16.4998C34.7709 17.797 34.3883 18.8797 33.6988 19.7452C33.0094 20.6105 32.0565 21.1271 30.8375 21.5333C29.6258 21.9394 26.5168 22.1313 26.5111 22.1317C26.5111 22.1317 15.2865 23.0198 10.7197 23.3748C10.1194 23.473 9.48793 23.521 8.82536 23.5189C8.82346 23.519 8.8222 23.5192 8.82166 23.5192V23.5189C8.59995 23.5181 8.37475 23.5121 8.14607 23.5001C6.44395 23.4109 4.96929 23.0373 3.72206 22.3794C2.47516 21.715 1.52387 20.8182 0.868127 19.6889C0.219151 18.5535 -0.065976 17.2344 0.0127857 15.7314L0.619679 4.05953L6.00202 3.57365L5.39386 15.5496C5.36188 16.1598 5.46823 16.7129 5.71275 17.2087C5.95761 17.6982 6.31057 18.0902 6.77172 18.3849C7.23932 18.6799 7.77828 18.8434 8.38848 18.8754C9.00508 18.9077 9.55809 18.8014 10.0475 18.5566C10.537 18.3117 10.929 17.9587 11.2237 17.4975C11.5187 17.0299 11.6823 16.491 11.7143 15.8809L12.3746 3.02502L17.7324 2.55151L17.0469 16.6241C17.0111 17.3079 16.9027 17.9459 16.7223 18.5382C21.375 18.1801 26.4588 17.7876 26.6641 17.773C27.3172 17.7088 27.7198 17.7183 28.1126 17.5972C28.505 17.4761 28.8078 17.2956 29.0199 17.0558C29.2322 16.8157 29.3486 16.5338 29.3719 16.213C29.3811 15.911 29.296 15.6417 29.1152 15.407C28.941 15.1662 28.6429 14.9446 28.2224 14.7424C27.8018 14.5336 27.2288 14.3311 26.5053 14.1322L24.5624 13.6053C22.8353 13.1347 21.4905 12.429 20.5286 11.4898C19.5735 10.5445 19.0973 9.28733 19.1845 7.7462C19.2438 6.49344 19.6356 5.41565 20.3592 4.51327C21.0894 3.60513 22.0682 2.91909 23.2965 2.45544C24.479 2.01178 25.6752 1.99987 27.2921 1.87661L40.2368 0.844721L50 0L49.7738 4.31636Z" fill="white"/>
+      </svg>
+    </a>
+    <div class="nav-right">
+      <div class="lang-switch">
+        <button class="active" data-lang="hr" onclick="switchLang('hr')"><svg class="lang-flag" viewBox="0 0 640 480"><rect width="640" height="160" fill="#FF0000"/><rect y="160" width="640" height="160" fill="#FFFFFF"/><rect y="320" width="640" height="160" fill="#171796"/><rect x="240" y="80" width="160" height="200" rx="0" ry="80" fill="#FF0000" stroke="#fff" stroke-width="4"/><g fill="#fff"><rect x="256" y="96" width="32" height="32"/><rect x="320" y="96" width="32" height="32"/><rect x="384" y="96" width="32" height="32"/><rect x="288" y="128" width="32" height="32"/><rect x="352" y="128" width="32" height="32"/><rect x="256" y="160" width="32" height="32"/><rect x="320" y="160" width="32" height="32"/><rect x="384" y="160" width="32" height="32"/><rect x="288" y="192" width="32" height="32"/><rect x="352" y="192" width="32" height="32"/><rect x="256" y="224" width="32" height="32"/><rect x="320" y="224" width="32" height="32"/><rect x="384" y="224" width="32" height="32"/></g></svg></button>
+        <button data-lang="en" onclick="switchLang('en')"><svg class="lang-flag" viewBox="0 0 640 480"><rect width="640" height="480" fill="#012169"/><path d="M0 0l640 480M640 0L0 480" stroke="#fff" stroke-width="60"/><path d="M0 0l640 480M640 0L0 480" stroke="#C8102E" stroke-width="40"/><path d="M320 0v480M0 240h640" stroke="#fff" stroke-width="100"/><path d="M320 0v480M0 240h640" stroke="#C8102E" stroke-width="60"/></svg></button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <div class="form-container">
+
+      <!-- TABS -->
+      <div class="tabs">
+        <div class="tab-switch">
+          <button class="tab active" onclick="switchTab('login')" data-hr="Prijava" data-en="Login">Prijava</button>
+          <button class="tab" onclick="switchTab('register')" data-hr="Registracija" data-en="Register">Registracija</button>
+        </div>
+      </div>
+
+      <!-- LOGIN VIEW -->
+      <div id="loginView" class="view active">
+        <div class="social-buttons">
+          <button class="social-btn social-btn--google" onclick="handleGoogleLogin()">
+            <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59a14.5 14.5 0 0 1 0-9.18l-7.98-6.19a24.01 24.01 0 0 0 0 21.56l7.98-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+            <span data-hr="Nastavi s Google" data-en="Continue with Google">Nastavi s Google</span>
+          </button>
+          <button class="social-btn social-btn--apple" onclick="handleAppleLogin()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+            <span data-hr="Nastavi s Apple" data-en="Continue with Apple">Nastavi s Apple</span>
+          </button>
+        </div>
+
+        <div class="divider"><span data-hr="ili" data-en="or">ili</span></div>
+
+        <form onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label class="form-label" data-hr="Email" data-en="Email">Email</label>
+            <input type="email" id="loginEmail" class="form-input" placeholder="email@primjer.com" required autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-hr="Lozinka" data-en="Password">Lozinka</label>
+            <input type="password" id="loginPassword" class="form-input" placeholder="••••••" required autocomplete="current-password">
+          </div>
+          <div id="loginError" class="error-msg"></div>
+          <button type="submit" class="submit-btn" data-hr="Prijavi se" data-en="Log in">Prijavi se</button>
+        </form>
+        <a href="#" class="forgot-link" onclick="showToast(document.documentElement.lang==='en'?'Password reset coming soon':'Resetiranje lozinke uskoro dostupno');return false;" data-hr="Zaboravljena lozinka?" data-en="Forgot password?">Zaboravljena lozinka?</a>
+      </div>
+
+      <!-- REGISTER VIEW -->
+      <div id="registerView" class="view">
+        <div class="social-buttons">
+          <button class="social-btn social-btn--google" onclick="handleGoogleLogin()">
+            <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59a14.5 14.5 0 0 1 0-9.18l-7.98-6.19a24.01 24.01 0 0 0 0 21.56l7.98-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+            <span data-hr="Nastavi s Google" data-en="Continue with Google">Nastavi s Google</span>
+          </button>
+          <button class="social-btn social-btn--apple" onclick="handleAppleLogin()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+            <span data-hr="Nastavi s Apple" data-en="Continue with Apple">Nastavi s Apple</span>
+          </button>
+        </div>
+
+        <div class="divider"><span data-hr="ili" data-en="or">ili</span></div>
+
+        <form onsubmit="handleRegister(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" data-hr="Ime" data-en="First name">Ime</label>
+              <input type="text" id="regFirstName" class="form-input" placeholder="Marko" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" data-hr="Prezime" data-en="Last name">Prezime</label>
+              <input type="text" id="regLastName" class="form-input" placeholder="Horvat" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-hr="Email" data-en="Email">Email</label>
+            <input type="email" id="regEmail" class="form-input" placeholder="email@primjer.com" required autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-hr="Telefon" data-en="Phone">Telefon</label>
+            <input type="tel" id="regPhone" class="form-input" placeholder="+385 91 234 5678">
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-hr="Specijalizacija" data-en="Specialization">Specijalizacija</label>
+            <select id="regSpecialization" class="form-select form-input" required>
+              <option value="" disabled selected data-hr="Odaberi specijalizaciju" data-en="Select specialization">Odaberi specijalizaciju</option>
+              <option value="Sportska fizioterapija">Sportska fizioterapija</option>
+              <option value="Ortopedska fizioterapija">Ortopedska fizioterapija</option>
+              <option value="Neurološka fizioterapija">Neurološka fizioterapija</option>
+              <option value="Pedijatrijska fizioterapija">Pedijatrijska fizioterapija</option>
+              <option value="Kardiopulmonalna fizioterapija">Kardiopulmonalna fizioterapija</option>
+              <option value="Ostalo">Ostalo</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-hr="Lozinka" data-en="Password">Lozinka</label>
+            <input type="password" id="regPassword" class="form-input" placeholder="Min. 6 znakova" required minlength="6" autocomplete="new-password">
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-hr="Potvrdi lozinku" data-en="Confirm password">Potvrdi lozinku</label>
+            <input type="password" id="regPasswordConfirm" class="form-input" placeholder="Ponovi lozinku" required minlength="6" autocomplete="new-password">
+          </div>
+
+          <!-- Consents -->
+          <div class="consents-section">
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="consentStatute" required>
+                <span class="checkbox-custom">
+                  <svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5L4.5 8.5L11 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="checkbox-text" data-hr='Prihvaćam <a href="statut.html">Statut udruge</a> i <a href="pravilnik.html">Pravilnik o članstvu</a>' data-en='I accept the <a href="statut.html">Association Statute</a> and <a href="pravilnik.html">Membership Rules</a>'>Prihvaćam <a href="statut.html">Statut udruge</a> i <a href="pravilnik.html">Pravilnik o članstvu</a></span>
+              </label>
+            </div>
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="consentPrivacy" required>
+                <span class="checkbox-custom">
+                  <svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5L4.5 8.5L11 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="checkbox-text" data-hr='Suglasan/na sam s obradom osobnih podataka u skladu s <a href="privatnost.html">Pravilnikom o privatnosti</a>' data-en='I consent to personal data processing in accordance with the <a href="privatnost.html">Privacy Policy</a>'>Suglasan/na sam s obradom osobnih podataka u skladu s <a href="privatnost.html">Pravilnikom o privatnosti</a></span>
+              </label>
+            </div>
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="consentEmail">
+                <span class="checkbox-custom">
+                  <svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5L4.5 8.5L11 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="checkbox-text">
+                  <span data-hr="Pristajem na primanje obavijesti putem e-maila o aktivnostima udruge" data-en="I agree to receive email notifications about association activities">Pristajem na primanje obavijesti putem e-maila o aktivnostima udruge</span>
+                  <span class="optional-note" data-hr="(opcionalno)" data-en="(optional)"> (opcionalno)</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Membership payment info -->
+          <div class="membership-payment-info">
+            <div class="membership-payment-header">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+              <span data-hr="Godišnja članarina" data-en="Annual membership fee">Godišnja članarina</span>
+            </div>
+            <div class="membership-payment-price">130€ <span data-hr="/ godišnje" data-en="/ year">/ godišnje</span></div>
+            <p class="membership-payment-desc"><span data-hr="Registracijom postajete član udruge. Članarina uključuje besplatan pristup odabranim edukacijama i snižene cijene na sve ostale programe." data-en="By registering you become a member. Membership includes free access to selected education programs and reduced prices on all others.">Registracijom postajete član udruge. Članarina uključuje besplatan pristup odabranim edukacijama i snižene cijene na sve ostale programe.</span></p>
+          </div>
+
+          <div id="registerError" class="error-msg"></div>
+          <button type="submit" class="submit-btn" data-hr="Registriraj se i plati članarinu" data-en="Register & pay membership">Registriraj se i plati članarinu</button>
+        </form>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast"></div>
+
+  <script>
+    // ===== SEED DATA =====
+    function seedData() {
+      // Seed events
+      if (!localStorage.getItem('usf_events')) {
+        const events = [
+          { id:1, title:"Radionica: Prevencija sportskih ozljeda", type:"radionica", date:"2026-06-15", endDate:"2026-06-16", location:"Zagreb, Hotel Esplanade", instructor:"Dr. Marko Horvat", spots:30, price:0, included:true, image:"https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop", description:"Dvodnevna praktična radionica koja pokriva najnovije protokole prevencije ozljeda. Uključuje screening metode, funkcionalne testove i izradu preventivnih programa.", status:"active" },
+          { id:2, title:"Seminar: Povratak sportu nakon ACL rekonstrukcije", type:"seminar", date:"2026-07-10", endDate:"2026-07-10", location:"Split, Medicinski fakultet", instructor:"Dr. Ana Kovačić", spots:25, price:50, included:false, image:"https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&h=400&fit=crop", description:"Jednodnevni seminar o najnovijim protokolima povratka sportu nakon rekonstrukcije prednjeg križnog ligamenta.", status:"active" },
+          { id:3, title:"Tečaj: Manualna terapija u sportu", type:"tecaj", date:"2026-08-05", endDate:"2026-08-07", location:"Rijeka, Klinički bolnički centar", instructor:"Prof. Ivan Babić", spots:20, price:150, included:false, image:"https://images.unsplash.com/photo-1519824145371-296894a0daa9?w=600&h=400&fit=crop", description:"Trodnevni tečaj koji pokriva napredne tehnike manualne terapije primjenjive u sportskoj fizioterapiji.", status:"active" },
+          { id:4, title:"Konferencija: USF Godišnja konferencija 2026", type:"konferencija", date:"2026-09-15", endDate:"2026-09-16", location:"Zagreb, Kongresni centar", instructor:"Razni predavači", spots:200, price:0, included:true, image:"https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop", description:"Najveći godišnji događaj USF-a s predavanjima vodećih stručnjaka iz područja sportske fizioterapije.", status:"active" },
+          { id:5, title:"Radionica: Regeneracija sportaša", type:"radionica", date:"2026-10-20", endDate:"2026-10-20", location:"Osijek, Sportska dvorana Gradski vrt", instructor:"Dr. Petra Novak", spots:25, price:0, included:true, image:"https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&h=400&fit=crop", description:"Praktična radionica o tehnikama regeneracije sportaša na natjecanjima i između treninga.", status:"active" },
+          { id:6, title:"Online seminar: Biomehanika u sportu", type:"online", date:"2026-11-12", endDate:"2026-11-12", location:"Online (Zoom)", instructor:"Prof. Luka Jurić", spots:30, price:75, included:false, image:"https://images.unsplash.com/photo-1559757175-7cb057fba93c?w=600&h=400&fit=crop", description:"Online seminar o primjeni biomehaničke analize u sportskoj fizioterapiji i prevenciji ozljeda.", status:"active" }
+        ];
+        localStorage.setItem('usf_events', JSON.stringify(events));
+      }
+
+      // Seed users
+      if (!localStorage.getItem('usf_users')) {
+        const users = [
+          {
+            id: 1, firstName: 'Admin', lastName: 'USF', email: 'admin@usf.hr', phone: '+385 1 234 5678',
+            specialization: 'Sportska fizioterapija', password: 'admin123', role: 'admin',
+            membershipStatus: 'active', membershipExpiry: '2099-12-31', registeredAt: '2024-01-01T00:00:00.000Z',
+            enrolledEvents: [], attendedEvents: [], payments: [{ id:1, amount:0, date:'2024-01-01', description:'Admin račun', status:'completed' }],
+            profileImage: null, lastLogin: '2026-05-14T10:00:00.000Z',
+            consentStatute: true, consentPrivacy: true, consentEmail: true
+          },
+          {
+            id: 2, firstName: 'Marko', lastName: 'Horvat', email: 'marko@example.com', phone: '+385 91 111 2222',
+            specialization: 'Sportska fizioterapija', password: 'pass123', role: 'user',
+            membershipStatus: 'active', membershipExpiry: '2027-03-15', registeredAt: '2025-03-10T09:00:00.000Z',
+            enrolledEvents: [1, 4],
+            attendedEvents: [{ id:100, title:"Radionica: Funkcijska dijagnostika 2025", date:"2025-11-10", type:"radionica", status:"attended" }],
+            payments: [
+              { id:1, amount:130, date:'2025-03-10', method:'Kartica', description:'Godišnja članarina 2025/2026', status:'completed' },
+              { id:2, amount:130, date:'2026-03-10', method:'Kartica', description:'Godišnja članarina 2026/2027', status:'completed' }
+            ],
+            profileImage: null, lastLogin: '2026-05-10T14:30:00.000Z',
+            consentStatute: true, consentPrivacy: true, consentEmail: true
+          },
+          {
+            id: 3, firstName: 'Ana', lastName: 'Kovačić', email: 'ana@example.com', phone: '+385 92 333 4444',
+            specialization: 'Ortopedska fizioterapija', password: 'pass123', role: 'user',
+            membershipStatus: 'active', membershipExpiry: '2026-08-20', registeredAt: '2025-08-15T11:00:00.000Z',
+            enrolledEvents: [2],
+            attendedEvents: [{ id:101, title:"Seminar: Sportska prehrana i oporavak", date:"2025-09-20", type:"seminar", status:"attended" }],
+            payments: [
+              { id:1, amount:130, date:'2025-08-15', method:'Kartica', description:'Godišnja članarina 2025/2026', status:'completed' }
+            ],
+            profileImage: null, lastLogin: '2026-05-12T09:15:00.000Z',
+            consentStatute: true, consentPrivacy: true, consentEmail: false
+          },
+          {
+            id: 4, firstName: 'Ivan', lastName: 'Babić', email: 'ivan@example.com', phone: '+385 93 555 6666',
+            specialization: 'Neurološka fizioterapija', password: 'pass123', role: 'user',
+            membershipStatus: 'expired', membershipExpiry: '2025-12-01', registeredAt: '2024-12-01T08:00:00.000Z',
+            enrolledEvents: [1],
+            attendedEvents: [],
+            payments: [
+              { id:1, amount:130, date:'2024-12-01', method:'Bankovni prijenos', description:'Godišnja članarina 2024/2025', status:'completed' }
+            ],
+            profileImage: null, lastLogin: '2026-01-15T16:45:00.000Z',
+            consentStatute: true, consentPrivacy: true, consentEmail: true
+          },
+          {
+            id: 5, firstName: 'Petra', lastName: 'Novak', email: 'petra@example.com', phone: '+385 95 777 8888',
+            specialization: 'Sportska fizioterapija', password: 'pass123', role: 'user',
+            membershipStatus: 'inactive', membershipExpiry: null, registeredAt: '2026-01-20T12:00:00.000Z',
+            enrolledEvents: [],
+            attendedEvents: [],
+            payments: [],
+            profileImage: null, lastLogin: null,
+            consentStatute: true, consentPrivacy: true, consentEmail: false
+          },
+          {
+            id: 6, firstName: 'Luka', lastName: 'Jurić', email: 'luka@example.com', phone: '+385 98 999 0000',
+            specialization: 'Pedijatrijska fizioterapija', password: 'pass123', role: 'user',
+            membershipStatus: 'active', membershipExpiry: '2026-11-30', registeredAt: '2025-11-25T10:30:00.000Z',
+            enrolledEvents: [3, 5],
+            attendedEvents: [],
+            payments: [
+              { id:1, amount:130, date:'2025-11-25', method:'Kartica', description:'Godišnja članarina 2025/2026', status:'completed' }
+            ],
+            profileImage: null, lastLogin: '2026-05-14T08:20:00.000Z',
+            consentStatute: true, consentPrivacy: true, consentEmail: true
+          }
+        ];
+        localStorage.setItem('usf_users', JSON.stringify(users));
+      }
+    }
+
+    // ===== INIT =====
+    seedData();
+
+    // Redirect if already logged in
+    const currentUser = localStorage.getItem('usf_current_user');
+    if (currentUser) {
+      window.location.href = 'dashboard.html';
+    }
+
+    // ===== TAB SWITCHING =====
+    function switchTab(tab) {
+      const tabs = document.querySelectorAll('.tab');
+      const loginView = document.getElementById('loginView');
+      const registerView = document.getElementById('registerView');
+
+      tabs.forEach(t => t.classList.remove('active'));
+
+      if (tab === 'login') {
+        tabs[0].classList.add('active');
+        loginView.classList.add('active');
+        registerView.classList.remove('active');
+      } else {
+        tabs[1].classList.add('active');
+        loginView.classList.remove('active');
+        registerView.classList.add('active');
+      }
+
+      // Clear errors
+      document.getElementById('loginError').textContent = '';
+      document.getElementById('loginError').classList.remove('visible');
+      document.getElementById('registerError').textContent = '';
+      document.getElementById('registerError').classList.remove('visible');
+    }
+
+    // ===== LOGIN =====
+    function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const errorEl = document.getElementById('loginError');
+      const isEn = document.documentElement.lang === 'en';
+
+      const users = JSON.parse(localStorage.getItem('usf_users') || '[]');
+      const user = users.find(u => u.email === email && u.password === password);
+
+      if (!user) {
+        errorEl.textContent = isEn ? 'Invalid email or password.' : 'Neispravna email adresa ili lozinka.';
+        errorEl.classList.add('visible');
+        return;
+      }
+
+      // Update last login
+      user.lastLogin = new Date().toISOString();
+      const idx = users.findIndex(u => u.id === user.id);
+      users[idx] = user;
+      localStorage.setItem('usf_users', JSON.stringify(users));
+      localStorage.setItem('usf_current_user', JSON.stringify(user));
+      window.location.href = 'dashboard.html';
+    }
+
+    // ===== REGISTER =====
+    function handleRegister(e) {
+      e.preventDefault();
+      const isEn = document.documentElement.lang === 'en';
+      const errorEl = document.getElementById('registerError');
+
+      const firstName = document.getElementById('regFirstName').value.trim();
+      const lastName = document.getElementById('regLastName').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const phone = document.getElementById('regPhone').value.trim();
+      const specialization = document.getElementById('regSpecialization').value;
+      const password = document.getElementById('regPassword').value;
+      const passwordConfirm = document.getElementById('regPasswordConfirm').value;
+      const consentStatute = document.getElementById('consentStatute').checked;
+      const consentPrivacy = document.getElementById('consentPrivacy').checked;
+      const consentEmailVal = document.getElementById('consentEmail').checked;
+
+      // Validate
+      if (!firstName || !lastName || !email || !specialization || !password || !passwordConfirm) {
+        errorEl.textContent = isEn ? 'Please fill in all required fields.' : 'Molimo ispunite sva obavezna polja.';
+        errorEl.classList.add('visible');
+        return;
+      }
+
+      if (password.length < 6) {
+        errorEl.textContent = isEn ? 'Password must be at least 6 characters.' : 'Lozinka mora imati najmanje 6 znakova.';
+        errorEl.classList.add('visible');
+        return;
+      }
+
+      if (password !== passwordConfirm) {
+        errorEl.textContent = isEn ? 'Passwords do not match.' : 'Lozinke se ne podudaraju.';
+        errorEl.classList.add('visible');
+        return;
+      }
+
+      if (!consentStatute || !consentPrivacy) {
+        errorEl.textContent = isEn ? 'You must accept the required consents.' : 'Morate prihvatiti obavezne suglasnosti.';
+        errorEl.classList.add('visible');
+        return;
+      }
+
+      const users = JSON.parse(localStorage.getItem('usf_users') || '[]');
+
+      if (users.find(u => u.email === email)) {
+        errorEl.textContent = isEn ? 'This email is already registered.' : 'Ova email adresa je već registrirana.';
+        errorEl.classList.add('visible');
+        return;
+      }
+
+      const maxId = users.length > 0 ? Math.max(...users.map(u => u.id)) : 0;
+      const newUser = {
+        id: maxId + 1,
+        firstName,
+        lastName,
+        email,
+        phone,
+        specialization,
+        password,
+        role: 'user',
+        membershipStatus: 'inactive',
+        membershipExpiry: null,
+        registeredAt: new Date().toISOString(),
+        enrolledEvents: [],
+        attendedEvents: [],
+        payments: [],
+        profileImage: null,
+        lastLogin: null,
+        consentStatute: true,
+        consentPrivacy: true,
+        consentEmail: consentEmailVal
+      };
+
+      users.push(newUser);
+      localStorage.setItem('usf_users', JSON.stringify(users));
+      localStorage.setItem('usf_current_user', JSON.stringify(newUser));
+      window.location.href = 'dashboard.html';
+    }
+
+    // ===== SOCIAL LOGIN (SIMULATED) =====
+    function handleGoogleLogin() {
+      const isEn = document.documentElement.lang === 'en';
+      showToast(isEn ? 'Google login coming soon' : 'Google prijava će biti dostupna uskoro');
+    }
+
+    function handleAppleLogin() {
+      const isEn = document.documentElement.lang === 'en';
+      showToast(isEn ? 'Apple login coming soon' : 'Apple prijava će biti dostupna uskoro');
+    }
+
+    // ===== TOAST =====
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    }
+
+    // ===== LANGUAGE SUPPORT =====
+    function applyLanguage(lang) {
+      document.documentElement.lang = lang;
+      document.querySelectorAll('[data-hr][data-en]').forEach(el => {
+        const text = el.getAttribute('data-' + lang);
+        if (text) {
+          if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+            el.placeholder = text;
+          } else {
+            el.innerHTML = text;
+          }
+        }
+      });
+    }
+
+    function switchLang(lang) {
+      applyLanguage(lang);
+      localStorage.setItem('usf_lang', lang);
+      document.querySelectorAll('.lang-switch button').forEach(function(btn) {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+      });
+    }
+
+    // Check stored language preference
+    const storedLang = localStorage.getItem('usf_lang');
+    if (storedLang) {
+      switchLang(storedLang);
+    }
+
+    // Check if URL has ?mode=register to show register tab directly
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('mode') === 'register') {
+      switchTab('register');
+    }
+
+    // Page loader
+    setTimeout(function() {
+      var loader = document.getElementById('pageLoader');
+      if (loader && !loader.classList.contains('skip')) {
+        loader.classList.add('hide');
+        setTimeout(function(){ loader.style.display='none'; }, 500);
+      }
+    }, 2800);
+  </script>
+</body>
+</html>

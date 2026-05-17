@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="#fff">
+  <polygon points="100,15 185,100 100,185 15,100" fill="none" stroke="#fff" stroke-width="6"/>
+  <polygon points="100,35 165,100 100,165 35,100" fill="none" stroke="#fff" stroke-width="3"/>
+  <text x="100" y="95" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" font-weight="bold" fill="#fff">GNK</text>
+  <text x="100" y="118" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="bold" fill="#fff">DINAMO</text>
+</svg>

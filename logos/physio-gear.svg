@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="#ffffff">
+  <!-- Gear/cog -->
+  <path d="M100 30 L108 30 L112 45 L120 47 L130 35 L137 40 L132 55 L138 60 L152 53 L156 60 L144 70 L147 78 L163 78 L163 86 L147 90 L145 98 L158 105 L155 113 L140 110 L135 116 L142 130 L136 135 L125 122 L118 125 L118 142 L110 142 L108 125 L100 123 L94 140 L86 138 L88 122 L80 118 L70 132 L64 127 L72 115 L67 108 L52 113 L48 106 L62 97 L60 90 L44 88 L44 80 L60 76 L62 68 L48 60 L52 53 L66 58 L72 52 L66 38 L73 34 L82 47 L90 45 L92 30Z"/>
+  <!-- Center hole -->
+  <circle cx="100" cy="88" r="22" fill="black" opacity="0.3"/>
+  <circle cx="100" cy="88" r="18" fill="none" stroke="#ffffff" stroke-width="4"/>
+  <circle cx="100" cy="88" r="8"/>
+</svg>

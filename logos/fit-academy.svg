@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="#ffffff">
+  <!-- Person silhouette -->
+  <circle cx="90" cy="55" r="18"/>
+  <path d="M70 80 C70 80 65 130 65 140 Q65 155 80 155 L100 155 Q115 155 115 140 C115 130 110 80 110 80 Q100 75 90 75 Q80 75 70 80Z"/>
+  <!-- Play button triangle -->
+  <path d="M120 85 L155 110 L120 135Z"/>
+</svg>

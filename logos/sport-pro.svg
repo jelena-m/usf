@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="#ffffff">
+  <!-- Shield -->
+  <path d="M100 25 L160 50 L160 110 C160 145 130 170 100 180 C70 170 40 145 40 110 L40 50Z"/>
+  <!-- Star inside (cutout effect using darker fill) -->
+  <path d="M100 60 L110 85 L137 85 L115 102 L123 127 L100 112 L77 127 L85 102 L63 85 L90 85Z" fill="#000000" opacity="0.3"/>
+  <path d="M100 65 L108 85 L130 85 L112 99 L119 120 L100 107 L81 120 L88 99 L70 85 L92 85Z"/>
+</svg>

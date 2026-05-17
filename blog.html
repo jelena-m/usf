@@ -3,161 +3,681 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <title>Blog — USF</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;700;800&family=Instrument+Sans:wght@400;500;600;700&display=swap');
+
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body { font-family: 'Outfit', sans-serif; background: #080808; color: #fff; line-height: 1.2; }
+    html { overflow-x: hidden; }
+    body {
+      font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #080808;
+      color: #ffffff;
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    h1, h2, h3 { font-family: 'Bricolage Grotesque', sans-serif; }
     a { text-decoration: none; color: inherit; }
-    ::selection { background: #1028FF; color: #fff; }
+    ::selection { background: #3B5BFF; color: #fff; }
 
+    :root {
+      --blue: #3B5BFF;
+      --blue-hover: #2A45E0;
+      --card: rgba(255,255,255,0.03);
+      --card-border: rgba(255,255,255,0.06);
+      --card-hover: rgba(255,255,255,0.06);
+      --text-muted: rgba(255,255,255,0.35);
+      --text-faint: rgba(255,255,255,0.2);
+    }
+
+    /* ===== NAV ===== */
+    .nav-wrapper {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      background: linear-gradient(180deg, rgba(8,8,8,0.95) 0%, rgba(8,8,8,0) 100%);
+      transition: all 0.5s ease;
+    }
+    .nav-wrapper.scrolled {
+      background: rgba(8,8,8,0.97);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--card-border);
+    }
     .nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-      padding: 20px 40px; display: flex; justify-content: space-between; align-items: center;
-      background: rgba(10,10,10,0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 24px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: padding 0.5s ease;
     }
-    .nav-logo { display: flex; align-items: center; height: 24px; }
+    .nav-wrapper.scrolled .nav { padding: 16px 48px; }
+    .nav-logo { height: 24px; }
     .nav-logo svg { height: 100%; width: auto; }
-    .nav-links { display: flex; gap: 32px; align-items: center; list-style: none; }
-    .nav-links a { font-size: 0.88rem; font-weight: 400; color: rgba(255,255,255,0.55); transition: color 0.3s; }
+    .nav-right { display: flex; align-items: center; gap: 36px; }
+    .nav-links { display: flex; gap: 28px; list-style: none; }
+    .nav-links a { font-size: 0.85rem; font-weight: 400; color: rgba(255,255,255,0.55); transition: color 0.3s; letter-spacing: 0.2px; }
     .nav-links a:hover { color: #fff; }
-    .nav-cta { background: #1028FF; color: #fff !important; padding: 10px 20px; border-radius: 50px; font-weight: 400; font-size: 0.88rem; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; }
-    .nav-cta:hover { background: #0c1ecc; transform: translateY(-1px); box-shadow: 0 8px 30px rgba(16,40,255,0.35); }
-
-    .page-hero {
-      padding: 140px 40px 60px;
-      max-width: 1400px; margin: 0 auto;
+    .nav-links a.active { color: #fff; }
+    .nav-auth { display: flex; align-items: center; gap: 10px; }
+    .nav-auth-login-btn {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 0.82rem; font-weight: 600;
+      color: #fff; background: var(--blue);
+      border: none; border-radius: 6px;
+      cursor: pointer; transition: all 0.3s;
+      text-decoration: none; padding: 10px 20px;
+      display: inline-flex; align-items: center;
     }
-    .page-hero .section-label { font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; color: #1028FF; margin-bottom: 16px; }
-    .page-hero h1 { font-size: clamp(2.6rem, 5vw, 4rem); font-weight: 400; letter-spacing: -1px; line-height: 1; margin-bottom: 12px; }
-    .page-hero p { font-size: 0.95rem; color: rgba(255,255,255,0.5); max-width: 600px; font-weight: 400; line-height: 1.4; }
+    .nav-auth-login-btn:hover { background: var(--blue-hover); }
+    .nav-profile-circle {
+      width: 34px; height: 34px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 0.72rem; font-weight: 700; color: #fff;
+      background: var(--blue); overflow: hidden;
+      transition: all 0.3s; text-decoration: none;
+      border: 2px solid transparent;
+    }
+    .nav-profile-circle:hover { border-color: rgba(255,255,255,0.3); }
+    .nav-profile-circle img { width: 100%; height: 100%; object-fit: cover; }
+    .lang-switch { display: flex; align-items: center; gap: 0; background: rgba(255,255,255,0.08); border-radius: 6px; padding: 3px; border: 1px solid rgba(255,255,255,0.1); }
+    .lang-switch button { background: none; border: none; color: rgba(255,255,255,0.4); padding: 6px 10px; cursor: pointer; font-family: inherit; font-size: 0.72rem; font-weight: 600; letter-spacing: 1px; transition: all 0.3s; display: flex; align-items: center; gap: 6px; border-radius: 4px; }
+    .lang-switch button.active { background: rgba(255,255,255,0.15); color: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+    .lang-switch button:hover { color: #fff; }
+    .lang-flag { width: 18px; height: 13px; border-radius: 2px; display: inline-block; overflow: hidden; flex-shrink: 0; }
+    .menu-toggle { display: none; background: none; border: none; cursor: pointer; width: 28px; height: 20px; position: relative; }
+    .menu-toggle span { display: block; width: 100%; height: 2px; background: #fff; position: absolute; left: 0; transition: 0.3s; }
+    .menu-toggle span:nth-child(1) { top: 0; }
+    .menu-toggle span:nth-child(2) { top: 9px; }
+    .menu-toggle span:nth-child(3) { top: 18px; }
+    .menu-toggle.open span:nth-child(1) { top: 9px; transform: rotate(45deg); }
+    .menu-toggle.open span:nth-child(2) { opacity: 0; }
+    .menu-toggle.open span:nth-child(3) { top: 9px; transform: rotate(-45deg); }
 
+    /* ===== PAGE CONTENT ===== */
+    .page-hero {
+      padding: 140px 48px 60px;
+      max-width: 1300px; margin: 0 auto;
+    }
+    .section-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 3.5px; color: var(--blue); margin-bottom: 16px; }
+    .page-hero h1 { font-size: clamp(2.6rem, 5vw, 4rem); font-weight: 400; letter-spacing: -1px; line-height: 1; }
+
+    /* ===== FILTERS BAR ===== */
+    .filters-bar {
+      max-width: 1300px; margin: 0 auto; padding: 0 48px 24px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .admin-search-input, .admin-filter-select, .admin-filter-date {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px; color: #fff; font-size: 14px; padding: 10px 14px; height: 42px;
+      font-family: 'Instrument Sans', sans-serif; outline: none; transition: border-color 0.2s, background 0.2s;
+    }
+    .admin-search-input { min-width: 180px; max-width: 240px; }
+    .admin-search-input::placeholder { color: rgba(255,255,255,0.3); }
+    .admin-search-input:focus, .admin-filter-select:focus, .admin-filter-date:focus {
+      border-color: var(--blue); background-color: rgba(59,91,255,0.06);
+    }
+    .admin-filter-select {
+      cursor: pointer; padding-right: 36px;
+      appearance: none; -webkit-appearance: none; -moz-appearance: none;
+      background: rgba(255,255,255,0.04) url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(255,255,255,0.5)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 14px center;
+    }
+    .admin-filter-select option { background: #1a1a1a; color: #fff; }
+
+    /* ===== PAGINATION ===== */
+    .admin-pagination {
+      max-width: 1300px; margin: 0 auto; padding: 0 48px 80px;
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+    }
+    .admin-pagination button {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.5); border-radius: 6px; padding: 6px 10px;
+      font-size: 13px; cursor: pointer; min-width: 32px;
+      transition: background 0.15s, border-color 0.15s; font-family: inherit;
+    }
+    .admin-pagination button:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .admin-pagination button.active { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.2); color: #fff; }
+    .admin-pagination button:disabled { opacity: 0.3; cursor: default; }
+
+    /* ===== BLOG LISTING ===== */
     .blog-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px;
-      max-width: 1400px; margin: 0 auto; padding: 0 40px 100px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px;
+      max-width: 1300px; margin: 0 auto; padding: 0 48px 32px;
     }
     .blog-card {
-      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 16px; overflow: hidden; transition: all 0.4s ease;
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: 6px; overflow: hidden; transition: all 0.4s ease;
+      display: block;
     }
-    .blog-card:hover { background: rgba(255,255,255,0.06); transform: translateY(-4px); }
-    .blog-thumb { height: 220px; background-size: cover; background-position: center; }
+    .blog-card:hover { background: var(--card-hover); transform: translateY(-4px); }
+    .blog-thumb { height: 200px; background-size: cover; background-position: center; }
     .blog-body { padding: 24px; }
-    .blog-body .cat { font-size: 0.75rem; font-weight: 400; color: #1028FF; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
-    .blog-body h3 { font-size: 1.2rem; font-weight: 400; margin-bottom: 12px; line-height: 1.2; letter-spacing: -0.5px; }
-    .blog-body p { color: rgba(255,255,255,0.5); font-size: 0.88rem; margin-bottom: 16px; line-height: 1.4; }
-    .blog-body .meta { font-size: 0.8rem; color: #fff; margin-bottom: 16px; }
-    .blog-body .read-link { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 400; color: #1028FF; transition: gap 0.3s; }
-    .blog-body .read-link:hover { gap: 10px; }
+    .blog-body .cat { font-size: 0.72rem; font-weight: 400; color: var(--blue); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; }
+    .blog-body h3 { font-size: 1.15rem; font-weight: 400; margin-bottom: 6px; line-height: 1.2; letter-spacing: -0.5px; }
+    .blog-body .excerpt { font-size: 0.85rem; color: rgba(255,255,255,0.45); line-height: 1.5; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .blog-body .meta { font-size: 0.8rem; color: rgba(255,255,255,0.5); }
 
-    .footer { border-top: 1px solid rgba(255,255,255,0.06); padding: 40px; max-width: 1400px; margin: 0 auto; }
-    .footer-bottom { display: flex; justify-content: space-between; font-size: 0.8rem; color: rgba(255,255,255,0.25); }
+    /* ===== ARTICLE DETAIL VIEW ===== */
+    .article-view { display: none; }
+    .article-view.active { display: block; }
+    .article-hero { position: relative; width: 100%; height: 420px; overflow: hidden; }
+    .article-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .article-hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, #080808 0%, rgba(8,8,8,0.4) 50%, rgba(8,8,8,0.2) 100%); }
+    .article-body { max-width: 800px; margin: -80px auto 0; padding: 0 48px 60px; position: relative; z-index: 2; }
+    .article-cat { font-size: 0.72rem; font-weight: 400; color: var(--blue); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+    .article-title { font-size: clamp(2.2rem, 4.5vw, 3.2rem); font-weight: 400; letter-spacing: -1px; line-height: 1.1; margin-bottom: 16px; }
+    .article-meta { font-size: 0.85rem; color: rgba(255,255,255,0.5); margin-bottom: 40px; }
+    .article-content p { font-size: 1rem; color: rgba(255,255,255,0.7); line-height: 1.8; margin-bottom: 20px; }
+    .article-content h2 { font-size: 1.4rem; font-weight: 400; margin: 40px 0 16px; letter-spacing: -0.5px; }
 
+    /* ===== RELATED BLOGS ===== */
+    .related-blogs { max-width: 1300px; margin: 0 auto; padding: 40px 48px 100px; }
+    .related-blogs h2 { font-size: clamp(2.2rem, 4.5vw, 3.2rem); font-weight: 400; letter-spacing: -1px; line-height: 1; margin-bottom: 32px; }
+    .related-blogs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      border-top: 1px solid var(--card-border);
+      padding: 56px 48px 28px; max-width: 1300px; margin: 0 auto;
+    }
+    .footer-grid { display: grid; grid-template-columns: 1fr 1fr auto; gap: 64px; margin-bottom: 48px; }
+    .footer-col h4 { font-size: 0.75rem; font-weight: 400; text-transform: uppercase; letter-spacing: 2.5px; color: var(--text-muted); margin-bottom: 16px; }
+    .footer-col p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+    .footer-col ul { list-style: none; }
+    .footer-col-nav ul { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+    .footer-col ul li { margin-bottom: 11px; font-size: 0.88rem; color: var(--text-muted); }
+    .footer-col ul li a { font-size: 0.88rem; color: var(--text-muted); transition: color 0.3s; }
+    .footer-col ul li a:hover { color: var(--blue); }
+    .footer-bottom {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 20px; border-top: 1px solid var(--card-border);
+      font-size: 0.78rem; color: var(--text-faint);
+    }
+    .footer-bottom a { color: var(--text-faint); transition: color 0.3s; }
+    .footer-bottom a:hover { color: var(--blue); }
+
+    /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
       .nav { padding: 16px 20px; }
-      .nav-links { display: none; }
+      .nav-wrapper.scrolled .nav { padding: 16px 20px; }
+      .nav-right .nav-links {
+        display: none !important;
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(8,8,8,0.98);
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 32px;
+        z-index: 9999;
+      }
+      .nav-right .nav-links.show { display: flex !important; }
+      .nav-right .nav-links li { list-style: none; }
+      .nav-right .nav-links li a { font-size: 1.4rem; color: rgba(255,255,255,0.8); padding: 12px 24px; display: block; }
+      .menu-toggle { display: block; z-index: 10000; position: relative; }
       .page-hero { padding: 100px 16px 40px; }
       .page-hero h1 { font-size: 2rem; }
-      .blog-grid { padding: 0 16px 60px; grid-template-columns: 1fr; }
-      .blog-body { padding: 20px; }
-      .footer { padding: 30px 16px; }
-      .footer-bottom { flex-direction: column; gap: 8px; }
-      .nav-cta { padding: 8px 16px; font-size: 0.8rem; }
+      .filters-bar { padding: 0 16px 16px; }
+      .blog-grid { padding: 0 16px 32px; grid-template-columns: 1fr; }
+      .admin-pagination { padding: 0 16px 60px; }
+      .article-hero { height: 260px; }
+      .article-body { margin-top: -60px; padding: 0 16px 40px; }
+      .related-blogs { padding: 40px 16px 60px; }
+      .related-blogs-grid { grid-template-columns: 1fr; }
+      .footer { padding: 40px 16px 20px; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
     }
   </style>
 </head>
 <body>
 
+  <!-- NAV -->
+  <div class="nav-wrapper" id="navbar">
   <nav class="nav">
     <a href="index.html" class="nav-logo">
       <svg width="50" height="24" viewBox="0 0 50 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M49.7738 4.31636L42.0684 4.95287L41.8768 8.25898L49.5822 7.58349L49.356 11.8998L41.6506 12.5753L41.2208 21.0053L35.8397 21.4874L36.7292 5.43369L27.0818 6.19803C26.3994 6.26961 26.2083 6.30437 25.8923 6.40624C25.5394 6.51634 25.2728 6.68022 25.094 6.89573C24.9152 7.11179 24.8146 7.36621 24.793 7.65491C24.7679 7.8914 24.8397 8.12208 24.9257 8.31948C25.0187 8.51114 25.1723 8.68926 25.3826 8.85486C25.593 9.0138 25.8647 9.16305 26.1982 9.30275C26.5322 9.44261 26.9315 9.57448 27.3953 9.69539L28.9956 10.1269C30.0752 10.4153 30.9945 10.7683 31.7518 11.1879C32.5091 11.6076 33.1216 12.0884 33.5892 12.6281C34.0572 13.1615 34.3899 13.7528 34.5878 14.4008C34.7919 15.0488 34.8782 15.7484 34.8453 16.4998C34.7709 17.797 34.3883 18.8797 33.6988 19.7452C33.0094 20.6105 32.0565 21.1271 30.8375 21.5333C29.6258 21.9394 26.5168 22.1313 26.5111 22.1317C26.5111 22.1317 15.2865 23.0198 10.7197 23.3748C10.1194 23.473 9.48793 23.521 8.82536 23.5189C8.82346 23.519 8.8222 23.5192 8.82166 23.5192V23.5189C8.59995 23.5181 8.37475 23.5121 8.14607 23.5001C6.44395 23.4109 4.96929 23.0373 3.72206 22.3794C2.47516 21.715 1.52387 20.8182 0.868127 19.6889C0.219151 18.5535 -0.065976 17.2344 0.0127857 15.7314L0.619679 4.05953L6.00202 3.57365L5.39386 15.5496C5.36188 16.1598 5.46823 16.7129 5.71275 17.2087C5.95761 17.6982 6.31057 18.0902 6.77172 18.3849C7.23932 18.6799 7.77828 18.8434 8.38848 18.8754C9.00508 18.9077 9.55809 18.8014 10.0475 18.5566C10.537 18.3117 10.929 17.9587 11.2237 17.4975C11.5187 17.0299 11.6823 16.491 11.7143 15.8809L12.3746 3.02502L17.7324 2.55151L17.0469 16.6241C17.0111 17.3079 16.9027 17.9459 16.7223 18.5382C21.375 18.1801 26.4588 17.7876 26.6641 17.773C27.3172 17.7088 27.7198 17.7183 28.1126 17.5972C28.505 17.4761 28.8078 17.2956 29.0199 17.0558C29.2322 16.8157 29.3486 16.5338 29.3719 16.213C29.3811 15.911 29.296 15.6417 29.1152 15.407C28.941 15.1662 28.6429 14.9446 28.2224 14.7424C27.8018 14.5336 27.2288 14.3311 26.5053 14.1322L24.5624 13.6053C22.8353 13.1347 21.4905 12.429 20.5286 11.4898C19.5735 10.5445 19.0973 9.28733 19.1845 7.7462C19.2438 6.49344 19.6356 5.41565 20.3592 4.51327C21.0894 3.60513 22.0682 2.91909 23.2965 2.45544C24.479 2.01178 25.6752 1.99987 27.2921 1.87661L40.2368 0.844721L50 0L49.7738 4.31636Z" fill="white"/></svg>
     </a>
-    <ul class="nav-links">
-      <li><a href="index.html#about">O nama</a></li>
-      <li><a href="index.html#fizioterapija">Fizioterapija</a></li>
-      <li><a href="index.html#edukacije">Edukacije</a></li>
-      <li><a href="blog.html" style="color:#fff;">Blog</a></li>
-      <li><a href="index.html#kontakt">Kontakt</a></li>
-      <li><a href="uclani-se.html" class="nav-cta">Učlani se</a></li>
-    </ul>
+    <div class="nav-right">
+      <ul class="nav-links">
+        <li><a href="index.html#about"><span data-hr="O nama" data-en="About">O nama</span></a></li>
+        <li><a href="index.html#ekspertiza"><span data-hr="Ekspertiza" data-en="Expertise">Ekspertiza</span></a></li>
+        <li><a href="index.html#fizioterapija"><span data-hr="Fizioterapija" data-en="Physiotherapy">Fizioterapija</span></a></li>
+        <li><a href="index.html#edukacije"><span data-hr="Edukacije" data-en="Education">Edukacije</span></a></li>
+        <li><a href="blog.html" class="active"><span data-hr="Blog" data-en="Blog">Blog</span></a></li>
+        <li><a href="index.html#clanstvo"><span data-hr="Članstvo" data-en="Membership">Članstvo</span></a></li>
+        <li><a href="index.html#kontakt"><span data-hr="Kontakt" data-en="Contact">Kontakt</span></a></li>
+      </ul>
+      <button class="menu-toggle" onclick="var nl=document.querySelector('.nav-links');nl.classList.toggle('show');this.classList.toggle('open')" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="lang-switch">
+        <button class="active" data-lang="hr" onclick="switchLang('hr')"><svg class="lang-flag" viewBox="0 0 640 480"><rect width="640" height="160" fill="#FF0000"/><rect y="160" width="640" height="160" fill="#FFFFFF"/><rect y="320" width="640" height="160" fill="#171796"/><rect x="240" y="80" width="160" height="200" rx="0" ry="80" fill="#FF0000" stroke="#fff" stroke-width="4"/><g fill="#fff"><rect x="256" y="96" width="32" height="32"/><rect x="320" y="96" width="32" height="32"/><rect x="384" y="96" width="32" height="32"/><rect x="288" y="128" width="32" height="32"/><rect x="352" y="128" width="32" height="32"/><rect x="256" y="160" width="32" height="32"/><rect x="320" y="160" width="32" height="32"/><rect x="384" y="160" width="32" height="32"/><rect x="288" y="192" width="32" height="32"/><rect x="352" y="192" width="32" height="32"/><rect x="256" y="224" width="32" height="32"/><rect x="320" y="224" width="32" height="32"/><rect x="384" y="224" width="32" height="32"/></g></svg></button>
+        <button data-lang="en" onclick="switchLang('en')"><svg class="lang-flag" viewBox="0 0 640 480"><rect width="640" height="480" fill="#012169"/><path d="M0 0l640 480M640 0L0 480" stroke="#fff" stroke-width="60"/><path d="M0 0l640 480M640 0L0 480" stroke="#C8102E" stroke-width="40"/><path d="M320 0v480M0 240h640" stroke="#fff" stroke-width="100"/><path d="M320 0v480M0 240h640" stroke="#C8102E" stroke-width="60"/></svg></button>
+      </div>
+      <div class="nav-auth" id="navAuth">
+        <a href="login.html" class="nav-auth-login-btn"><span data-hr="Pridruži se" data-en="Join now">Pridruži se</span></a>
+      </div>
+    </div>
   </nav>
+  </div>
 
-  <div class="page-hero">
+  <!-- BLOG LISTING -->
+  <div id="blogListing">
+    <div class="page-hero">
+      <div class="section-label">Blog</div>
+      <h1><span data-hr="Stručni sadržaji i najnovija istraživanja" data-en="Expert content and latest research">Stručni sadržaji i najnovija istraživanja</span></h1>
+    </div>
+
+    <div class="filters-bar">
+      <input type="text" class="admin-search-input" id="blogSearch" oninput="currentPage=1;renderBlogGrid()" placeholder="Pretraži članke..." data-placeholder-hr="Pretraži članke..." data-placeholder-en="Search articles...">
+      <select id="filterCategory" class="admin-filter-select" onchange="currentPage=1;renderBlogGrid()">
+        <option value="" data-hr="Sve kategorije" data-en="All categories">Sve kategorije</option>
+        <option value="Prevencija" data-hr="Prevencija" data-en="Prevention">Prevencija</option>
+        <option value="Rehabilitacija" data-hr="Rehabilitacija" data-en="Rehabilitation">Rehabilitacija</option>
+        <option value="Vijesti" data-hr="Vijesti" data-en="News">Vijesti</option>
+        <option value="Znanost" data-hr="Znanost" data-en="Science">Znanost</option>
+        <option value="Praksa" data-hr="Praksa" data-en="Practice">Praksa</option>
+        <option value="Edukacija" data-hr="Edukacija" data-en="Education">Edukacija</option>
+      </select>
+    </div>
+
+    <div class="blog-grid" id="blogGrid"></div>
+    <div class="admin-pagination" id="blogPagination"></div>
+  </div>
+
+
+  <!-- ARTICLE DETAIL VIEW -->
+  <div class="article-view" id="articleView">
+    <div id="articleContent"></div>
+  </div>
+
+  <!-- RELATED BLOGS (shown when viewing an article) -->
+  <div class="related-blogs" id="relatedBlogs" style="display:none;">
     <div class="section-label">Blog</div>
-    <h1>Stručni sadržaji</h1>
-    <p>Pratite naše članke iz svijeta sportske fizioterapije — pisani od stručnjaka, za stručnjake i cijelu zajednicu.</p>
+    <h2><span data-hr="Ostali članci" data-en="Other articles">Ostali članci</span></h2>
+    <div class="related-blogs-grid" id="relatedBlogsGrid"></div>
   </div>
 
-  <div class="blog-grid">
-    <div class="blog-card">
-      <div class="blog-thumb" style="background-image: url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop');"></div>
-      <div class="blog-body">
-        <div class="cat">Prevencija</div>
-        <h3>Prevencija ozljeda prednjeg križnog ligamenta kod sportaša</h3>
-        <div class="meta">15. ožujka 2026.</div>
-        <p>ACL ozljede su među najučestalijim i najkompleksnijim ozljedama u sportu. Istražujemo najnovije preventivne protokole...</p>
-        <a href="#" class="read-link">Pročitaj više &rarr;</a>
-      </div>
-    </div>
-    <div class="blog-card">
-      <div class="blog-thumb" style="background-image: url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&h=400&fit=crop');"></div>
-      <div class="blog-body">
-        <div class="cat">Rehabilitacija</div>
-        <h3>Moderna rehabilitacija nakon operacije ramena</h3>
-        <div class="meta">8. ožujka 2026.</div>
-        <p>Novi pristupi u postoperativnoj rehabilitaciji ramena kod sportaša s naglaskom na rani povratak funkcionalnim aktivnostima...</p>
-        <a href="#" class="read-link">Pročitaj više &rarr;</a>
-      </div>
-    </div>
-    <div class="blog-card">
-      <div class="blog-thumb" style="background-image: url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&h=400&fit=crop');"></div>
-      <div class="blog-body">
-        <div class="cat">Vijesti</div>
-        <h3>Najava: Godišnja konferencija USF 2026</h3>
-        <div class="meta">1. ožujka 2026.</div>
-        <p>Sve informacije o nadolazećoj konferenciji sportskih fizioterapeuta koja će se održati u Zagrebu u rujnu...</p>
-        <a href="#" class="read-link">Pročitaj više &rarr;</a>
-      </div>
-    </div>
-    <div class="blog-card">
-      <div class="blog-thumb" style="background-image: url('https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=600&h=400&fit=crop');"></div>
-      <div class="blog-body">
-        <div class="cat">Znanost</div>
-        <h3>Uloga ekscentričnog treninga u prevenciji tendinopatija</h3>
-        <div class="meta">20. veljače 2026.</div>
-        <p>Pregled literature o učinkovitosti ekscentričnog treninga u prevenciji i liječenju tendinopatija kod sportaša...</p>
-        <a href="#" class="read-link">Pročitaj više &rarr;</a>
-      </div>
-    </div>
-    <div class="blog-card">
-      <div class="blog-thumb" style="background-image: url('https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=600&h=400&fit=crop');"></div>
-      <div class="blog-body">
-        <div class="cat">Praksa</div>
-        <h3>Taping tehnike u sportskoj fizioterapiji</h3>
-        <div class="meta">12. veljače 2026.</div>
-        <p>Praktični vodič kroz najčešće korištene taping tehnike u sportu — od klasičnog atletskog tapinga do kineziotapinga...</p>
-        <a href="#" class="read-link">Pročitaj više &rarr;</a>
-      </div>
-    </div>
-    <div class="blog-card">
-      <div class="blog-thumb" style="background-image: url('https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=600&h=400&fit=crop');"></div>
-      <div class="blog-body">
-        <div class="cat">Edukacija</div>
-        <h3>Return-to-sport testiranje: Što svaki fizioterapeut treba znati</h3>
-        <div class="meta">5. veljače 2026.</div>
-        <p>Sveobuhvatan pregled kriterija i testova za siguran povratak sportaša aktivnostima nakon ozljede...</p>
-        <a href="#" class="read-link">Pročitaj više &rarr;</a>
-      </div>
-    </div>
-  </div>
-
+  <!-- FOOTER -->
   <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-col"><h4>USF</h4><p><span data-hr="Prva hrvatska udruga posvećena isključivo sportskoj fizioterapiji osnovana 2026. Okupljamo stručnjake, educiramo zajednicu i podižemo standarde profesije." data-en="Croatia's first association dedicated exclusively to sports physiotherapy, founded in 2026. We gather experts, educate the community, and raise professional standards.">Prva hrvatska udruga posvećena isključivo sportskoj fizioterapiji osnovana 2026. Okupljamo stručnjake, educiramo zajednicu i podižemo standarde profesije.</span></p></div>
+      <div class="footer-col footer-col-nav"><h4><span data-hr="Navigacija" data-en="Navigation">Navigacija</span></h4><ul><li><a href="index.html#about"><span data-hr="O nama" data-en="About">O nama</span></a></li><li><a href="index.html#ekspertiza"><span data-hr="Ekspertiza" data-en="Expertise">Ekspertiza</span></a></li><li><a href="index.html#fizioterapija"><span data-hr="Fizioterapija" data-en="Physiotherapy">Fizioterapija</span></a></li><li><a href="index.html#edukacije"><span data-hr="Edukacije" data-en="Education">Edukacije</span></a></li><li><a href="blog.html"><span data-hr="Blog" data-en="Blog">Blog</span></a></li><li><a href="index.html#clanstvo"><span data-hr="Članstvo" data-en="Membership">Članstvo</span></a></li><li><a href="index.html#kontakt"><span data-hr="Kontakt" data-en="Contact">Kontakt</span></a></li></ul></div>
+      <div class="footer-col"><h4><span data-hr="Kontakt" data-en="Contact">Kontakt</span></h4><ul><li>info@usf.hr</li><li>+385 99 123 4567</li><li><span data-hr="Zagreb, Hrvatska" data-en="Zagreb, Croatia">Zagreb, Hrvatska</span></li></ul></div>
+    </div>
     <div class="footer-bottom">
-      <span>&copy; 2026 Udruga sportskih fizioterapeuta. Sva prava pridržana.</span>
-      <span><a href="index.html" style="color: #1028FF;">&larr; Povratak na naslovnicu</a></span>
+      <span><span data-hr="&copy; 2026 Udruga sportskih fizioterapeuta" data-en="&copy; 2026 Association of Sports Physiotherapists">&copy; 2026 Udruga sportskih fizioterapeuta</span></span>
+      <span><span data-hr="Dizajn:" data-en="Design:">Dizajn:</span> <a href="https://www.jelenamandic.com/" target="_blank">Jelena Mandić</a></span>
     </div>
   </footer>
+
+  <script>
+    // Blog articles data
+    var blogArticles = [
+      {
+        id: 1,
+        cat_hr: 'Prevencija', cat_en: 'Prevention',
+        title_hr: 'Prevencija ozljeda prednjeg križnog ligamenta kod sportaša',
+        title_en: 'ACL injury prevention in athletes',
+        date_hr: '15. ožujka 2026.', date_en: 'March 15, 2026',
+        image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&h=400&fit=crop',
+        excerpt_hr: 'ACL ozljede su među najučestalijim i najkompleksnijim ozljedama u sportu. Istražujemo najnovije preventivne protokole...',
+        excerpt_en: 'ACL injuries are among the most common and complex injuries in sports. We explore the latest preventive protocols...',
+        content_hr: '<p>Ozljede prednjeg križnog ligamenta (ACL) jedan su od najvećih izazova u sportskoj medicini. Svake godine tisuće sportaša prolaze kroz dugotrajnu rehabilitaciju nakon ove ozljede, a mnogi se nikada ne vrate na prijašnju razinu izvedbe.</p><h2>Zašto je prevencija ključna</h2><p>Istraživanja pokazuju da se do 70% ACL ozljeda događa bez kontakta s drugim igračem — prilikom doskoka, promjene smjera ili deceleracije. To znači da postoji značajan prostor za preventivne intervencije.</p><p>Programi neuromuskularne kontrole, poput FIFA 11+ programa, pokazali su smanjenje rizika od ACL ozljeda za 50-70% kod sportaša koji ih redovito provode.</p><h2>Ključni elementi prevencije</h2><p>Moderni preventivni programi uključuju vježbe ravnoteže, pliometriju s naglaskom na pravilnu biomehaniku doskoka, jačanje hamstringsa i glutealne muskulature, te proprioceptivni trening.</p><p>Sportski fizioterapeut igra ključnu ulogu u implementaciji ovih programa, prilagođavajući ih specifičnim zahtjevima sporta i individualnim potrebama sportaša.</p>',
+        content_en: '<p>Anterior cruciate ligament (ACL) injuries are one of the greatest challenges in sports medicine. Every year, thousands of athletes undergo lengthy rehabilitation after this injury, and many never return to their previous performance level.</p><h2>Why prevention is key</h2><p>Research shows that up to 70% of ACL injuries occur without contact with another player — during landing, change of direction, or deceleration. This means there is significant room for preventive interventions.</p><p>Neuromuscular control programs, such as the FIFA 11+ program, have shown a 50-70% reduction in ACL injury risk for athletes who regularly perform them.</p><h2>Key elements of prevention</h2><p>Modern prevention programs include balance exercises, plyometrics with emphasis on proper landing biomechanics, hamstring and gluteal strengthening, and proprioceptive training.</p><p>The sports physiotherapist plays a crucial role in implementing these programs, adapting them to the specific demands of the sport and individual athlete needs.</p>'
+      },
+      {
+        id: 2,
+        cat_hr: 'Rehabilitacija', cat_en: 'Rehabilitation',
+        title_hr: 'Moderna rehabilitacija nakon operacije ramena',
+        title_en: 'Modern rehabilitation after shoulder surgery',
+        date_hr: '8. ožujka 2026.', date_en: 'March 8, 2026',
+        image: 'https://images.unsplash.com/photo-1588286840104-8957b019727f?w=800&h=400&fit=crop',
+        excerpt_hr: 'Novi pristupi u postoperativnoj rehabilitaciji ramena kod sportaša s naglaskom na rani povratak funkcionalnim aktivnostima...',
+        excerpt_en: 'New approaches in postoperative shoulder rehabilitation for athletes with emphasis on early return to functional activities...',
+        content_hr: '<p>Rehabilitacija ramena nakon operacije doživjela je značajne promjene u posljednjem desetljeću. Tradicionalni konzervativni pristup s dugim periodom imobilizacije zamjenjuje se aktivnijim protokolima koji potiču raniju mobilizaciju.</p><h2>Faze rehabilitacije</h2><p>Moderna rehabilitacija prolazi kroz jasno definirane faze: zaštitna faza s kontroliranom mobilizacijom, faza oporavka pokreta, faza jačanja i konačno faza povratka sportu.</p><p>Svaka faza ima jasne kriterije za napredovanje, što osigurava siguran i učinkovit oporavak.</p><h2>Značaj individualizacije</h2><p>Svaki sportaš ima jedinstvene zahtjeve ovisno o sportu kojim se bavi. Plivač ima drugačije potrebe od bacača ili gimnastičara, i program se mora prilagoditi tim specifičnostima.</p>',
+        content_en: '<p>Shoulder rehabilitation after surgery has undergone significant changes in the last decade. The traditional conservative approach with long immobilization periods is being replaced by more active protocols that encourage earlier mobilization.</p><h2>Rehabilitation phases</h2><p>Modern rehabilitation goes through clearly defined phases: protective phase with controlled mobilization, range of motion recovery phase, strengthening phase, and finally return to sport phase.</p><p>Each phase has clear progression criteria, ensuring safe and effective recovery.</p><h2>Importance of individualization</h2><p>Each athlete has unique requirements depending on their sport. A swimmer has different needs than a thrower or gymnast, and the program must be adapted to these specifics.</p>'
+      },
+      {
+        id: 3,
+        cat_hr: 'Vijesti', cat_en: 'News',
+        title_hr: 'Najava: Godišnja konferencija USF 2026',
+        title_en: 'Announcement: USF Annual Conference 2026',
+        date_hr: '1. ožujka 2026.', date_en: 'March 1, 2026',
+        image: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=800&h=400&fit=crop',
+        excerpt_hr: 'Sve informacije o nadolazećoj konferenciji sportskih fizioterapeuta koja će se održati u Zagrebu u rujnu...',
+        excerpt_en: 'All information about the upcoming sports physiotherapy conference to be held in Zagreb in September...',
+        content_hr: '<p>S ponosom najavljujemo prvu godišnju konferenciju Udruge sportskih fizioterapeuta koja će se održati 15. i 16. rujna 2026. u Kongresnom centru u Zagrebu.</p><h2>Program konferencije</h2><p>Dvodnevni program uključuje predavanja domaćih i međunarodnih stručnjaka, praktične radionice i panel diskusije o aktualnim temama u sportskoj fizioterapiji.</p><p>Među potvrđenim predavačima su vodeći stručnjaci iz područja prevencije ozljeda, rehabilitacije i sportske znanosti.</p><h2>Registracija</h2><p>Konferencija je besplatna za članove USF-a. Za nečlanove, rana registracija je otvorena do 1. kolovoza 2026. po povlaštenoj cijeni.</p>',
+        content_en: '<p>We are proud to announce the first annual conference of the Association of Sports Physiotherapists, to be held on September 15-16, 2026 at the Congress Center in Zagreb.</p><h2>Conference program</h2><p>The two-day program includes lectures by domestic and international experts, practical workshops, and panel discussions on current topics in sports physiotherapy.</p><p>Confirmed speakers include leading experts in injury prevention, rehabilitation, and sports science.</p><h2>Registration</h2><p>The conference is free for USF members. For non-members, early registration is open until August 1, 2026 at a discounted rate.</p>'
+      },
+      {
+        id: 4,
+        cat_hr: 'Znanost', cat_en: 'Science',
+        title_hr: 'Uloga ekscentričnog treninga u prevenciji tendinopatija',
+        title_en: 'The role of eccentric training in tendinopathy prevention',
+        date_hr: '20. veljače 2026.', date_en: 'February 20, 2026',
+        image: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=800&h=400&fit=crop',
+        excerpt_hr: 'Pregled literature o učinkovitosti ekscentričnog treninga u prevenciji i liječenju tendinopatija kod sportaša...',
+        excerpt_en: 'A literature review on the effectiveness of eccentric training in preventing and treating tendinopathies in athletes...',
+        content_hr: '<p>Tendinopatije predstavljaju značajan udio kroničnih ozljeda kod sportaša. Ekscentrični trening pokazao se kao jedna od najučinkovitijih metoda u prevenciji i liječenju ovih stanja.</p><h2>Mehanizam djelovanja</h2><p>Ekscentrično opterećenje stimulira remodeliranje tetivnog tkiva, povećava sintezu kolagena i poboljšava mehaničke karakteristike tetive. Ovi učinci dovode do jačeg i otpornijeg tkiva.</p><p>Protokoli poput Alfredsonovog za Ahilovu tetivu i programa za patelarnu tetivu pokazali su izvrsne rezultate u kliničkim istraživanjima.</p><h2>Praktična primjena</h2><p>Ključno je pravilno doziranje opterećenja i progresija programa. Sportski fizioterapeut mora uzeti u obzir fazu tendinopatije, razinu boli i funkcionalne zahtjeve sportaša.</p>',
+        content_en: '<p>Tendinopathies represent a significant proportion of chronic injuries in athletes. Eccentric training has proven to be one of the most effective methods in preventing and treating these conditions.</p><h2>Mechanism of action</h2><p>Eccentric loading stimulates tendon tissue remodeling, increases collagen synthesis, and improves mechanical properties of the tendon. These effects lead to stronger and more resilient tissue.</p><p>Protocols like the Alfredson protocol for Achilles tendon and patellar tendon programs have shown excellent results in clinical research.</p><h2>Practical application</h2><p>Proper load dosing and program progression are key. The sports physiotherapist must consider the tendinopathy stage, pain level, and functional demands of the athlete.</p>'
+      },
+      {
+        id: 5,
+        cat_hr: 'Praksa', cat_en: 'Practice',
+        title_hr: 'Taping tehnike u sportskoj fizioterapiji',
+        title_en: 'Taping techniques in sports physiotherapy',
+        date_hr: '12. veljače 2026.', date_en: 'February 12, 2026',
+        image: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=800&h=400&fit=crop',
+        excerpt_hr: 'Praktični vodič kroz najčešće korištene taping tehnike u sportu — od klasičnog atletskog tapinga do kineziotapinga...',
+        excerpt_en: 'A practical guide to the most commonly used taping techniques in sports — from classic athletic taping to kinesiotaping...',
+        content_hr: '<p>Taping je jedna od temeljnih vještina sportskog fizioterapeuta. Pravilno postavljeni tapovi mogu pružiti podršku ozlijeđenim strukturama, smanjiti bol i omogućiti sportašu sigurno sudjelovanje u aktivnosti.</p><h2>Vrste tapinga</h2><p>Razlikujemo rigidni (atletski) taping koji pruža maksimalnu podršku i ograničava pokret, elastični taping koji dopušta funkcionalan pokret uz podršku, te kineziotaping koji utječe na propriocepciju i cirkulaciju.</p><p>Svaka tehnika ima svoje indikacije i kontraindikacije koje fizioterapeut mora dobro poznavati.</p><h2>Evidencija</h2><p>Dok je za rigidni taping gležnja evidencija jasna, za kineziotaping rezultati istraživanja su mješoviti. Ipak, klinička praksa pokazuje korist u određenim situacijama, posebno za smanjenje otekline i olakšanje boli.</p>',
+        content_en: '<p>Taping is one of the fundamental skills of a sports physiotherapist. Properly applied tape can provide support to injured structures, reduce pain, and enable the athlete to safely participate in activity.</p><h2>Types of taping</h2><p>We distinguish between rigid (athletic) taping that provides maximum support and restricts movement, elastic taping that allows functional movement with support, and kinesiotaping that affects proprioception and circulation.</p><p>Each technique has its indications and contraindications that the physiotherapist must know well.</p><h2>Evidence</h2><p>While evidence for rigid ankle taping is clear, kinesiotaping research results are mixed. However, clinical practice shows benefit in certain situations, especially for reducing swelling and alleviating pain.</p>'
+      },
+      {
+        id: 6,
+        cat_hr: 'Edukacija', cat_en: 'Education',
+        title_hr: 'Return-to-sport testiranje: Što svaki fizioterapeut treba znati',
+        title_en: 'Return-to-sport testing: What every physiotherapist needs to know',
+        date_hr: '5. veljače 2026.', date_en: 'February 5, 2026',
+        image: 'https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?w=800&h=400&fit=crop',
+        excerpt_hr: 'Sveobuhvatan pregled kriterija i testova za siguran povratak sportaša aktivnostima nakon ozljede...',
+        excerpt_en: 'A comprehensive overview of criteria and tests for safe athlete return to activities after injury...',
+        content_hr: '<p>Odluka o povratku sportaša na teren jedna je od najvažnijih i najkompleksnijih odluka u sportskoj fizioterapiji. Return-to-sport (RTS) testiranje pruža objektivan okvir za donošenje ove odluke.</p><h2>Baterija testova</h2><p>Moderna RTS baterija uključuje testove snage (izokinetiku), hop testove za procjenu funkcije, testove ravnoteže i propriocepcije, te psihološku procjenu spremnosti.</p><p>Kriterij asimetrije manji od 10% između ozlijeđene i zdrave strane smatra se minimumom za siguran povratak.</p><h2>Kontekst sporta</h2><p>RTS testiranje mora uzeti u obzir specifične zahtjeve sporta. Nogometaš ima drugačije zahtjeve od plivača, i testovi se moraju prilagoditi tim potrebama.</p>',
+        content_en: '<p>The decision to return an athlete to the field is one of the most important and complex decisions in sports physiotherapy. Return-to-sport (RTS) testing provides an objective framework for making this decision.</p><h2>Test battery</h2><p>A modern RTS battery includes strength tests (isokinetics), hop tests for function assessment, balance and proprioception tests, and psychological readiness assessment.</p><p>An asymmetry criterion of less than 10% between the injured and healthy side is considered the minimum for safe return.</p><h2>Sport context</h2><p>RTS testing must consider the specific demands of the sport. A footballer has different requirements than a swimmer, and tests must be adapted to those needs.</p>'
+      },
+      {
+        id: 7,
+        cat_hr: 'Prevencija', cat_en: 'Prevention',
+        title_hr: 'Upravljanje opterećenjem kod mladih sportaša',
+        title_en: 'Load management in young athletes',
+        date_hr: '28. siječnja 2026.', date_en: 'January 28, 2026',
+        image: 'https://images.unsplash.com/photo-1517963879433-6ad2b056d712?w=800&h=400&fit=crop',
+        excerpt_hr: 'Kako pravilno dozirati trening kod adolescenata i prevenirati ozljede preopterećenja u razvoju...',
+        excerpt_en: 'How to properly dose training in adolescents and prevent overuse injuries during development...',
+        content_hr: '<p>Mladi sportaši imaju jedinstvene fiziološke karakteristike koje zahtijevaju poseban pristup planiranju opterećenja. Ploče rasta, nezrela muskulatura i brzi razvoj čine ih posebno osjetljivima na ozljede preopterećenja.</p><h2>Principi upravljanja opterećenjem</h2><p>Ključna pravila uključuju postepeno povećavanje intenziteta (pravilo 10%), praćenje omjera akutnog i kroničnog opterećenja, te osiguravanje dovoljnog odmora između treninga.</p><p>Monitoring subjektivnog osjećaja umora i kvalitete sna također su važni parametri.</p><h2>Uloga fizioterapeuta</h2><p>Sportski fizioterapeut pomaže u edukaciji trenera i roditelja o važnosti upravljanja opterećenjem, te u ranom prepoznavanju znakova preopterećenja.</p>',
+        content_en: '<p>Young athletes have unique physiological characteristics that require a special approach to load planning. Growth plates, immature musculature, and rapid development make them particularly susceptible to overuse injuries.</p><h2>Load management principles</h2><p>Key rules include gradual intensity increases (the 10% rule), monitoring acute-to-chronic workload ratio, and ensuring adequate rest between training sessions.</p><p>Monitoring subjective fatigue levels and sleep quality are also important parameters.</p><h2>Role of the physiotherapist</h2><p>The sports physiotherapist helps educate coaches and parents about the importance of load management, and in early recognition of overload signs.</p>'
+      },
+      {
+        id: 8,
+        cat_hr: 'Rehabilitacija', cat_en: 'Rehabilitation',
+        title_hr: 'Rehabilitacija nakon rupture Ahilove tetive',
+        title_en: 'Rehabilitation after Achilles tendon rupture',
+        date_hr: '20. siječnja 2026.', date_en: 'January 20, 2026',
+        image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&h=400&fit=crop',
+        excerpt_hr: 'Usporedba konzervativnog i operativnog pristupa te protokoli rane mobilizacije za brži oporavak...',
+        excerpt_en: 'Comparison of conservative and surgical approaches and early mobilization protocols for faster recovery...',
+        content_hr: '<p>Ruptura Ahilove tetive je devastirajuća ozljeda koja značajno utječe na sportsku karijeru. Moderni rehabilitacijski protokoli naglašavaju ranu kontroliranu mobilizaciju i funkcionalni pristup.</p><h2>Operativno vs. konzervativno</h2><p>Najnovija istraživanja pokazuju da konzervativni pristup s funkcionalnom rehabilitacijom može postići slične rezultate kao operativni, uz manji rizik od komplikacija.</p><p>Ključ je rana mobilizacija s progresivnim opterećenjem tetive.</p><h2>Faze oporavka</h2><p>Rehabilitacija traje 9-12 mjeseci i uključuje progresiju od zaštićene mobilizacije do potpunog povratka sportu s kriterijima za napredovanje u svakoj fazi.</p>',
+        content_en: '<p>Achilles tendon rupture is a devastating injury that significantly affects athletic careers. Modern rehabilitation protocols emphasize early controlled mobilization and a functional approach.</p><h2>Surgical vs. conservative</h2><p>Latest research shows that conservative management with functional rehabilitation can achieve similar outcomes to surgery, with lower complication risk.</p><p>The key is early mobilization with progressive tendon loading.</p><h2>Recovery phases</h2><p>Rehabilitation lasts 9-12 months and includes progression from protected mobilization to full return to sport with criteria for advancement at each phase.</p>'
+      },
+      {
+        id: 9,
+        cat_hr: 'Znanost', cat_en: 'Science',
+        title_hr: 'Blood flow restriction trening u rehabilitaciji',
+        title_en: 'Blood flow restriction training in rehabilitation',
+        date_hr: '10. siječnja 2026.', date_en: 'January 10, 2026',
+        image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=400&fit=crop',
+        excerpt_hr: 'Pregled dokaza o učinkovitosti BFR treninga u ranoj fazi rehabilitacije za održavanje mišićne mase...',
+        excerpt_en: 'A review of evidence on BFR training effectiveness in early rehabilitation for maintaining muscle mass...',
+        content_hr: '<p>Blood flow restriction (BFR) trening revolucionarna je metoda koja omogućuje postizanje hipertrofijskih učinaka s niskim opterećenjima. To ga čini idealnim za ranu fazu rehabilitacije.</p><h2>Mehanizam djelovanja</h2><p>Djelomično ograničenje venskog povrata krvi tijekom vježbe s niskim opterećenjem stvara metabolički stres koji stimulira mišićni rast sličan onome koji se postiže s visokim opterećenjima.</p><p>Opterećenja od samo 20-30% 1RM dovoljno su za postizanje hipertrofije.</p><h2>Klinička primjena</h2><p>BFR je posebno koristan nakon operacija koljena, kod tendinopatija i u svim situacijama gdje visoko opterećenje nije moguće ili poželjno.</p>',
+        content_en: '<p>Blood flow restriction (BFR) training is a revolutionary method that enables hypertrophic effects with low loads. This makes it ideal for early rehabilitation phases.</p><h2>Mechanism of action</h2><p>Partial restriction of venous blood return during low-load exercise creates metabolic stress that stimulates muscle growth similar to that achieved with high loads.</p><p>Loads of only 20-30% 1RM are sufficient to achieve hypertrophy.</p><h2>Clinical application</h2><p>BFR is particularly useful after knee surgery, for tendinopathies, and in all situations where high loading is not possible or desirable.</p>'
+      },
+      {
+        id: 10,
+        cat_hr: 'Vijesti', cat_en: 'News',
+        title_hr: 'USF potpisao suradnju s Kineziološkim fakultetom',
+        title_en: 'USF signed collaboration with Faculty of Kinesiology',
+        date_hr: '3. siječnja 2026.', date_en: 'January 3, 2026',
+        image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&h=400&fit=crop',
+        excerpt_hr: 'Nova suradnja otvorit će mogućnosti za zajedničke istraživačke projekte i stručnu praksu studenata...',
+        excerpt_en: 'New collaboration will open opportunities for joint research projects and student internships...',
+        content_hr: '<p>Udruga sportskih fizioterapeuta potpisala je memorandum o suradnji s Kineziološkim fakultetom Sveučilišta u Zagrebu. Ova suradnja predstavlja važan korak u povezivanju akademske zajednice i prakse.</p><h2>Područja suradnje</h2><p>Suradnja obuhvaća zajedničke istraživačke projekte u području sportske rehabilitacije, organizaciju stručne prakse za studente, te zajednička predavanja i radionice.</p><p>Planira se i razvoj novih dijagnostičkih protokola temeljenih na najnovijim znanstvenim spoznajama.</p><h2>Koristi za članove</h2><p>Članovi USF-a imat će pristup najnovijim istraživačkim rezultatima i mogućnost sudjelovanja u istraživačkim projektima.</p>',
+        content_en: '<p>The Association of Sports Physiotherapists signed a memorandum of collaboration with the Faculty of Kinesiology at the University of Zagreb. This collaboration represents an important step in connecting academia with practice.</p><h2>Areas of collaboration</h2><p>The collaboration encompasses joint research projects in sports rehabilitation, organizing student internships, and joint lectures and workshops.</p><p>Development of new diagnostic protocols based on the latest scientific findings is also planned.</p><h2>Benefits for members</h2><p>USF members will have access to the latest research results and opportunities to participate in research projects.</p>'
+      },
+      {
+        id: 11,
+        cat_hr: 'Praksa', cat_en: 'Practice',
+        title_hr: 'Dry needling u sportskoj fizioterapiji: Indikacije i tehnike',
+        title_en: 'Dry needling in sports physiotherapy: Indications and techniques',
+        date_hr: '22. prosinca 2025.', date_en: 'December 22, 2025',
+        image: 'https://images.unsplash.com/photo-1519824145371-296894a0daa9?w=800&h=400&fit=crop',
+        excerpt_hr: 'Sve što trebate znati o primjeni dry needlinga u tretmanu trigger točaka i miofascijalne boli kod sportaša...',
+        excerpt_en: 'Everything you need to know about applying dry needling in treating trigger points and myofascial pain in athletes...',
+        content_hr: '<p>Dry needling postaje sve popularnija tehnika u sportskoj fizioterapiji za tretman miofascijalne boli i trigger točaka. Ispravna primjena zahtijeva dobro poznavanje anatomije i palpacijskih vještina.</p><h2>Indikacije</h2><p>Najčešće indikacije uključuju aktivne trigger točke, miofascijalni bolni sindrom, tendinopatije i mišićne spazme koji ne reagiraju na konvencionalne metode.</p><p>Posebno je učinkovit kod sportaša s kroničnom mišićnom napetošću.</p><h2>Tehnike primjene</h2><p>Razlikujemo superficijalni i duboki dry needling. Izbor tehnike ovisi o lokaciji trigger točke, debljini tkiva i osjetljivosti pacijenta.</p>',
+        content_en: '<p>Dry needling is becoming an increasingly popular technique in sports physiotherapy for treating myofascial pain and trigger points. Proper application requires good knowledge of anatomy and palpation skills.</p><h2>Indications</h2><p>The most common indications include active trigger points, myofascial pain syndrome, tendinopathies, and muscle spasms that do not respond to conventional methods.</p><p>It is particularly effective in athletes with chronic muscle tension.</p><h2>Application techniques</h2><p>We distinguish between superficial and deep dry needling. The choice of technique depends on trigger point location, tissue thickness, and patient sensitivity.</p>'
+      },
+      {
+        id: 12,
+        cat_hr: 'Edukacija', cat_en: 'Education',
+        title_hr: 'Kako postati certificirani sportski fizioterapeut u Hrvatskoj',
+        title_en: 'How to become a certified sports physiotherapist in Croatia',
+        date_hr: '15. prosinca 2025.', date_en: 'December 15, 2025',
+        image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&h=400&fit=crop',
+        excerpt_hr: 'Vodič kroz edukacijske puteve, certifikacije i specijalizacije dostupne sportskim fizioterapeutima u Hrvatskoj...',
+        excerpt_en: 'A guide through educational paths, certifications and specializations available to sports physiotherapists in Croatia...',
+        content_hr: '<p>Sportska fizioterapija postaje sve traženija specijalizacija u Hrvatskoj. Evo pregleda mogućnosti za stručno usavršavanje i certificiranje u ovom području.</p><h2>Osnovni preduvjeti</h2><p>Potrebna je završena preddiplomska ili diplomska razina studija fizioterapije, te iskustvo u radu sa sportašima. USF nudi strukturirani program za pripremu kandidata.</p><p>Međunarodni certifikati poput IFSPT sportskog fizioterapeuta dodatno podižu razinu stručnosti.</p><h2>Kontinuirano usavršavanje</h2><p>Održavanje certifikacije zahtijeva redovito stručno usavršavanje, pohađanje konferencija i edukacija, te sudjelovanje u mentorskim programima.</p>',
+        content_en: '<p>Sports physiotherapy is becoming an increasingly sought-after specialization in Croatia. Here is an overview of professional development and certification opportunities in this field.</p><h2>Basic prerequisites</h2><p>A completed undergraduate or graduate degree in physiotherapy is required, along with experience working with athletes. USF offers a structured program for candidate preparation.</p><p>International certifications such as IFSPT sports physiotherapist further elevate expertise levels.</p><h2>Continuing education</h2><p>Maintaining certification requires regular professional development, attending conferences and courses, and participating in mentorship programs.</p>'
+      }
+    ];
+
+    var currentLang = localStorage.getItem('usf_lang') || 'hr';
+    var currentPage = 1;
+    var perPage = 6;
+
+    function getFilteredArticles() {
+      var search = (document.getElementById('blogSearch').value || '').toLowerCase().trim();
+      var category = document.getElementById('filterCategory') ? document.getElementById('filterCategory').value : '';
+
+      return blogArticles.filter(function(article) {
+        // Search filter
+        if (search) {
+          var title = (currentLang === 'en' ? article.title_en : article.title_hr).toLowerCase();
+          var excerpt = (currentLang === 'en' ? article.excerpt_en : article.excerpt_hr).toLowerCase();
+          var cat = (currentLang === 'en' ? article.cat_en : article.cat_hr).toLowerCase();
+          if (title.indexOf(search) === -1 && excerpt.indexOf(search) === -1 && cat.indexOf(search) === -1) return false;
+        }
+        // Category filter
+        if (category && article.cat_hr !== category) return false;
+        return true;
+      });
+    }
+
+    function renderBlogGrid() {
+      var grid = document.getElementById('blogGrid');
+      var filtered = getFilteredArticles();
+      var totalPages = Math.ceil(filtered.length / perPage);
+      if (currentPage > totalPages) currentPage = totalPages || 1;
+      var start = (currentPage - 1) * perPage;
+      var pageItems = filtered.slice(start, start + perPage);
+
+      var html = '';
+      if (pageItems.length === 0) {
+        html = '<div style="grid-column:1/-1;text-align:center;padding:48px 20px;color:rgba(255,255,255,0.4);font-size:0.95rem;">' +
+          (currentLang === 'en' ? 'No articles found.' : 'Nisu pronađeni članci.') + '</div>';
+      } else {
+        pageItems.forEach(function(article) {
+          var cat = currentLang === 'en' ? article.cat_en : article.cat_hr;
+          var title = currentLang === 'en' ? article.title_en : article.title_hr;
+          var date = currentLang === 'en' ? article.date_en : article.date_hr;
+          var excerpt = currentLang === 'en' ? article.excerpt_en : article.excerpt_hr;
+          html += '<a href="blog.html?id=' + article.id + '" class="blog-card" onclick="event.preventDefault();showArticle(' + article.id + ')">' +
+            '<div class="blog-thumb" style="background-image: url(\'' + article.image + '\');"></div>' +
+            '<div class="blog-body">' +
+            '<div class="cat">' + cat + '</div>' +
+            '<h3>' + title + '</h3>' +
+            '<p class="excerpt">' + excerpt + '</p>' +
+            '<div class="meta">' + date + '</div>' +
+            '</div></a>';
+        });
+      }
+      grid.innerHTML = html;
+      // Save page in URL hash so refresh keeps position but fresh navigation starts at page 1
+      if (currentPage > 1) {
+        history.replaceState(null, '', window.location.pathname + window.location.search + '#page=' + currentPage);
+      } else {
+        if (window.location.hash.indexOf('page=') !== -1) history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+      renderPagination(totalPages);
+    }
+
+    function renderPagination(totalPages) {
+      var el = document.getElementById('blogPagination');
+      if (totalPages <= 1) { el.innerHTML = ''; return; }
+      var html = '';
+      html += '<button ' + (currentPage <= 1 ? 'disabled' : 'onclick="currentPage--;renderBlogGrid();window.scrollTo(0,0)"') + '>&lsaquo;</button>';
+      for (var i = 1; i <= totalPages; i++) {
+        html += '<button class="' + (i === currentPage ? 'active' : '') + '" onclick="currentPage=' + i + ';renderBlogGrid();window.scrollTo(0,0)">' + i + '</button>';
+      }
+      html += '<button ' + (currentPage >= totalPages ? 'disabled' : 'onclick="currentPage++;renderBlogGrid();window.scrollTo(0,0)"') + '>&rsaquo;</button>';
+      el.innerHTML = html;
+    }
+
+
+    function showArticle(id, skipPush) {
+      var article = blogArticles.find(function(a) { return a.id === id; });
+      if (!article) return;
+
+      var lang = currentLang;
+      var cat = lang === 'en' ? article.cat_en : article.cat_hr;
+      var title = lang === 'en' ? article.title_en : article.title_hr;
+      var date = lang === 'en' ? article.date_en : article.date_hr;
+      var content = lang === 'en' ? article.content_en : article.content_hr;
+
+      var html = '<div class="article-hero"><img src="' + article.image + '" alt="' + title + '"><div class="article-hero-overlay"></div></div>' +
+        '<div class="article-body">' +
+        '<div class="article-cat">' + cat + '</div>' +
+        '<h1 class="article-title">' + title + '</h1>' +
+        '<div class="article-meta">' + date + '</div>' +
+        '<div class="article-content">' + content + '</div>' +
+        '</div>';
+
+      document.getElementById('articleContent').innerHTML = html;
+      document.getElementById('blogListing').style.display = 'none';
+      document.getElementById('articleView').classList.add('active');
+
+      // Render related blogs
+      var related = blogArticles.filter(function(a) { return a.id !== id; }).slice(0, 3);
+      var relGrid = document.getElementById('relatedBlogsGrid');
+      relGrid.innerHTML = related.map(function(a) {
+        var rCat = lang === 'en' ? a.cat_en : a.cat_hr;
+        var rTitle = lang === 'en' ? a.title_en : a.title_hr;
+        var rDate = lang === 'en' ? a.date_en : a.date_hr;
+        var rExcerpt = lang === 'en' ? a.excerpt_en : a.excerpt_hr;
+        return '<a href="blog.html?id=' + a.id + '" class="blog-card" onclick="event.preventDefault();showArticle(' + a.id + ')">' +
+          '<div class="blog-thumb" style="background-image:url(' + a.image + ')"></div>' +
+          '<div class="blog-body">' +
+            '<div class="cat">' + rCat + '</div>' +
+            '<h3>' + rTitle + '</h3>' +
+            '<p class="excerpt">' + rExcerpt + '</p>' +
+            '<div class="meta">' + rDate + '</div>' +
+          '</div>' +
+        '</a>';
+      }).join('');
+      document.getElementById('relatedBlogs').style.display = 'block';
+
+      window.scrollTo(0, 0);
+      if (!skipPush) {
+        history.pushState({ id: id }, '', 'blog.html?id=' + id);
+      }
+    }
+
+    function showListing() {
+      document.getElementById('blogListing').style.display = 'block';
+      document.getElementById('articleView').classList.remove('active');
+      document.getElementById('relatedBlogs').style.display = 'none';
+      window.scrollTo(0, 0);
+    }
+
+    // Handle URL params on load
+    (function() {
+      var params = new URLSearchParams(window.location.search);
+      var id = params.get('id');
+      // Restore page from hash on refresh
+      var hashMatch = window.location.hash.match(/page=(\d+)/);
+      if (hashMatch) currentPage = parseInt(hashMatch[1]) || 1;
+      renderBlogGrid();
+      if (id) {
+        showArticle(parseInt(id), true);
+      }
+    })();
+
+    // Handle back/forward
+    window.addEventListener('popstate', function(e) {
+      var params = new URLSearchParams(window.location.search);
+      var id = params.get('id');
+      if (id) {
+        showArticle(parseInt(id), true);
+      } else {
+        showListing();
+      }
+    });
+
+    // Nav scroll
+    var navWrapper = document.getElementById('navbar');
+    window.addEventListener('scroll', function() { navWrapper.classList.toggle('scrolled', window.scrollY > 80); });
+
+    // Nav auth
+    (function() {
+      var raw = localStorage.getItem('usf_current_user');
+      if (raw) {
+        try {
+          var user = JSON.parse(raw);
+          var auth = document.getElementById('navAuth');
+          if (auth && user) {
+            var ini = ((user.firstName||'')[0]||'') + ((user.lastName||'')[0]||'');
+            if (user.profileImage) {
+              auth.innerHTML = '<a href="dashboard.html" class="nav-profile-circle" title="Moj profil"><img src="' + user.profileImage + '" alt=""></a>';
+            } else {
+              auth.innerHTML = '<a href="dashboard.html" class="nav-profile-circle" title="Moj profil">' + ini + '</a>';
+            }
+          }
+        } catch(e) {}
+      }
+    })();
+
+    // Language
+    function switchLang(lang) {
+      currentLang = lang;
+      document.documentElement.lang = lang;
+      localStorage.setItem('usf_lang', lang);
+      document.querySelectorAll('[data-hr]').forEach(function(el) {
+        el.textContent = el.getAttribute('data-' + lang);
+      });
+      document.querySelectorAll('[data-placeholder-hr]').forEach(function(el) {
+        el.placeholder = el.getAttribute('data-placeholder-' + lang);
+      });
+      document.querySelectorAll('.lang-switch button').forEach(function(btn) {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+      });
+      // Update select option text
+      document.querySelectorAll('select option[data-hr]').forEach(function(opt) {
+        opt.textContent = opt.getAttribute('data-' + lang);
+      });
+      // Re-render content
+      var params = new URLSearchParams(window.location.search);
+      var id = params.get('id');
+      renderBlogGrid();
+      if (id) showArticle(parseInt(id), true);
+    }
+    (function() {
+      var saved = localStorage.getItem('usf_lang');
+      if (saved && saved !== 'hr') switchLang(saved);
+    })();
+
+    // Mobile nav close on link click
+    document.querySelectorAll('.nav-links a').forEach(function(a) {
+      a.addEventListener('click', function() {
+        document.querySelector('.nav-links').classList.remove('show');
+        document.querySelector('.menu-toggle').classList.remove('open');
+      });
+    });
+  </script>
 
 </body>
 </html>

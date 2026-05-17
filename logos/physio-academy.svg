@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="#ffffff">
+  <!-- Book shape -->
+  <path d="M40 150 L40 50 Q100 40 100 50 L100 150 Q100 140 40 150Z"/>
+  <path d="M160 150 L160 50 Q100 40 100 50 L100 150 Q100 140 160 150Z"/>
+  <!-- Spine curve on book -->
+  <path d="M95 60 C85 80 85 100 95 120" stroke="#ffffff" stroke-width="4" fill="none"/>
+  <path d="M90 70 C80 90 80 110 90 130" stroke="#ffffff" stroke-width="3" fill="none" opacity="0.6"/>
+  <!-- Vertebrae dots -->
+  <circle cx="95" cy="70" r="3" fill="#ffffff" opacity="0.8"/>
+  <circle cx="92" cy="85" r="3" fill="#ffffff" opacity="0.8"/>
+  <circle cx="90" cy="100" r="3" fill="#ffffff" opacity="0.8"/>
+  <circle cx="92" cy="115" r="3" fill="#ffffff" opacity="0.8"/>
+</svg>
