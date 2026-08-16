@@ -5,3 +5,19 @@ _to_delete/
 
 # Interni radni dokument — ne ide u javni repozitorij
 USFHANDOFF.md
+
+# Brand materijali — objavljeni zasebno na jelena-m/usf-smjernice
+USF-Brand-Mockups.html
+USF-Brand-Mockups.pptx
+USF-Logo-Files.zip
+USF-Logo-Files/
+USF_1.svg
+USF_2.svg
+logo.svg
+logos/
+logo-files/
+mockups/
+
+# Ne koristi ih nijedna javna stranica
+admin.html
+email-template.html
