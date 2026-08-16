@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="hr">
+<html lang="hr" class="loading">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,7 +13,7 @@
     html { scroll-behavior: smooth; overflow-x: hidden; }
     body {
       font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #080808;
+      background: #000;
       color: #ffffff;
       line-height: 1.6;
       overflow-x: hidden;
@@ -22,7 +22,7 @@
       display: flex;
       flex-direction: column;
     }
-    h1, h2, h3 { font-family: 'Bricolage Grotesque', sans-serif; }
+    h1, h2, h3, h4 { font-family: 'Bricolage Grotesque', sans-serif; }
     a { text-decoration: none; color: inherit; }
     ::selection { background: #3B5BFF; color: #fff; }
 
@@ -37,13 +37,20 @@
     }
 
     /* PAGE LOADER */
-    .page-loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #080808; display: flex; align-items: center; justify-content: center; z-index: 99999; transition: opacity 0.5s; }
-    .page-loader.hide { opacity: 0; pointer-events: none; }
+    html.loading { overflow: hidden; cursor: none; }
+    html.loading .custom-cursor { display: none; }
+    .page-loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0e0e0e; display: flex; align-items: center; justify-content: center; z-index: 99999; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); transition: clip-path 0.8s cubic-bezier(0.7, 0, 0.3, 1); }
     .page-loader.skip { display: none; }
-    .page-loader svg { width: 80px; height: auto; }
-    .page-loader .logo-bg { fill: rgba(255,255,255,0.08); }
-    .page-loader .logo-fill { fill: #fff; clip-path: inset(100% 0 0 0); animation: fillUp 2.2s ease-out forwards; }
-    @keyframes fillUp { 0% { clip-path: inset(100% 0 0 0); } 100% { clip-path: inset(0% 0 0 0); } }
+    .page-loader svg { width: 100px; height: auto; opacity: 1; }
+    .page-loader .logo-bg { fill: rgba(255,255,255,0.05); }
+    .page-loader .logo-fill { fill: #fff; }
+    .page-loader.crack { clip-path: polygon(0 42%, 100% 58%, 100% 100%, 0 100%); pointer-events: none; box-shadow: 0 -30px 80px rgba(255,255,255,0.2), 0 -6px 30px rgba(255,255,255,0.12); }
+    .page-loader.crack-full { clip-path: polygon(0 110%, 100% 110%, 100% 110%, 0 110%); }
+    .page-loader.done { display: none; }
+    .page-loader-left { position: fixed; top: 0; left: 0; width: 100%; height: 50%; background: #0e0e0e; z-index: 99998; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); transition: clip-path 0.8s cubic-bezier(0.7, 0, 0.3, 1); }
+    .page-loader-left.crack { clip-path: polygon(0 -10%, 100% -10%, 100% 42%, 0 58%); box-shadow: 0 30px 80px rgba(255,255,255,0.2), 0 6px 30px rgba(255,255,255,0.12); }
+    .page-loader-left.done { display: none; }
+    @keyframes logoFadeIn { 0% { opacity: 0; transform: scale(0.85); } 100% { opacity: 1; transform: scale(1); } }
 
     /* NAV */
     .nav {
@@ -74,11 +81,25 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 120px 24px 60px;
+      padding: 72px 24px 72px;
     }
     .form-container {
       width: 100%;
       max-width: 400px;
+    }
+    .auth-head {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+      margin-bottom: 64px;
+    }
+    .auth-logo svg { display: block; }
+    .or-label {
+      text-align: center;
+      margin: 18px 0;
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
     }
 
     /* SWITCH TABS */
@@ -136,29 +157,8 @@
       color: #333;
       border: 1px solid rgba(255,255,255,0.1);
     }
-    .social-btn--apple {
-      background: #000;
-      color: #fff;
-      border: 1px solid rgba(255,255,255,0.15);
-    }
 
     /* DIVIDER */
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 28px;
-    }
-    .divider::before, .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: rgba(255,255,255,0.08);
-    }
-    .divider span {
-      font-size: 13px;
-      color: rgba(255,255,255,0.25);
-    }
 
     /* FORM FIELDS */
     .form-group { margin-bottom: 20px; }
@@ -174,9 +174,9 @@
     }
     .form-input, .form-select {
       width: 100%;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 8px;
+      background: rgba(255,255,255,0.07);
+      border: none;
+      border-radius: 10px;
       padding: 12px 14px;
       color: #fff;
       font-family: 'Instrument Sans', sans-serif;
@@ -186,9 +186,52 @@
     }
     .form-input::placeholder { color: rgba(255,255,255,0.3); }
     .form-input:focus, .form-select:focus {
-      border-color: var(--blue);
-      background: rgba(59, 91, 255, 0.06);
+      background: rgba(255,255,255,0.12);
     }
+
+    /* ===== SEARCHABLE DROPDOWN =====
+       The same control the app uses (.usf-combo): a text field you can type
+       into, a list that narrows as you type, and the native select kept
+       underneath as the record of the value so every existing onchange
+       handler keeps firing. */
+    .usf-combo { position: relative; }
+    /* Search left, filters right — that was an auto margin on the first
+       select, and the select is hidden now, so it moves to the control that
+       stands in for it. The original rule stays for the case where the
+       script never runs. */
+    .filters-bar .usf-combo-host:first-of-type { margin-left: auto; }
+    .usf-combo input {
+      width: 100%; box-sizing: border-box;
+      background: rgba(255,255,255,0.07);
+      border: none; border-radius: 10px;
+      color: #fff; font-size: 14px;
+      font-family: 'Instrument Sans', sans-serif;
+      padding: 12px 14px; padding-right: 32px;
+      outline: none; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .usf-combo input:focus { background: rgba(255,255,255,0.12); }
+    .usf-combo input::placeholder { color: rgba(255,255,255,0.4); }
+    .usf-combo-caret {
+      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; padding: 4px;
+      display: flex; align-items: center;
+    }
+    .usf-combo-list {
+      display: none; position: absolute; left: 0; right: 0; top: calc(100% + 6px);
+      background: #1a1a1a; border-radius: 10px; padding: 6px; z-index: 200;
+      max-height: 260px; overflow-y: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+    }
+    .usf-combo.open .usf-combo-list { display: block; }
+    .usf-combo.drop-up .usf-combo-list { top: auto; bottom: calc(100% + 6px); }
+    .usf-combo-opt {
+      display: block; width: 100%; text-align: left; background: none; border: none;
+      color: rgba(255,255,255,0.6); font-family: inherit; font-size: 13px;
+      padding: 9px 12px; border-radius: 7px; cursor: pointer;
+    }
+    .usf-combo-opt:hover { background: rgba(255,255,255,0.06); color: #fff; }
+    .usf-combo-empty { padding: 10px 12px; font-size: 12.5px; color: rgba(255,255,255,0.35); }
+
     .form-select {
       appearance: none;
       -webkit-appearance: none;
@@ -220,43 +263,6 @@
     .submit-btn:hover { background: var(--blue-hover); transform: translateY(-1px); }
 
     /* MEMBERSHIP PAYMENT INFO */
-    .membership-payment-info {
-      background: rgba(59, 91, 255, 0.08);
-      border: 1px solid rgba(59, 91, 255, 0.2);
-      border-radius: 10px;
-      padding: 20px;
-      margin-top: 24px;
-      margin-bottom: 8px;
-    }
-    .membership-payment-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: rgba(255,255,255,0.7);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 8px;
-    }
-    .membership-payment-header svg { color: var(--blue); }
-    .membership-payment-price {
-      font-family: 'Bricolage Grotesque', sans-serif;
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 8px;
-    }
-    .membership-payment-price span {
-      font-size: 0.9rem;
-      font-weight: 400;
-      color: rgba(255,255,255,0.5);
-    }
-    .membership-payment-desc {
-      font-size: 0.82rem;
-      color: rgba(255,255,255,0.5);
-      line-height: 1.5;
-    }
 
     /* FORGOT PASSWORD LINK */
     .forgot-link {
@@ -352,6 +358,25 @@
     .view { display: none; }
     .view.active { display: block; }
 
+    /* UPLOAD FIELD */
+    .upload-field.has-file .upload-field-icon { color: #22C55E; }
+    .upload-field.has-file .upload-field-text { color: #22C55E; }
+    .upload-field-small.has-file { border-color: #22C55E; background: rgba(34,197,94,0.06); color: #22C55E; }
+    .student-fields .form-label { color: #F59E0B; }
+    .email-verify-section { display: none; margin-top: 8px; }
+    .email-verify-section.visible { display: flex; gap: 8px; align-items: flex-end; }
+    .email-verify-section .form-input { flex: 1; }
+    .verify-btn { padding: 10px 18px; background: var(--blue); color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+    .verify-btn:hover { background: var(--blue-hover); }
+    .verify-btn.verified { background: #22C55E; cursor: default; }
+    /* The field stretches, the button keeps its own width. min-width:0 is
+       what stops a flex child from refusing to shrink below its content. */
+    .field-with-action { display: flex; gap: 8px; align-items: stretch; }
+    .field-with-action .form-input { flex: 1; min-width: 0; }
+    .verify-status { font-size: 12px; margin-top: 4px; display: block; }
+    .verify-status.success { color: #22C55E; }
+    .verify-status.pending { color: #F59E0B; }
+
     /* RESPONSIVE */
     @media (max-width: 600px) {
       .nav { padding: 16px 20px; }
@@ -365,42 +390,43 @@
 <body>
 
   <!-- PAGE LOADER -->
+  <div class="page-loader-left" id="pageLoaderLeft"></div>
   <div class="page-loader" id="pageLoader">
-    <svg width="80" height="38" viewBox="0 0 50 24" xmlns="http://www.w3.org/2000/svg">
+    <svg width="140" height="67" viewBox="0 0 50 24" xmlns="http://www.w3.org/2000/svg">
       <path class="logo-bg" d="M49.7738 4.31636L42.0684 4.95287L41.8768 8.25898L49.5822 7.58349L49.356 11.8998L41.6506 12.5753L41.2208 21.0053L35.8397 21.4874L36.7292 5.43369L27.0818 6.19803C26.3994 6.26961 26.2083 6.30437 25.8923 6.40624C25.5394 6.51634 25.2728 6.68022 25.094 6.89573C24.9152 7.11179 24.8146 7.36621 24.793 7.65491C24.7679 7.8914 24.8397 8.12208 24.9257 8.31948C25.0187 8.51114 25.1723 8.68926 25.3826 8.85486C25.593 9.0138 25.8647 9.16305 26.1982 9.30275C26.5322 9.44261 26.9315 9.57448 27.3953 9.69539L28.9956 10.1269C30.0752 10.4153 30.9945 10.7683 31.7518 11.1879C32.5091 11.6076 33.1216 12.0884 33.5892 12.6281C34.0572 13.1615 34.3899 13.7528 34.5878 14.4008C34.7919 15.0488 34.8782 15.7484 34.8453 16.4998C34.7709 17.797 34.3883 18.8797 33.6988 19.7452C33.0094 20.6105 32.0565 21.1271 30.8375 21.5333C29.6258 21.9394 26.5168 22.1313 26.5111 22.1317C26.5111 22.1317 15.2865 23.0198 10.7197 23.3748C10.1194 23.473 9.48793 23.521 8.82536 23.5189C8.82346 23.519 8.8222 23.5192 8.82166 23.5192V23.5189C8.59995 23.5181 8.37475 23.5121 8.14607 23.5001C6.44395 23.4109 4.96929 23.0373 3.72206 22.3794C2.47516 21.715 1.52387 20.8182 0.868127 19.6889C0.219151 18.5535 -0.065976 17.2344 0.0127857 15.7314L0.619679 4.05953L6.00202 3.57365L5.39386 15.5496C5.36188 16.1598 5.46823 16.7129 5.71275 17.2087C5.95761 17.6982 6.31057 18.0902 6.77172 18.3849C7.23932 18.6799 7.77828 18.8434 8.38848 18.8754C9.00508 18.9077 9.55809 18.8014 10.0475 18.5566C10.537 18.3117 10.929 17.9587 11.2237 17.4975C11.5187 17.0299 11.6823 16.491 11.7143 15.8809L12.3746 3.02502L17.7324 2.55151L17.0469 16.6241C17.0111 17.3079 16.9027 17.9459 16.7223 18.5382C21.375 18.1801 26.4588 17.7876 26.6641 17.773C27.3172 17.7088 27.7198 17.7183 28.1126 17.5972C28.505 17.4761 28.8078 17.2956 29.0199 17.0558C29.2322 16.8157 29.3486 16.5338 29.3719 16.213C29.3811 15.911 29.296 15.6417 29.1152 15.407C28.941 15.1662 28.6429 14.9446 28.2224 14.7424C27.8018 14.5336 27.2288 14.3311 26.5053 14.1322L24.5624 13.6053C22.8353 13.1347 21.4905 12.429 20.5286 11.4898C19.5735 10.5445 19.0973 9.28733 19.1845 7.7462C19.2438 6.49344 19.6356 5.41565 20.3592 4.51327C21.0894 3.60513 22.0682 2.91909 23.2965 2.45544C24.479 2.01178 25.6752 1.99987 27.2921 1.87661L40.2368 0.844721L50 0L49.7738 4.31636Z"/>
       <path class="logo-fill" d="M49.7738 4.31636L42.0684 4.95287L41.8768 8.25898L49.5822 7.58349L49.356 11.8998L41.6506 12.5753L41.2208 21.0053L35.8397 21.4874L36.7292 5.43369L27.0818 6.19803C26.3994 6.26961 26.2083 6.30437 25.8923 6.40624C25.5394 6.51634 25.2728 6.68022 25.094 6.89573C24.9152 7.11179 24.8146 7.36621 24.793 7.65491C24.7679 7.8914 24.8397 8.12208 24.9257 8.31948C25.0187 8.51114 25.1723 8.68926 25.3826 8.85486C25.593 9.0138 25.8647 9.16305 26.1982 9.30275C26.5322 9.44261 26.9315 9.57448 27.3953 9.69539L28.9956 10.1269C30.0752 10.4153 30.9945 10.7683 31.7518 11.1879C32.5091 11.6076 33.1216 12.0884 33.5892 12.6281C34.0572 13.1615 34.3899 13.7528 34.5878 14.4008C34.7919 15.0488 34.8782 15.7484 34.8453 16.4998C34.7709 17.797 34.3883 18.8797 33.6988 19.7452C33.0094 20.6105 32.0565 21.1271 30.8375 21.5333C29.6258 21.9394 26.5168 22.1313 26.5111 22.1317C26.5111 22.1317 15.2865 23.0198 10.7197 23.3748C10.1194 23.473 9.48793 23.521 8.82536 23.5189C8.82346 23.519 8.8222 23.5192 8.82166 23.5192V23.5189C8.59995 23.5181 8.37475 23.5121 8.14607 23.5001C6.44395 23.4109 4.96929 23.0373 3.72206 22.3794C2.47516 21.715 1.52387 20.8182 0.868127 19.6889C0.219151 18.5535 -0.065976 17.2344 0.0127857 15.7314L0.619679 4.05953L6.00202 3.57365L5.39386 15.5496C5.36188 16.1598 5.46823 16.7129 5.71275 17.2087C5.95761 17.6982 6.31057 18.0902 6.77172 18.3849C7.23932 18.6799 7.77828 18.8434 8.38848 18.8754C9.00508 18.9077 9.55809 18.8014 10.0475 18.5566C10.537 18.3117 10.929 17.9587 11.2237 17.4975C11.5187 17.0299 11.6823 16.491 11.7143 15.8809L12.3746 3.02502L17.7324 2.55151L17.0469 16.6241C17.0111 17.3079 16.9027 17.9459 16.7223 18.5382C21.375 18.1801 26.4588 17.7876 26.6641 17.773C27.3172 17.7088 27.7198 17.7183 28.1126 17.5972C28.505 17.4761 28.8078 17.2956 29.0199 17.0558C29.2322 16.8157 29.3486 16.5338 29.3719 16.213C29.3811 15.911 29.296 15.6417 29.1152 15.407C28.941 15.1662 28.6429 14.9446 28.2224 14.7424C27.8018 14.5336 27.2288 14.3311 26.5053 14.1322L24.5624 13.6053C22.8353 13.1347 21.4905 12.429 20.5286 11.4898C19.5735 10.5445 19.0973 9.28733 19.1845 7.7462C19.2438 6.49344 19.6356 5.41565 20.3592 4.51327C21.0894 3.60513 22.0682 2.91909 23.2965 2.45544C24.479 2.01178 25.6752 1.99987 27.2921 1.87661L40.2368 0.844721L50 0L49.7738 4.31636Z"/>
     </svg>
   </div>
   <script>
-    // Loader only on refresh, not on navigation
+    // Loader shows only on very first visit or manual refresh — never on link navigation
     (function() {
       var loader = document.getElementById('pageLoader');
       var navEntries = performance.getEntriesByType('navigation');
-      var isReload = navEntries.length > 0 && navEntries[0].type === 'reload';
-      if (!isReload) {
+      var navType = navEntries.length > 0 ? navEntries[0].type : '';
+      var hasSeenLoader = sessionStorage.getItem('usf_loader_shown');
+      if (navType === 'back_forward' || (navType === 'navigate' && hasSeenLoader)) {
         loader.classList.add('skip');
+        var ll = document.getElementById('pageLoaderLeft');
+        if (ll) ll.classList.add('done');
+        document.documentElement.classList.remove('loading');
+      } else {
+        sessionStorage.setItem('usf_loader_shown', '1');
       }
     })();
   </script>
 
-  <!-- NAV -->
-  <nav class="nav">
-    <a href="index.html" class="nav-logo">
-      <svg width="50" height="24" viewBox="0 0 50 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M49.7738 4.31636L42.0684 4.95287L41.8768 8.25898L49.5822 7.58349L49.356 11.8998L41.6506 12.5753L41.2208 21.0053L35.8397 21.4874L36.7292 5.43369L27.0818 6.19803C26.3994 6.26961 26.2083 6.30437 25.8923 6.40624C25.5394 6.51634 25.2728 6.68022 25.094 6.89573C24.9152 7.11179 24.8146 7.36621 24.793 7.65491C24.7679 7.8914 24.8397 8.12208 24.9257 8.31948C25.0187 8.51114 25.1723 8.68926 25.3826 8.85486C25.593 9.0138 25.8647 9.16305 26.1982 9.30275C26.5322 9.44261 26.9315 9.57448 27.3953 9.69539L28.9956 10.1269C30.0752 10.4153 30.9945 10.7683 31.7518 11.1879C32.5091 11.6076 33.1216 12.0884 33.5892 12.6281C34.0572 13.1615 34.3899 13.7528 34.5878 14.4008C34.7919 15.0488 34.8782 15.7484 34.8453 16.4998C34.7709 17.797 34.3883 18.8797 33.6988 19.7452C33.0094 20.6105 32.0565 21.1271 30.8375 21.5333C29.6258 21.9394 26.5168 22.1313 26.5111 22.1317C26.5111 22.1317 15.2865 23.0198 10.7197 23.3748C10.1194 23.473 9.48793 23.521 8.82536 23.5189C8.82346 23.519 8.8222 23.5192 8.82166 23.5192V23.5189C8.59995 23.5181 8.37475 23.5121 8.14607 23.5001C6.44395 23.4109 4.96929 23.0373 3.72206 22.3794C2.47516 21.715 1.52387 20.8182 0.868127 19.6889C0.219151 18.5535 -0.065976 17.2344 0.0127857 15.7314L0.619679 4.05953L6.00202 3.57365L5.39386 15.5496C5.36188 16.1598 5.46823 16.7129 5.71275 17.2087C5.95761 17.6982 6.31057 18.0902 6.77172 18.3849C7.23932 18.6799 7.77828 18.8434 8.38848 18.8754C9.00508 18.9077 9.55809 18.8014 10.0475 18.5566C10.537 18.3117 10.929 17.9587 11.2237 17.4975C11.5187 17.0299 11.6823 16.491 11.7143 15.8809L12.3746 3.02502L17.7324 2.55151L17.0469 16.6241C17.0111 17.3079 16.9027 17.9459 16.7223 18.5382C21.375 18.1801 26.4588 17.7876 26.6641 17.773C27.3172 17.7088 27.7198 17.7183 28.1126 17.5972C28.505 17.4761 28.8078 17.2956 29.0199 17.0558C29.2322 16.8157 29.3486 16.5338 29.3719 16.213C29.3811 15.911 29.296 15.6417 29.1152 15.407C28.941 15.1662 28.6429 14.9446 28.2224 14.7424C27.8018 14.5336 27.2288 14.3311 26.5053 14.1322L24.5624 13.6053C22.8353 13.1347 21.4905 12.429 20.5286 11.4898C19.5735 10.5445 19.0973 9.28733 19.1845 7.7462C19.2438 6.49344 19.6356 5.41565 20.3592 4.51327C21.0894 3.60513 22.0682 2.91909 23.2965 2.45544C24.479 2.01178 25.6752 1.99987 27.2921 1.87661L40.2368 0.844721L50 0L49.7738 4.31636Z" fill="white"/>
-      </svg>
-    </a>
-    <div class="nav-right">
-      <div class="lang-switch">
-        <button class="active" data-lang="hr" onclick="switchLang('hr')"><svg class="lang-flag" viewBox="0 0 640 480"><rect width="640" height="160" fill="#FF0000"/><rect y="160" width="640" height="160" fill="#FFFFFF"/><rect y="320" width="640" height="160" fill="#171796"/><rect x="240" y="80" width="160" height="200" rx="0" ry="80" fill="#FF0000" stroke="#fff" stroke-width="4"/><g fill="#fff"><rect x="256" y="96" width="32" height="32"/><rect x="320" y="96" width="32" height="32"/><rect x="384" y="96" width="32" height="32"/><rect x="288" y="128" width="32" height="32"/><rect x="352" y="128" width="32" height="32"/><rect x="256" y="160" width="32" height="32"/><rect x="320" y="160" width="32" height="32"/><rect x="384" y="160" width="32" height="32"/><rect x="288" y="192" width="32" height="32"/><rect x="352" y="192" width="32" height="32"/><rect x="256" y="224" width="32" height="32"/><rect x="320" y="224" width="32" height="32"/><rect x="384" y="224" width="32" height="32"/></g></svg></button>
-        <button data-lang="en" onclick="switchLang('en')"><svg class="lang-flag" viewBox="0 0 640 480"><rect width="640" height="480" fill="#012169"/><path d="M0 0l640 480M640 0L0 480" stroke="#fff" stroke-width="60"/><path d="M0 0l640 480M640 0L0 480" stroke="#C8102E" stroke-width="40"/><path d="M320 0v480M0 240h640" stroke="#fff" stroke-width="100"/><path d="M320 0v480M0 240h640" stroke="#C8102E" stroke-width="60"/></svg></button>
-      </div>
-    </div>
-  </nav>
-
   <!-- MAIN -->
   <main class="main-content">
     <div class="form-container">
+
+      <!-- The only two things on this page: who you are signing in to, and
+           the form. The language switch sits with them rather than in a bar
+           of its own. -->
+      <div class="auth-head">
+        <a href="index.html" class="auth-logo"><svg width="84" height="40" viewBox="0 0 50 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M49.7738 4.31636L42.0684 4.95287L41.8768 8.25898L49.5822 7.58349L49.356 11.8998L41.6506 12.5753L41.2208 21.0053L35.8397 21.4874L36.7292 5.43369L27.0818 6.19803C26.3994 6.26961 26.2083 6.30437 25.8923 6.40624C25.5394 6.51634 25.2728 6.68022 25.094 6.89573C24.9152 7.11179 24.8146 7.36621 24.793 7.65491C24.7679 7.8914 24.8397 8.12208 24.9257 8.31948C25.0187 8.51114 25.1723 8.68926 25.3826 8.85486C25.593 9.0138 25.8647 9.16305 26.1982 9.30275C26.5322 9.44261 26.9315 9.57448 27.3953 9.69539L28.9956 10.1269C30.0752 10.4153 30.9945 10.7683 31.7518 11.1879C32.5091 11.6076 33.1216 12.0884 33.5892 12.6281C34.0572 13.1615 34.3899 13.7528 34.5878 14.4008C34.7919 15.0488 34.8782 15.7484 34.8453 16.4998C34.7709 17.797 34.3883 18.8797 33.6988 19.7452C33.0094 20.6105 32.0565 21.1271 30.8375 21.5333C29.6258 21.9394 26.5168 22.1313 26.5111 22.1317C26.5111 22.1317 15.2865 23.0198 10.7197 23.3748C10.1194 23.473 9.48793 23.521 8.82536 23.5189C8.82346 23.519 8.8222 23.5192 8.82166 23.5192V23.5189C8.59995 23.5181 8.37475 23.5121 8.14607 23.5001C6.44395 23.4109 4.96929 23.0373 3.72206 22.3794C2.47516 21.715 1.52387 20.8182 0.868127 19.6889C0.219151 18.5535 -0.065976 17.2344 0.0127857 15.7314L0.619679 4.05953L6.00202 3.57365L5.39386 15.5496C5.36188 16.1598 5.46823 16.7129 5.71275 17.2087C5.95761 17.6982 6.31057 18.0902 6.77172 18.3849C7.23932 18.6799 7.77828 18.8434 8.38848 18.8754C9.00508 18.9077 9.55809 18.8014 10.0475 18.5566C10.537 18.3117 10.929 17.9587 11.2237 17.4975C11.5187 17.0299 11.6823 16.491 11.7143 15.8809L12.3746 3.02502L17.7324 2.55151L17.0469 16.6241C17.0111 17.3079 16.9027 17.9459 16.7223 18.5382C21.375 18.1801 26.4588 17.7876 26.6641 17.773C27.3172 17.7088 27.7198 17.7183 28.1126 17.5972C28.505 17.4761 28.8078 17.2956 29.0199 17.0558C29.2322 16.8157 29.3486 16.5338 29.3719 16.213C29.3811 15.911 29.296 15.6417 29.1152 15.407C28.941 15.1662 28.6429 14.9446 28.2224 14.7424C27.8018 14.5336 27.2288 14.3311 26.5053 14.1322L24.5624 13.6053C22.8353 13.1347 21.4905 12.429 20.5286 11.4898C19.5735 10.5445 19.0973 9.28733 19.1845 7.7462C19.2438 6.49344 19.6356 5.41565 20.3592 4.51327C21.0894 3.60513 22.0682 2.91909 23.2965 2.45544C24.479 2.01178 25.6752 1.99987 27.2921 1.87661L40.2368 0.844721L50 0L49.7738 4.31636Z" fill="white"/>
+      </svg></a>
+      </div>
 
       <!-- TABS -->
       <div class="tabs">
@@ -417,13 +443,9 @@
             <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59a14.5 14.5 0 0 1 0-9.18l-7.98-6.19a24.01 24.01 0 0 0 0 21.56l7.98-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
             <span data-hr="Nastavi s Google" data-en="Continue with Google">Nastavi s Google</span>
           </button>
-          <button class="social-btn social-btn--apple" onclick="handleAppleLogin()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
-            <span data-hr="Nastavi s Apple" data-en="Continue with Apple">Nastavi s Apple</span>
-          </button>
         </div>
 
-        <div class="divider"><span data-hr="ili" data-en="or">ili</span></div>
+        <div class="or-label"><span data-hr="ili" data-en="or">ili</span></div>
 
         <form onsubmit="handleLogin(event)">
           <div class="form-group">
@@ -447,13 +469,9 @@
             <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59a14.5 14.5 0 0 1 0-9.18l-7.98-6.19a24.01 24.01 0 0 0 0 21.56l7.98-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
             <span data-hr="Nastavi s Google" data-en="Continue with Google">Nastavi s Google</span>
           </button>
-          <button class="social-btn social-btn--apple" onclick="handleAppleLogin()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
-            <span data-hr="Nastavi s Apple" data-en="Continue with Apple">Nastavi s Apple</span>
-          </button>
         </div>
 
-        <div class="divider"><span data-hr="ili" data-en="or">ili</span></div>
+        <div class="or-label"><span data-hr="ili" data-en="or">ili</span></div>
 
         <form onsubmit="handleRegister(event)">
           <div class="form-row">
@@ -468,22 +486,30 @@
           </div>
           <div class="form-group">
             <label class="form-label" data-hr="Email" data-en="Email">Email</label>
-            <input type="email" id="regEmail" class="form-input" placeholder="email@primjer.com" required autocomplete="email">
+            <div class="field-with-action">
+              <input type="email" id="regEmail" class="form-input" placeholder="email@primjer.com" required autocomplete="email">
+              <button type="button" class="verify-btn" id="sendVerifyBtn" onclick="sendEmailVerification()" data-hr="Pošalji kod" data-en="Send code">Pošalji kod</button>
+            </div>
+            <span class="verify-status" id="verifyEmailStatus"></span>
+            <div class="email-verify-section" id="emailVerifySection">
+              <div style="flex:1;">
+                <input type="text" id="regEmailCode" class="form-input" placeholder="000000" maxlength="6" style="letter-spacing:4px;text-align:center;font-weight:600;">
+              </div>
+              <button type="button" class="verify-btn" id="confirmVerifyBtn" onclick="confirmEmailVerification()" data-hr="Potvrdi" data-en="Confirm">Potvrdi</button>
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label" data-hr="Telefon" data-en="Phone">Telefon</label>
             <input type="tel" id="regPhone" class="form-input" placeholder="+385 91 234 5678">
           </div>
           <div class="form-group">
-            <label class="form-label" data-hr="Specijalizacija" data-en="Specialization">Specijalizacija</label>
-            <select id="regSpecialization" class="form-select form-input" required>
-              <option value="" disabled selected data-hr="Odaberi specijalizaciju" data-en="Select specialization">Odaberi specijalizaciju</option>
-              <option value="Sportska fizioterapija">Sportska fizioterapija</option>
-              <option value="Ortopedska fizioterapija">Ortopedska fizioterapija</option>
-              <option value="Neurološka fizioterapija">Neurološka fizioterapija</option>
-              <option value="Pedijatrijska fizioterapija">Pedijatrijska fizioterapija</option>
-              <option value="Kardiopulmonalna fizioterapija">Kardiopulmonalna fizioterapija</option>
-              <option value="Ostalo">Ostalo</option>
+            <label class="form-label" data-hr="Zanimanje" data-en="Profession">Zanimanje</label>
+            <select id="regProfession" class="form-select form-input" required onchange="handleProfessionChange()">
+              <option value="" disabled selected data-hr="Odaberi zanimanje" data-en="Select profession">Odaberi zanimanje</option>
+              <option value="fizioterapeut">Fizioterapeut/ica</option>
+              <option value="kineziolog">Kineziolog/inja</option>
+              <option value="student">Student/ica</option>
+              <option value="dr" data-hr="Doktor/ica medicine" data-en="Medical Doctor">Doktor/ica medicine</option>
             </select>
           </div>
           <div class="form-group">
@@ -512,7 +538,19 @@
                 <span class="checkbox-custom">
                   <svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5L4.5 8.5L11 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
-                <span class="checkbox-text" data-hr='Suglasan/na sam s obradom osobnih podataka u skladu s <a href="privatnost.html">Pravilnikom o privatnosti</a>' data-en='I consent to personal data processing in accordance with the <a href="privatnost.html">Privacy Policy</a>'>Suglasan/na sam s obradom osobnih podataka u skladu s <a href="privatnost.html">Pravilnikom o privatnosti</a></span>
+                <span class="checkbox-text" data-hr='Suglasan/na sam s obradom osobnih podataka u skladu s GDPR-om i <a href="privatnost.html">Pravilnikom o privatnosti</a>' data-en='I consent to personal data processing in accordance with GDPR and the <a href="privatnost.html">Privacy Policy</a>'>Suglasan/na sam s obradom osobnih podataka u skladu s GDPR-om i <a href="privatnost.html">Pravilnikom o privatnosti</a></span>
+              </label>
+            </div>
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="consentTransactional" required checked disabled>
+                <span class="checkbox-custom" style="background:var(--blue);border-color:var(--blue);">
+                  <svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5L4.5 8.5L11 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="checkbox-text">
+                  <span data-hr="Pristajem na primanje transakcijskih obavijesti (potvrde uplata, podsjetnici za evente, reset lozinke)" data-en="I agree to receive transactional notifications (payment confirmations, event reminders, password reset)">Pristajem na primanje transakcijskih obavijesti (potvrde uplata, podsjetnici za evente, reset lozinke)</span>
+                  <span class="optional-note" style="color:#22C55E;" data-hr="(obavezno)" data-en="(required)"> (obavezno)</span>
+                </span>
               </label>
             </div>
             <div class="checkbox-group">
@@ -522,25 +560,15 @@
                   <svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5L4.5 8.5L11 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
                 <span class="checkbox-text">
-                  <span data-hr="Pristajem na primanje obavijesti putem e-maila o aktivnostima udruge" data-en="I agree to receive email notifications about association activities">Pristajem na primanje obavijesti putem e-maila o aktivnostima udruge</span>
+                  <span data-hr="Pristajem na primanje marketinških obavijesti (newsletter, promocije, ponude)" data-en="I agree to receive marketing notifications (newsletter, promotions, offers)">Pristajem na primanje marketinških obavijesti (newsletter, promocije, ponude)</span>
                   <span class="optional-note" data-hr="(opcionalno)" data-en="(optional)"> (opcionalno)</span>
                 </span>
               </label>
             </div>
           </div>
 
-          <!-- Membership payment info -->
-          <div class="membership-payment-info">
-            <div class="membership-payment-header">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-              <span data-hr="Godišnja članarina" data-en="Annual membership fee">Godišnja članarina</span>
-            </div>
-            <div class="membership-payment-price">130€ <span data-hr="/ godišnje" data-en="/ year">/ godišnje</span></div>
-            <p class="membership-payment-desc"><span data-hr="Registracijom postajete član udruge. Članarina uključuje besplatan pristup odabranim edukacijama i snižene cijene na sve ostale programe." data-en="By registering you become a member. Membership includes free access to selected education programs and reduced prices on all others.">Registracijom postajete član udruge. Članarina uključuje besplatan pristup odabranim edukacijama i snižene cijene na sve ostale programe.</span></p>
-          </div>
-
           <div id="registerError" class="error-msg"></div>
-          <button type="submit" class="submit-btn" data-hr="Registriraj se i plati članarinu" data-en="Register & pay membership">Registriraj se i plati članarinu</button>
+          <button type="submit" class="submit-btn" data-hr="Registriraj se" data-en="Register">Registriraj se</button>
         </form>
       </div>
 
@@ -561,7 +589,7 @@
           { id:3, title:"Tečaj: Manualna terapija u sportu", type:"tecaj", date:"2026-08-05", endDate:"2026-08-07", location:"Rijeka, Klinički bolnički centar", instructor:"Prof. Ivan Babić", spots:20, price:150, included:false, image:"https://images.unsplash.com/photo-1519824145371-296894a0daa9?w=600&h=400&fit=crop", description:"Trodnevni tečaj koji pokriva napredne tehnike manualne terapije primjenjive u sportskoj fizioterapiji.", status:"active" },
           { id:4, title:"Konferencija: USF Godišnja konferencija 2026", type:"konferencija", date:"2026-09-15", endDate:"2026-09-16", location:"Zagreb, Kongresni centar", instructor:"Razni predavači", spots:200, price:0, included:true, image:"https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop", description:"Najveći godišnji događaj USF-a s predavanjima vodećih stručnjaka iz područja sportske fizioterapije.", status:"active" },
           { id:5, title:"Radionica: Regeneracija sportaša", type:"radionica", date:"2026-10-20", endDate:"2026-10-20", location:"Osijek, Sportska dvorana Gradski vrt", instructor:"Dr. Petra Novak", spots:25, price:0, included:true, image:"https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&h=400&fit=crop", description:"Praktična radionica o tehnikama regeneracije sportaša na natjecanjima i između treninga.", status:"active" },
-          { id:6, title:"Online seminar: Biomehanika u sportu", type:"online", date:"2026-11-12", endDate:"2026-11-12", location:"Online (Zoom)", instructor:"Prof. Luka Jurić", spots:30, price:75, included:false, image:"https://images.unsplash.com/photo-1559757175-7cb057fba93c?w=600&h=400&fit=crop", description:"Online seminar o primjeni biomehaničke analize u sportskoj fizioterapiji i prevenciji ozljeda.", status:"active" }
+          { id:6, title:"Online seminar: Biomehanika u sportu", type:"online", date:"2026-11-12", endDate:"2026-11-12", location:"Online (Zoom)", instructor:"Prof. Luka Jurić", spots:30, price:75, included:false, image:"https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&h=400&fit=crop", description:"Online seminar o primjeni biomehaničke analize u sportskoj fizioterapiji i prevenciji ozljeda.", status:"active" }
         ];
         localStorage.setItem('usf_events', JSON.stringify(events));
       }
@@ -641,8 +669,41 @@
       }
     }
 
+    /* The two accounts the client is given to look around with. Everything
+       they own is built by the app on first open; what has to be true *here*
+       is only that they exist, because this is the page they are typed into
+       and nothing else has run yet. */
+    function usfEnsureClientAccounts() {
+      let users = [];
+      try { users = JSON.parse(localStorage.getItem('usf_users') || '[]'); } catch (e) { return; }
+      if (!users.length) return;
+      const have = {};
+      users.forEach(u => { have[String(u.email).toLowerCase()] = true; });
+      let maxId = users.reduce((m, u) => Math.max(m, u.id || 0), 0);
+      let added = 0;
+      [{ firstName: 'Demo', lastName: 'Admin', email: 'demo.admin@usf.hr', role: 'admin' },
+       { firstName: 'Demo', lastName: 'Član', email: 'demo.clan@usf.hr', role: 'user' }
+      ].forEach(a => {
+        if (have[a.email]) return;
+        maxId += 1; added += 1;
+        users.push({
+          id: maxId, firstName: a.firstName, lastName: a.lastName, email: a.email,
+          phone: '+385 91 000 00' + maxId, specialization: 'Sportska fizioterapija',
+          password: 'usf2026', role: a.role,
+          membershipStatus: 'active', membershipExpiry: '2027-12-31',
+          registeredAt: '2026-01-05T09:00:00.000Z',
+          enrolledEvents: [], attendedEvents: [], payments: [],
+          profileImage: null, lastLogin: null,
+          consentStatute: true, consentPrivacy: true, consentEmail: true,
+          usfTestAccount: true, usfSeedStub: true
+        });
+      });
+      if (added) localStorage.setItem('usf_users', JSON.stringify(users));
+    }
+
     // ===== INIT =====
     seedData();
+    usfEnsureClientAccounts();
 
     // Redirect if already logged in
     const currentUser = localStorage.getItem('usf_current_user');
@@ -711,7 +772,7 @@
       const lastName = document.getElementById('regLastName').value.trim();
       const email = document.getElementById('regEmail').value.trim();
       const phone = document.getElementById('regPhone').value.trim();
-      const specialization = document.getElementById('regSpecialization').value;
+      const profession = document.getElementById('regProfession').value;
       const password = document.getElementById('regPassword').value;
       const passwordConfirm = document.getElementById('regPasswordConfirm').value;
       const consentStatute = document.getElementById('consentStatute').checked;
@@ -719,7 +780,7 @@
       const consentEmailVal = document.getElementById('consentEmail').checked;
 
       // Validate
-      if (!firstName || !lastName || !email || !specialization || !password || !passwordConfirm) {
+      if (!firstName || !lastName || !email || !profession || !password || !passwordConfirm) {
         errorEl.textContent = isEn ? 'Please fill in all required fields.' : 'Molimo ispunite sva obavezna polja.';
         errorEl.classList.add('visible');
         return;
@@ -743,6 +804,12 @@
         return;
       }
 
+      if (!emailVerified) {
+        errorEl.textContent = isEn ? 'Please verify your email address first.' : 'Molimo prvo verificirajte svoju email adresu.';
+        errorEl.classList.add('visible');
+        return;
+      }
+
       const users = JSON.parse(localStorage.getItem('usf_users') || '[]');
 
       if (users.find(u => u.email === email)) {
@@ -758,7 +825,15 @@
         lastName,
         email,
         phone,
-        specialization,
+        profession,
+        /* Part of a member's profile, filled in inside the app. */
+        specialization: '',
+        /* Collected in the app once they are in, not at the door. */
+        licenceFileName: null,
+        komoraCardFileName: null,
+        studentDocFileName: null,
+        emailVerified: emailVerified,
+        consentTransactional: true,
         password,
         role: 'user',
         membershipStatus: 'inactive',
@@ -786,9 +861,76 @@
       showToast(isEn ? 'Google login coming soon' : 'Google prijava će biti dostupna uskoro');
     }
 
-    function handleAppleLogin() {
+
+
+    // ===== FILE UPLOAD =====
+    function handleFileSelect(input, fieldId, textId) {
+      const field = document.getElementById(fieldId);
       const isEn = document.documentElement.lang === 'en';
-      showToast(isEn ? 'Apple login coming soon' : 'Apple prijava će biti dostupna uskoro');
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+        if (file.size > 5 * 1024 * 1024) {
+          showToast(isEn ? 'File must be under 5MB' : 'Datoteka mora biti manja od 5MB');
+          input.value = '';
+          return;
+        }
+        field.classList.add('has-file');
+        const checkSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><polyline points="20 6 9 17 4 12"/></svg>';
+        const nameSpan = '<span style="color:#22C55E;font-weight:500">' + file.name + '</span>';
+        if (textId) {
+          document.getElementById(textId).innerHTML = checkSvg + nameSpan;
+        } else {
+          // For small upload fields - update the span text
+          const spans = field.querySelectorAll('span[id]');
+          if (spans.length > 0) spans[0].innerHTML = checkSvg + nameSpan;
+          else field.querySelector('span').innerHTML = checkSvg + nameSpan;
+        }
+      }
+    }
+
+    // ===== PROFESSION CHANGE HANDLER =====
+    function handleProfessionChange() {
+      const prof = document.getElementById('regProfession').value;
+      // The upload fields this used to show and hide are no longer on this
+      // page — they belong to membership, which happens in the app. Left as a
+      // no-op because the profession select still calls it.
+    }
+
+    // ===== EMAIL VERIFICATION =====
+    var emailVerified = false;
+    var verificationCode = '';
+
+    function sendEmailVerification() {
+      const isEn = document.documentElement.lang === 'en';
+      const email = document.getElementById('regEmail').value.trim();
+      if (!email || !email.includes('@')) {
+        showToast(isEn ? 'Please enter a valid email first' : 'Prvo unesite valjanu email adresu');
+        return;
+      }
+      // Simulate sending code
+      verificationCode = String(Math.floor(100000 + Math.random() * 900000));
+      document.getElementById('emailVerifySection').classList.add('visible');
+      document.getElementById('verifyEmailStatus').textContent = isEn ? 'Code sent to ' + email : 'Kod poslan na ' + email;
+      document.getElementById('verifyEmailStatus').className = 'verify-status pending';
+      document.getElementById('sendVerifyBtn').textContent = isEn ? 'Resend code' : 'Pošalji ponovo';
+      showToast((isEn ? 'Verification code (demo): ' : 'Verifikacijski kod (demo): ') + verificationCode);
+    }
+
+    function confirmEmailVerification() {
+      const isEn = document.documentElement.lang === 'en';
+      const code = document.getElementById('regEmailCode').value.trim();
+      if (code === verificationCode) {
+        emailVerified = true;
+        document.getElementById('verifyEmailStatus').textContent = isEn ? 'Email verified!' : 'Email verificiran!';
+        document.getElementById('verifyEmailStatus').className = 'verify-status success';
+        document.getElementById('confirmVerifyBtn').textContent = isEn ? 'Verified' : 'Verificirano';
+        document.getElementById('confirmVerifyBtn').classList.add('verified');
+        document.getElementById('confirmVerifyBtn').disabled = true;
+        document.getElementById('regEmailCode').disabled = true;
+        document.getElementById('sendVerifyBtn').style.display = 'none';
+      } else {
+        showToast(isEn ? 'Invalid code. Try again.' : 'Nevažeći kod. Pokušajte ponovo.');
+      }
     }
 
     // ===== TOAST =====
@@ -817,7 +959,9 @@
     function switchLang(lang) {
       applyLanguage(lang);
       localStorage.setItem('usf_lang', lang);
-      document.querySelectorAll('.lang-switch button').forEach(function(btn) {
+      // No switch on this page — the language comes from wherever it was set on
+    // the site. This loop matches nothing here and is left for the shared code.
+    document.querySelectorAll('.lang-switch button').forEach(function(btn) {
         btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
       });
     }
@@ -834,14 +978,207 @@
       switchTab('register');
     }
 
-    // Page loader
+    // Page loader crack animation
     setTimeout(function() {
       var loader = document.getElementById('pageLoader');
+      var loaderLeft = document.getElementById('pageLoaderLeft');
       if (loader && !loader.classList.contains('skip')) {
-        loader.classList.add('hide');
-        setTimeout(function(){ loader.style.display='none'; }, 500);
+        loader.classList.add('crack');
+        if (loaderLeft) loaderLeft.classList.add('crack');
+        document.documentElement.classList.remove('loading');
+        setTimeout(function(){
+          loader.classList.add('crack-full');
+          setTimeout(function(){
+            loader.classList.add('done');
+            if (loaderLeft) loaderLeft.classList.add('done');
+          }, 400);
+        }, 500);
       }
-    }, 2800);
+    }, 800);
   </script>
+  <script>
+  /* ===== SEARCHABLE DROPDOWN =====
+     Ported from dashboard.html so the two behave the same. Every native
+     <select> on the page is replaced by a text field with a narrowing list;
+     the select itself stays in the DOM, hidden, holding the value — so the
+     onchange handlers already written against it keep working untouched.
+     A select that must stay native carries data-usf-noenh. */
+  (function() {
+    function esc(str) {
+      if (str === null || str === undefined) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    function lang() { return document.documentElement.lang === 'en' ? 'en' : 'hr'; }
+    function wrapOf(el) { return el && el.closest ? el.closest('.usf-combo') : null; }
+
+    window.usfPickPaint = function(wrap, filter) {
+      var list = wrap.querySelector('.usf-combo-list');
+      var opts = [];
+      try { opts = JSON.parse(list.getAttribute('data-options') || '[]'); } catch (e) {}
+      var q = (filter || '').trim().toLowerCase();
+      var hits = q ? opts.filter(function(o) {
+        return String(o.label).toLowerCase().indexOf(q) !== -1;
+      }) : opts;
+      list.innerHTML = hits.length
+        ? hits.map(function(o) {
+            return '<button type="button" class="usf-combo-opt" onclick="usfPickChoose(this, ' +
+              JSON.stringify(String(o.v)).replace(/"/g, '&quot;') + ', ' +
+              JSON.stringify(String(o.label)).replace(/"/g, '&quot;') + ')">' +
+              esc(o.label) + '</button>';
+          }).join('')
+        : '<div class="usf-combo-empty">' + (lang() === 'hr' ? 'Nema rezultata' : 'No matches') + '</div>';
+    };
+
+    /* A list you have to scroll the page to read opened the wrong way. */
+    function place(wrap) {
+      var list = wrap.querySelector('.usf-combo-list');
+      var input = wrap.querySelector('input');
+      if (!list || !input) return;
+      var r = input.getBoundingClientRect();
+      var below = window.innerHeight - r.bottom;
+      var need = Math.min(list.scrollHeight + 12, 268);
+      wrap.classList.toggle('drop-up', below < need && r.top > below);
+    }
+
+    window.usfPickOpen = function(input) {
+      var wrap = wrapOf(input);
+      if (!wrap) return;
+      document.querySelectorAll('.usf-combo.open').forEach(function(w) {
+        if (w !== wrap) w.classList.remove('open');
+      });
+      /* Opening shows everything: you came to see the options, not to be
+         filtered by whatever is already in the box. */
+      input.select();
+      usfPickPaint(wrap, '');
+      wrap.classList.add('open');
+      place(wrap);
+    };
+    window.usfPickToggle = function(btn) {
+      var wrap = wrapOf(btn);
+      if (!wrap) return;
+      if (wrap.classList.contains('open')) { wrap.classList.remove('open'); return; }
+      var input = wrap.querySelector('input');
+      usfPickOpen(input);
+      input.focus();
+    };
+    window.usfPickFilter = function(input) {
+      var wrap = wrapOf(input);
+      if (!wrap) return;
+      usfPickPaint(wrap, input.value);
+      wrap.classList.add('open');
+      place(wrap);
+    };
+    window.usfPickChoose = function(btn, value, label) {
+      var wrap = wrapOf(btn);
+      if (!wrap) return;
+      wrap.setAttribute('data-value', value);
+      wrap.querySelector('input').value = label;
+      wrap.classList.remove('open');
+      var sel = wrap._usfSelect;
+      if (sel) {
+        sel.value = value;
+        sel.dispatchEvent(new Event('input', { bubbles: true }));
+        sel.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    };
+    window.usfComboKey = function(e, input) {
+      var wrap = wrapOf(input);
+      if (!wrap) return;
+      if (e.key === 'Escape' || e.key === 'Enter') {
+        wrap.classList.remove('open');
+        if (e.key === 'Enter') e.preventDefault();
+      }
+    };
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest || !e.target.closest('.usf-combo')) {
+        document.querySelectorAll('.usf-combo.open').forEach(function(w) { w.classList.remove('open'); });
+      }
+    });
+
+    /* A disabled option ("Odaberi zanimanje") is a prompt, not something you
+       can pick — it stays out of the list and becomes the placeholder. */
+    function optionsOf(sel) {
+      return [].filter.call(sel.options, function(o) { return !o.disabled; })
+        .map(function(o) { return { v: o.value, label: o.textContent }; });
+    }
+    function hintOf(sel) {
+      var prompt = [].filter.call(sel.options, function(o) { return o.disabled; })[0];
+      if (prompt) return prompt.textContent;
+      return lang() === 'hr' ? 'Traži...' : 'Search...';
+    }
+    function labelOf(sel) {
+      var o = sel.options[sel.selectedIndex];
+      return (o && !o.disabled) ? o.textContent : '';
+    }
+
+    var n = 0;
+    function enhance(sel) {
+      if (sel.getAttribute('data-usf-enh')) return;
+      if (sel.multiple || sel.disabled || sel.getAttribute('data-usf-noenh')) return;
+      sel.setAttribute('data-usf-enh', '1');
+      /* A required control the browser cannot focus blocks submit with only a
+         console message to show for it. The form's own handler checks this
+         field, so the attribute goes. */
+      if (sel.required) { sel.required = false; sel.setAttribute('data-was-required', '1'); }
+      var id = 'usfsel-' + (++n);
+      var opts = optionsOf(sel);
+      var host = document.createElement('div');
+      host.className = 'usf-combo-host';
+      host.style.cssText = sel.style.cssText || '';
+      if (!host.style.width) host.style.minWidth = Math.max(sel.offsetWidth || 0, 160) + 'px';
+      host.innerHTML =
+        '<div class="usf-combo" data-combo="' + id + '" data-value="' + esc(sel.value) + '">' +
+          '<input value="' + esc(labelOf(sel)) + '" autocomplete="off" ' +
+            'placeholder="' + esc(hintOf(sel)) + '" ' +
+            'onfocus="usfPickOpen(this)" oninput="usfPickFilter(this)" onkeydown="usfComboKey(event, this)">' +
+          '<button type="button" class="usf-combo-caret" onclick="usfPickToggle(this)" tabindex="-1">' +
+            '<svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+          '</button>' +
+          '<div class="usf-combo-list"></div>' +
+        '</div>';
+      sel.parentNode.insertBefore(host, sel);
+      sel.style.display = 'none';
+      var wrap = host.querySelector('.usf-combo');
+      wrap.querySelector('.usf-combo-list').setAttribute('data-options', JSON.stringify(opts));
+      wrap._usfSelect = sel;
+      sel._usfWrap = wrap;
+    }
+
+    /* The option lists here are not fixed: one page rebuilds them from the
+       data, and switching language rewrites every label. So the upgrade also
+       re-reads them, rather than snapshotting once and going stale. */
+    function refresh(sel) {
+      var wrap = sel._usfWrap;
+      if (!wrap) return;
+      var list = wrap.querySelector('.usf-combo-list');
+      var sig = JSON.stringify(optionsOf(sel));
+      var same = list.getAttribute('data-options') === sig &&
+                 wrap.getAttribute('data-value') === String(sel.value);
+      if (same) return;
+      list.setAttribute('data-options', sig);
+      wrap.setAttribute('data-value', sel.value);
+      var input = wrap.querySelector('input');
+      input.placeholder = hintOf(sel);
+      if (document.activeElement !== input) input.value = labelOf(sel);
+      if (wrap.classList.contains('open')) usfPickPaint(wrap, '');
+    }
+
+    var pending = null;
+    function sweep() {
+      pending = null;
+      document.querySelectorAll('select').forEach(function(sel) {
+        if (sel.getAttribute('data-usf-enh')) refresh(sel); else enhance(sel);
+      });
+    }
+    function schedule() { if (pending) return; pending = setTimeout(sweep, 60); }
+    if (typeof MutationObserver !== 'undefined') {
+      new MutationObserver(schedule).observe(document.documentElement, { childList: true, subtree: true });
+    }
+    document.addEventListener('DOMContentLoaded', schedule);
+    schedule();
+  })();
+  </script>
+
 </body>
 </html>

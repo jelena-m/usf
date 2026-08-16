@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="hr" class="loading">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>USF - Pretraga</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;700;800&family=Instrument+Sans:wght@400;500;600;700&display=swap');
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { overflow-x: clip; }
+    body {
+      font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #000;
+      color: #ffffff;
+      line-height: 1.6;
+      overflow-x: clip;
+      -webkit-font-smoothing: antialiased;
+    }
+    .page-shell {
+      background: #121212;
+      border-radius: 20px;
+      margin: 16px;
+      overflow: clip;
+      position: relative;
+      transform: translateZ(0);
+    }
+    h1, h2, h3, h4 { font-family: 'Bricolage Grotesque', sans-serif; }
+    a { text-decoration: none; color: inherit; }
+    ::selection { background: #3B5BFF; color: #fff; }
+
+    :root {
+      --blue: #3B5BFF;
+      --blue-hover: #2A45E0;
+      --card: rgba(255,255,255,0.07);
+      --card-border: transparent;
+      /* What the hover ADDS on top of --card, not what the card becomes.
+         3.2% over 7% composites to about 10%. */
+      --card-hover: rgba(255,255,255,0.032);
+      --text-muted: rgba(255,255,255,0.35);
+      --text-faint: rgba(255,255,255,0.2);
+    }
+
+    /* ===== PAGE LOADER ===== */
+    html.loading { overflow: hidden; cursor: none; }
+    html.loading .custom-cursor { display: none; }
+    .page-loader {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #0e0e0e;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 99999;
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+      transition: clip-path 0.8s cubic-bezier(0.7, 0, 0.3, 1);
+    }
+    .page-loader.skip { display: none; }
+    .page-loader svg { width: 100px; height: auto; opacity: 1; }
+    .page-loader .logo-bg { fill: rgba(255,255,255,0.05); }
+    .page-loader .logo-fill { fill: #fff; }
+    .page-loader.crack { clip-path: polygon(0 42%, 100% 58%, 100% 100%, 0 100%); pointer-events: none; box-shadow: 0 -30px 80px rgba(255,255,255,0.2), 0 -6px 30px rgba(255,255,255,0.12); }
+    .page-loader.crack-full { clip-path: polygon(0 110%, 100% 110%, 100% 110%, 0 110%); }
+    .page-loader.done { display: none; }
+    .page-loader-left {
+      position: fixed; top: 0; left: 0; width: 100%; height: 50%;
+      background: #0e0e0e; z-index: 99998;
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+      transition: clip-path 0.8s cubic-bezier(0.7, 0, 0.3, 1);
+    }
+    .page-loader-left.crack { clip-path: polygon(0 -10%, 100% -10%, 100% 42%, 0 58%); box-shadow: 0 30px 80px rgba(255,255,255,0.2), 0 6px 30px rgba(255,255,255,0.12); }
+    .page-loader-left.done { display: none; }
+    @keyframes logoFadeIn { 0% { opacity: 0; transform: scale(0.85); } 100% { opacity: 1; transform: scale(1); } }
+
+    /* Custom cursor */
+    /* The native cursor is hidden only once the script is actually running,
+       so a page where it fails still has a pointer. */
+    html.has-custom-cursor, html.has-custom-cursor body, html.has-custom-cursor *, html.has-custom-cursor *::before, html.has-custom-cursor *::after { cursor: none !important; }
+
+    /* `*` stops at the edge of the browser's own shadow trees. These are the
+       parts it draws itself — a textarea's resize grip, a number field's
+       spinners, a date field's calendar button — and each one brings the
+       native pointer back with it. Listed separately because an unknown
+       selector invalidates the entire rule it sits in. */
+    html.has-custom-cursor ::-webkit-resizer { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-inner-spin-button { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-outer-spin-button { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-calendar-picker-indicator { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-search-cancel-button { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-file-upload-button { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-scrollbar { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-scrollbar-thumb { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-scrollbar-track { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-scrollbar-corner { cursor: none !important; }
+    html.has-custom-cursor ::placeholder { cursor: none !important; }
+    html.has-custom-cursor ::selection { cursor: none !important; }
+
+    .custom-cursor {
+      position: fixed;
+      width: 0; height: 0;
+      pointer-events: none;
+      z-index: 99999;
+    }
+    .custom-cursor::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0;
+      width: 22px; height: 22px;
+      background-color: #fff;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 2 L19.6 10.5 L3.4 20.7 Z' fill='%23000' stroke='%23000' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat left top / contain;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 2 L19.6 10.5 L3.4 20.7 Z' fill='%23000' stroke='%23000' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat left top / contain;
+      filter: drop-shadow(0 1px 4px rgba(0,0,0,0.45));
+      transition: width 0.18s ease, height 0.18s ease, background-color 0.18s ease;
+    }
+    /* Once the label is there, the label is the thing being read — the
+       pointer gets out of its way: smaller, and the house blue instead of
+       white, which is what the reference does beside its own label. */
+    .custom-cursor.active-card::before {
+      width: 11px; height: 11px;
+      /* Half the resting size — the shrink is what the recording reads as,
+         and beside a white chip the pointer becomes the point the label
+         hangs from rather than a second thing to look at. Stays white: the
+         reference darkens against a pale page, and on a dark card a dark
+         arrow disappears. */
+      background-color: #fff;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 2 L19.6 10.5 L3.4 20.7 Z' fill='%23000' stroke='%23000' stroke-width='3.4' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat left top / contain;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 2 L19.6 10.5 L3.4 20.7 Z' fill='%23000' stroke='%23000' stroke-width='3.4' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat left top / contain;
+    }
+    /* The label hangs below and right of the tip so it never sits on top of
+       what you are about to click. Monospace uppercase is the house label
+       face — the same one the card categories use. */
+    .custom-cursor span {
+      position: absolute;
+      left: 12px; top: 11px;
+      background: #fff;
+      color: #080808;
+      font-family: monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: normal;
+      text-transform: uppercase;
+      white-space: nowrap;
+      padding: 6px 16px;
+      border-radius: 10px;
+      opacity: 0;
+      transform: scale(0.92);
+      transform-origin: top left;
+      transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.2, 0.8, 0.3, 1);
+    }
+    .custom-cursor.active-card span {
+      opacity: 1;
+      transform: scale(1);
+    }
+    html.loading .custom-cursor { display: none; }
+
+
+    /* ===== NAV ===== */
+    .nav-wrapper {
+      position: fixed;
+      top: 12px; left: 20px; right: 20px;
+      z-index: 1000;
+      isolation: isolate;
+      /* Nothing at the top of the page: no surface, no blur. The scrim below
+         only appears once the page is moving under the bar. */
+      background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      border-radius: 20px;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .nav-wrapper.scrolled {
+      /* Dark, not light: the bar has to be darker than whatever passes under
+         it, or white type on it stops being white type on anything. */
+      background: rgba(10,10,10,0.58);
+      backdrop-filter: blur(50px) saturate(1.1);
+      -webkit-backdrop-filter: blur(50px) saturate(1.1);
+      border-bottom: none;
+      left: max(20px, calc(50% - 650px));
+      right: max(20px, calc(50% - 650px));
+    }
+    .nav {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: padding 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .nav-wrapper.scrolled .nav { padding: 12px 40px; }
+    .nav-left { display: flex; align-items: center; gap: 40px; }
+    .nav-logo { height: 24px; }
+    .nav-logo svg { height: 100%; width: auto; }
+    .nav-right { display: flex; align-items: center; gap: 20px; }
+    .nav-links { display: flex; gap: 28px; list-style: none; }
+    .nav-links a { font-size: 0.85rem; font-weight: 400; color: rgba(255,255,255,0.72); transition: color 0.3s; letter-spacing: 0.2px; }
+    .nav-links a:hover { color: #fff; }
+    .nav-links a.active { color: #fff; }
+    .nav-auth { display: flex; align-items: center; gap: 10px; }
+    /* the two buttons are a pair — closer to each other than to the switch */
+    .nav-right .nav-auth { margin-left: -10px; }
+    .nav-auth-login-btn {
+      font-family: 'Instrument Sans', sans-serif;
+      /* Set exactly like Doniraj beside it — the two differ in surface, not
+         in voice, so the type has to be identical or the pair reads crooked. */
+      font-size: 0.85rem; font-weight: 400; letter-spacing: 0.2px;
+      /* secondary: Doniraj is the one primary action in this bar */
+      color: #fff; background: rgba(255,255,255,0.08);
+      border: none; border-radius: 10px;
+      cursor: pointer; transition: all 0.3s;
+      text-decoration: none; padding: 10px 20px;
+      display: inline-flex; align-items: center;
+    }
+    .nav-auth-login-btn:hover { background: rgba(255,255,255,0.16); }
+    .nav-donate-btn {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 0.85rem; font-weight: 400;
+      color: #fff;
+      /* Donating is the one thing the site asks a visitor to do, so it is the
+         one button that looks like an action rather than a link. */
+      background: var(--blue, #3B5BFF);
+      border: none; border-radius: 10px;
+      cursor: pointer; transition: all 0.3s;
+      text-decoration: none; padding: 10px 20px;
+      display: inline-flex; align-items: center;
+      letter-spacing: 0.2px;
+    }
+    .nav-donate-btn:hover { background: var(--blue-hover, #2A45E0); }
+    .nav-profile-circle {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 0.72rem; font-weight: 700; color: #fff;
+      background: #2a2a2a; overflow: hidden;
+      transition: all 0.3s; text-decoration: none;
+      border: 2px solid transparent;
+    }
+    .nav-profile-circle:hover { border-color: rgba(255,255,255,0.3); }
+    .nav-profile-circle img { width: 100%; height: 100%; object-fit: cover; }
+    .lang-switch { display: flex; align-items: center; gap: 0; background: rgba(255,255,255,0.08); border-radius: 10px; padding: 3px; border: none; }
+    .lang-switch button { background: none; border: none; color: rgba(255,255,255,0.4); padding: 6px 10px; cursor: pointer; font-family: inherit; font-size: 0.72rem; font-weight: 600; letter-spacing: 1px; transition: all 0.3s; display: flex; align-items: center; gap: 6px; border-radius: 7px; }
+    .lang-switch button.active { background: rgba(255,255,255,0.15); color: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.3); border-radius: 7px; }
+    .lang-switch button:hover { color: #fff; }
+    .lang-flag { width: 18px; height: 13px; border-radius: 2px; display: inline-block; overflow: hidden; flex-shrink: 0; }
+    .menu-toggle { display: none; background: none; border: none; cursor: pointer; width: 28px; height: 20px; position: relative; }
+    .menu-toggle span { display: block; width: 100%; height: 2px; background: #fff; position: absolute; left: 0; transition: 0.3s; }
+    .menu-toggle span:nth-child(1) { top: 0; }
+    .menu-toggle span:nth-child(2) { top: 9px; }
+    .menu-toggle span:nth-child(3) { top: 18px; }
+    .menu-toggle.open span:nth-child(1) { top: 9px; transform: rotate(45deg); }
+    .menu-toggle.open span:nth-child(2) { opacity: 0; }
+    .menu-toggle.open span:nth-child(3) { top: 9px; transform: rotate(-45deg); }
+
+    /* ===== SEARCH PAGE ===== */
+    .search-area {
+      padding-top: 180px;
+      padding-bottom: 40px;
+      max-width: 800px;
+      margin: 0 auto;
+      padding-left: 48px;
+      padding-right: 48px;
+    }
+    .search-input {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 16px 24px;
+      color: #fff;
+      font-size: 1rem;
+      font-family: 'Instrument Sans', sans-serif;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .search-input::placeholder { color: rgba(255,255,255,0.3); }
+    .search-input:focus { border-color: rgba(255,255,255,0.25); }
+
+    .search-tabs {
+      display: flex; gap: 8px; margin-top: 20px;
+    }
+    .search-tab {
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-family: 'Instrument Sans', sans-serif;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.5);
+    }
+    .search-tab.active {
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+    }
+    .search-tab:hover { color: #fff; }
+
+    .search-results-info {
+      padding: 0 48px;
+      max-width: 1300px;
+      margin: 0 auto 20px;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.4);
+    }
+
+    .search-results {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 48px 80px;
+    }
+
+    .search-section-label {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+    .search-section-label:not(:first-child) {
+      margin-top: 48px;
+    }
+
+    /* ===== EVENT CARDS (Education) ===== */
+    .event-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .event-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 20px; overflow: hidden; transition: background 0.3s; position: relative; display: flex; flex-direction: column; text-decoration: none; color: inherit; }
+    /* the sweep replaces the tint */
+    .event-card-img-wrap { position: relative; margin: 20px 20px 0; border-radius: 12px; overflow: hidden; }
+    .event-card-img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; filter: saturate(0.4); transition: filter 0.4s ease; }
+    .event-card:hover .event-card-img { filter: saturate(1); }
+    .event-card-body { padding: 14px 20px 20px; flex: 1; display: flex; flex-direction: column; }
+    .event-card-badges { display: flex; align-items: center; gap: 16px; margin-bottom: 10px; }
+    .event-card-type { display: inline-block; font-size: 11px; font-weight: 400; text-transform: uppercase; letter-spacing: normal; font-family: monospace; color: rgba(255,255,255,0.45); }
+    .type-radionica, .type-seminar, .type-tecaj, .type-konferencija, .type-webinar, .type-prezentacija { background: none; }
+    .event-card h3 { font-size: 1.1rem; font-weight: 500; margin-bottom: 6px; color: #fff; line-height: 1.3; }
+    .event-card .event-meta { font-size: 0.82rem; color: rgba(255,255,255,0.5); margin-bottom: 8px; }
+    .event-card .event-price { font-size: 0.875rem; font-weight: 400; color: #fff; margin-top: auto; padding-top: 10px; display: block; }
+
+    /* ===== BLOG CARDS ===== */
+    .blog-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .blog-card {
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: 20px; overflow: hidden; transition: background 0.3s;
+      text-decoration: none; color: inherit;
+      display: flex; flex-direction: column;
+    }
+    /* the sweep replaces the tint */
+    .blog-thumb {
+      height: 200px;
+      background-size: cover;
+      background-position: center;
+      filter: saturate(0.4);
+      transition: filter 0.4s ease;
+      margin: 20px 20px 0;
+      border-radius: 12px;
+      position: relative;
+    }
+    .blog-card:hover .blog-thumb { filter: saturate(1); }
+    .blog-body { padding: 14px 20px 20px; flex: 1; display: flex; flex-direction: column; }
+    .blog-body .cat { display: inline-block; width: fit-content; align-self: flex-start; font-family: monospace; font-size: 11px; font-weight: 400; text-transform: uppercase; letter-spacing: normal; color: rgba(255,255,255,0.45); background: none; padding: 0; border-radius: 0; margin-bottom: 10px; }
+    .blog-body h3 { font-size: 1.1rem; font-weight: 500; margin-bottom: 6px; line-height: 1.3; color: #fff; }
+    .blog-body .excerpt { font-size: 0.82rem; color: rgba(255,255,255,0.5); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1; }
+    .blog-body .meta { display: none; }
+    .blog-body .date { font-size: 0.78rem; color: rgba(255,255,255,0.5); }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: rgba(255,255,255,0.4);
+      font-size: 0.95rem;
+    }
+
+    /* ===== FOOTER ===== */
+    .footer { background: #121212; margin-top: 0; }
+    .footer-inner { max-width: 1300px; margin: 0 auto; padding: 60px 48px 30px; }
+    .footer-logo { display: inline-block; margin-bottom: 8px; }
+    .footer-logo svg { height: 24px; width: auto; }
+    /* Four equal columns and one gap value: the spacing between them is then
+       the same everywhere, without inline margins nudging individual ones. */
+    /* One gap value and a first column that takes up the slack: the space
+       between the columns is then literally the same number everywhere,
+       instead of leftover width being shared out around content of very
+       different widths. */
+    .footer-grid { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 72px; margin-bottom: 48px; }
+    .footer-grid > .footer-col { flex: 0 0 auto; }
+    .footer-grid > .footer-col:first-child { flex: 1 1 300px; min-width: 260px; }
+    .footer-grid > .footer-col:last-child { flex: 0 0 260px; }
+    .footer-col-pay ul li { margin-bottom: 8px; white-space: nowrap; }
+    .footer-col h4 { font-family: 'Bricolage Grotesque', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 16px; }
+    /* set like "Pretplati se na newsletter" in the column beside it */
+    .footer-col-pay h4 { font-family: 'Instrument Sans', sans-serif; font-size: 0.88rem; font-weight: 400; color: var(--text-muted); margin-bottom: 14px; }
+    .footer-col p { font-size: 0.88rem; line-height: 1.7; color: var(--text-muted); }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .footer-col ul li a { font-size: 0.88rem; color: var(--text-muted); transition: color 0.3s; }
+    .footer-col ul li a:hover { color: var(--blue); }
+    .footer-socials { display: flex; gap: 16px; margin-top: 20px; }
+    .footer-socials a { color: var(--text-muted); transition: color 0.3s; }
+    .footer-socials a:hover { color: #fff; }
+    .footer-bottom {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 20px;
+      font-size: 0.78rem; color: var(--text-faint);
+    }
+    .footer-bottom a { color: var(--text-faint); transition: color 0.3s; }
+    .footer-bottom a:hover { color: var(--blue); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .nav { padding: 14px 16px; }
+      .nav-wrapper.scrolled .nav { padding: 16px 20px; }
+      .nav-left .nav-links {
+        display: none !important;
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(18,18,18,0.98);
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 32px;
+        z-index: 9999;
+      }
+      .nav-left .nav-links.show { display: flex !important; }
+      .nav-left .nav-links li { list-style: none; }
+      .nav-left .nav-links li a { font-size: 1.4rem; color: rgba(255,255,255,0.55); padding: 12px 24px; display: block; }
+      .nav-left .nav-links li a.active { color: #fff; }
+      .menu-toggle { display: block; z-index: 10000; position: relative; }
+      .search-area { padding-top: 140px; padding-left: 16px; padding-right: 16px; }
+      .search-results { padding: 0 16px 60px; }
+      .search-results-info { padding: 0 16px; }
+      .event-grid { grid-template-columns: 1fr; }
+      .blog-grid { grid-template-columns: 1fr; }
+      .footer-inner { padding: 40px 16px 20px; }
+      .footer-grid { display: block; }
+      .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+      .page-shell { margin: 8px; border-radius: 14px; }
+      .nav-wrapper { top: 8px; left: 12px; right: 12px; border-radius: 16px; }
+      .nav-wrapper.scrolled { left: 12px; right: 12px; }
+    }
+    /* ===== SCROLL REVEAL ===== */
+    .scroll-reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .scroll-reveal.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    /* ===== HOVER FILL (round 49, from the home page) =====
+       The loader splits the page along a diagonal on
+       cubic-bezier(0.7, 0, 0.3, 1). The hover panel takes the same easing and
+       that edge mirrored — twelve degrees running up to the right — so the
+       two read as a pair. The panel is oversized and skewed, and
+       overflow: hidden crops it back to the card, corner radius included.
+       80px of overshoot covers the corner travel of a 12deg skew on the
+       widest card here (half of width x tan(12deg), about 41px). */
+    .event-card, .blog-card {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+    }
+    .event-card::after, .blog-card::after {
+      content: '';
+      position: absolute;
+      left: -4%; right: -4%; top: -80px; bottom: -80px;
+      z-index: -1;
+      background: var(--card-hover);
+      transform: translateY(130%) skewY(-12deg);
+      transition: transform 0.55s cubic-bezier(0.7, 0, 0.3, 1);
+    }
+    .event-card:hover::after, .blog-card:hover::after {
+      transform: translateY(0) skewY(-12deg);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .event-card::after, .blog-card::after { transition: none; }
+    }
+  </style>
+  <script>
+  /* Set here rather than at the end of <body>: the rule that hides the native
+     pointer cannot apply to paints that happen before the script runs, and
+     that gap is where the two cursors are visible at once. If the cursor
+     itself fails to start, the script at the bottom takes this back off. */
+  document.documentElement.classList.add('has-custom-cursor');
+  </script>
+</head>
+<body>
+
+  <div class="page-loader-left" id="pageLoaderLeft"></div>
+  <div class="page-loader" id="pageLoader">
+    <svg width="140" height="67" viewBox="0 0 50 24" xmlns="http://www.w3.org/2000/svg">
+      <path class="logo-bg" d="M49.7738 4.31636L42.0684 4.95287L41.8768 8.25898L49.5822 7.58349L49.356 11.8998L41.6506 12.5753L41.2208 21.0053L35.8397 21.4874L36.7292 5.43369L27.0818 6.19803C26.3994 6.26961 26.2083 6.30437 25.8923 6.40624C25.5394 6.51634 25.2728 6.68022 25.094 6.89573C24.9152 7.11179 24.8146 7.36621 24.793 7.65491C24.7679 7.8914 24.8397 8.12208 24.9257 8.31948C25.0187 8.51114 25.1723 8.68926 25.3826 8.85486C25.593 9.0138 25.8647 9.16305 26.1982 9.30275C26.5322 9.44261 26.9315 9.57448 27.3953 9.69539L28.9956 10.1269C30.0752 10.4153 30.9945 10.7683 31.7518 11.1879C32.5091 11.6076 33.1216 12.0884 33.5892 12.6281C34.0572 13.1615 34.3899 13.7528 34.5878 14.4008C34.7919 15.0488 34.8782 15.7484 34.8453 16.4998C34.7709 17.797 34.3883 18.8797 33.6988 19.7452C33.0094 20.6105 32.0565 21.1271 30.8375 21.5333C29.6258 21.9394 26.5168 22.1313 26.5111 22.1317C26.5111 22.1317 15.2865 23.0198 10.7197 23.3748C10.1194 23.473 9.48793 23.521 8.82536 23.5189C8.82346 23.519 8.8222 23.5192 8.82166 23.5192V23.5189C8.59995 23.5181 8.37475 23.5121 8.14607 23.5001C6.44395 23.4109 4.96929 23.0373 3.72206 22.3794C2.47516 21.715 1.52387 20.8182 0.868127 19.6889C0.219151 18.5535-0.065976 17.2344 0.0127857 15.7314L0.619679 4.05953L6.00202 3.57365L5.39386 15.5496C5.36188 16.1598 5.46823 16.7129 5.71275 17.2087C5.95761 17.6982 6.31057 18.0902 6.77172 18.3849C7.23932 18.6799 7.77828 18.8434 8.38848 18.8754C9.00508 18.9077 9.55809 18.8014 10.0475 18.5566C10.537 18.3117 10.929 17.9587 11.2237 17.4975C11.5187 17.0299 11.6823 16.491 11.7143 15.8809L12.3746 3.02502L17.7324 2.55151L17.0469 16.6241C17.0111 17.3079 16.9027 17.9459 16.7223 18.5382C21.375 18.1801 26.4588 17.7876 26.6641 17.773C27.3172 17.7088 27.7198 17.7183 28.1126 17.5972C28.505 17.4761 28.8078 17.2956 29.0199 17.0558C29.2322 16.8157 29.3486 16.5338 29.3719 16.213C29.3811 15.911 29.296 15.6417 29.1152 15.407C28.941 15.1662 28.6429 14.9446 28.2224 14.7424C27.8018 14.5336 27.2288 14.3311 26.5053 14.1322L24.5624 13.6053C22.8353 13.1347 21.4905 12.429 20.5286 11.4898C19.5735 10.5445 19.0973 9.28733 19.1845 7.7462C19.2438 6.49344 19.6356 5.41565 20.3592 4.51327C21.0894 3.60513 22.0682 2.91909 23.2965 2.45544C24.479 2.01178 25.6752 1.99987 27.2921 1.87661L40.2368 0.844721L50 0L49.7738 4.31636Z"/>
+      <path class="logo-fill" d="M49.7738 4.31636L42.0684 4.95287L41.8768 8.25898L49.5822 7.58349L49.356 11.8998L41.6506 12.5753L41.2208 21.0053L35.8397 21.4874L36.7292 5.43369L27.0818 6.19803C26.3994 6.26961 26.2083 6.30437 25.8923 6.40624C25.5394 6.51634 25.2728 6.68022 25.094 6.89573C24.9152 7.11179 24.8146 7.36621 24.793 7.65491C24.7679 7.8914 24.8397 8.12208 24.9257 8.31948C25.0187 8.51114 25.1723 8.68926 25.3826 8.85486C25.593 9.0138 25.8647 9.16305 26.1982 9.30275C26.5322 9.44261 26.9315 9.57448 27.3953 9.69539L28.9956 10.1269C30.0752 10.4153 30.9945 10.7683 31.7518 11.1879C32.5091 11.6076 33.1216 12.0884 33.5892 12.6281C34.0572 13.1615 34.3899 13.7528 34.5878 14.4008C34.7919 15.0488 34.8782 15.7484 34.8453 16.4998C34.7709 17.797 34.3883 18.8797 33.6988 19.7452C33.0094 20.6105 32.0565 21.1271 30.8375 21.5333C29.6258 21.9394 26.5168 22.1313 26.5111 22.1317C26.5111 22.1317 15.2865 23.0198 10.7197 23.3748C10.1194 23.473 9.48793 23.521 8.82536 23.5189C8.82346 23.519 8.8222 23.5192 8.82166 23.5192V23.5189C8.59995 23.5181 8.37475 23.5121 8.14607 23.5001C6.44395 23.4109 4.96929 23.0373 3.72206 22.3794C2.47516 21.715 1.52387 20.8182 0.868127 19.6889C0.219151 18.5535-0.065976 17.2344 0.0127857 15.7314L0.619679 4.05953L6.00202 3.57365L5.39386 15.5496C5.36188 16.1598 5.46823 16.7129 5.71275 17.2087C5.95761 17.6982 6.31057 18.0902 6.77172 18.3849C7.23932 18.6799 7.77828 18.8434 8.38848 18.8754C9.00508 18.9077 9.55809 18.8014 10.0475 18.5566C10.537 18.3117 10.929 17.9587 11.2237 17.4975C11.5187 17.0299 11.6823 16.491 11.7143 15.8809L12.3746 3.02502L17.7324 2.55151L17.0469 16.6241C17.0111 17.3079 16.9027 17.9459 16.7223 18.5382C21.375 18.1801 26.4588 17.7876 26.6641 17.773C27.3172 17.7088 27.7198 17.7183 28.1126 17.5972C28.505 17.4761 28.8078 17.2956 29.0199 17.0558C29.2322 16.8157 29.3486 16.5338 29.3719 16.213C29.3811 15.911 29.296 15.6417 29.1152 15.407C28.941 15.1662 28.6429 14.9446 28.2224 14.7424C27.8018 14.5336 27.2288 14.3311 26.5053 14.1322L24.5624 13.6053C22.8353 13.1347 21.4905 12.429 20.5286 11.4898C19.5735 10.5445 19.0973 9.28733 19.1845 7.7462C19.2438 6.49344 19.6356 5.41565 20.3592 4.51327C21.0894 3.60513 22.0682 2.91909 23.2965 2.45544C24.479 2.01178 25.6752 1.99987 27.2921 1.87661L40.2368 0.844721L50 0L49.7738 4.31636Z"/>
+    </svg>
+  </div>
+  <script>
+    (function() {
+      var loader = document.getElementById('pageLoader');
+      var navEntries = performance.getEntriesByType('navigation');
+      var navType = navEntries.length > 0 ? navEntries[0].type : '';
+      var hasSeenLoader = sessionStorage.getItem('usf_loader_shown');
+      if (navType === 'back_forward' || (navType === 'navigate' && hasSeenLoader)) {
+        loader.classList.add('skip');
+        var ll = document.getElementById('pageLoaderLeft');
+        if (ll) ll.classList.add('done');
+        document.documentElement.classList.remove('loading');
+      } else {
+        sessionStorage.setItem('usf_loader_shown', '1');
+      }
+    })();
+  </script>
+
+  <!-- NAV -->
+  <div class="nav-wrapper" id="navbar">
+  <nav class="nav">
+    <div class="nav-left">
+    <a href="index.html" class="nav-logo">
+      <svg width="50" height="24" viewBox="0 0 50 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M49.7738 4.31636L42.0684 4.95287L41.8768 8.25898L49.5822 7.58349L49.356 11.8998L41.6506 12.5753L41.2208 21.0053L35.8397 21.4874L36.7292 5.43369L27.0818 6.19803C26.3994 6.26961 26.2083 6.30437 25.8923 6.40624C25.5394 6.51634 25.2728 6.68022 25.094 6.89573C24.9152 7.11179 24.8146 7.36621 24.793 7.65491C24.7679 7.8914 24.8397 8.12208 24.9257 8.31948C25.0187 8.51114 25.1723 8.68926 25.3826 8.85486C25.593 9.0138 25.8647 9.16305 26.1982 9.30275C26.5322 9.44261 26.9315 9.57448 27.3953 9.69539L28.9956 10.1269C30.0752 10.4153 30.9945 10.7683 31.7518 11.1879C32.5091 11.6076 33.1216 12.0884 33.5892 12.6281C34.0572 13.1615 34.3899 13.7528 34.5878 14.4008C34.7919 15.0488 34.8782 15.7484 34.8453 16.4998C34.7709 17.797 34.3883 18.8797 33.6988 19.7452C33.0094 20.6105 32.0565 21.1271 30.8375 21.5333C29.6258 21.9394 26.5168 22.1313 26.5111 22.1317C26.5111 22.1317 15.2865 23.0198 10.7197 23.3748C10.1194 23.473 9.48793 23.521 8.82536 23.5189C8.82346 23.519 8.8222 23.5192 8.82166 23.5192V23.5189C8.59995 23.5181 8.37475 23.5121 8.14607 23.5001C6.44395 23.4109 4.96929 23.0373 3.72206 22.3794C2.47516 21.715 1.52387 20.8182 0.868127 19.6889C0.219151 18.5535 -0.065976 17.2344 0.0127857 15.7314L0.619679 4.05953L6.00202 3.57365L5.39386 15.5496C5.36188 16.1598 5.46823 16.7129 5.71275 17.2087C5.95761 17.6982 6.31057 18.0902 6.77172 18.3849C7.23932 18.6799 7.77828 18.8434 8.38848 18.8754C9.00508 18.9077 9.55809 18.8014 10.0475 18.5566C10.537 18.3117 10.929 17.9587 11.2237 17.4975C11.5187 17.0299 11.6823 16.491 11.7143 15.8809L12.3746 3.02502L17.7324 2.55151L17.0469 16.6241C17.0111 17.3079 16.9027 17.9459 16.7223 18.5382C21.375 18.1801 26.4588 17.7876 26.6641 17.773C27.3172 17.7088 27.7198 17.7183 28.1126 17.5972C28.505 17.4761 28.8078 17.2956 29.0199 17.0558C29.2322 16.8157 29.3486 16.5338 29.3719 16.213C29.3811 15.911 29.296 15.6417 29.1152 15.407C28.941 15.1662 28.6429 14.9446 28.2224 14.7424C27.8018 14.5336 27.2288 14.3311 26.5053 14.1322L24.5624 13.6053C22.8353 13.1347 21.4905 12.429 20.5286 11.4898C19.5735 10.5445 19.0973 9.28733 19.1845 7.7462C19.2438 6.49344 19.6356 5.41565 20.3592 4.51327C21.0894 3.60513 22.0682 2.91909 23.2965 2.45544C24.479 2.01178 25.6752 1.99987 27.2921 1.87661L40.2368 0.844721L50 0L49.7738 4.31636Z" fill="white"/></svg>
+    </a>
+      <ul class="nav-links">
+        <li><a href="edukacije.html"><span data-hr="Edukacije" data-en="Education">Edukacije</span></a></li>
+        <li><a href="blog.html"><span data-hr="Članci" data-en="Articles">Članci</span></a></li>
+        <li><a href="clanstvo.html"><span data-hr="Članstvo" data-en="Membership">Članstvo</span></a></li>
+        <li><a href="o-nama.html"><span data-hr="O nama" data-en="About">O nama</span></a></li>
+        <li><a href="kontakt.html"><span data-hr="Kontakt" data-en="Contact">Kontakt</span></a></li>
+      </ul>
+      <button class="menu-toggle" onclick="var nl=document.querySelector('.nav-links');nl.classList.toggle('show');this.classList.toggle('open')" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="nav-right">
+      <div class="lang-switch">
+        <button class="active" data-lang="hr" onclick="switchLang('hr')"><svg class="lang-flag" viewBox="0 0 640 480"><rect width="640" height="160" fill="#FF0000"/><rect y="160" width="640" height="160" fill="#FFFFFF"/><rect y="320" width="640" height="160" fill="#171796"/><rect x="240" y="80" width="160" height="200" rx="0" ry="80" fill="#FF0000" stroke="#fff" stroke-width="4"/><g fill="#fff"><rect x="256" y="96" width="32" height="32"/><rect x="320" y="96" width="32" height="32"/><rect x="384" y="96" width="32" height="32"/><rect x="288" y="128" width="32" height="32"/><rect x="352" y="128" width="32" height="32"/><rect x="256" y="160" width="32" height="32"/><rect x="320" y="160" width="32" height="32"/><rect x="384" y="160" width="32" height="32"/><rect x="288" y="192" width="32" height="32"/><rect x="352" y="192" width="32" height="32"/><rect x="256" y="224" width="32" height="32"/><rect x="320" y="224" width="32" height="32"/><rect x="384" y="224" width="32" height="32"/></g></svg></button>
+        <button data-lang="en" onclick="switchLang('en')"><svg class="lang-flag" viewBox="0 0 640 480"><rect width="640" height="480" fill="#012169"/><path d="M0 0l640 480M640 0L0 480" stroke="#fff" stroke-width="60"/><path d="M0 0l640 480M640 0L0 480" stroke="#C8102E" stroke-width="40"/><path d="M320 0v480M0 240h640" stroke="#fff" stroke-width="100"/><path d="M320 0v480M0 240h640" stroke="#C8102E" stroke-width="60"/></svg></button>
+      </div>
+      <a href="donacije.html" class="nav-donate-btn"><span data-hr="Doniraj" data-en="Donate">Doniraj</span></a>
+      <div class="nav-auth" id="navAuth">
+        <a href="login.html" class="nav-auth-login-btn"><span data-hr="Pridruži se" data-en="Join now">Pridruži se</span></a>
+      </div>
+    </div>
+  </nav>
+  </div>
+
+  <div class="page-shell">
+
+  <!-- SEARCH AREA -->
+  <div class="search-area">
+    <input type="text" class="search-input" id="searchInput" placeholder="Pretraži edukacije i članke..." data-placeholder-hr="Pretraži edukacije i članke..." data-placeholder-en="Search education and articles...">
+    <div class="search-tabs">
+      <button class="search-tab active" data-filter="all" onclick="setFilter('all')"><span data-hr="Sve" data-en="All">Sve</span></button>
+      <button class="search-tab" data-filter="edu" onclick="setFilter('edu')"><span data-hr="Edukacije" data-en="Education">Edukacije</span></button>
+      <button class="search-tab" data-filter="blog" onclick="setFilter('blog')"><span data-hr="Članci" data-en="Articles">Članci</span></button>
+    </div>
+  </div>
+  </div><!-- end page-shell (hero only) -->
+
+  <div class="search-results-info" id="searchInfo"></div>
+  <div class="search-results" id="searchResults"></div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+
+    <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <a href="index.html" class="footer-logo" style="margin-bottom:16px;display:inline-block;">
+          <svg width="50" height="24" viewBox="0 0 50 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M49.7738 4.31636L42.0684 4.95287L41.8768 8.25898L49.5822 7.58349L49.356 11.8998L41.6506 12.5753L41.2208 21.0053L35.8397 21.4874L36.7292 5.43369L27.0818 6.19803C26.3994 6.26961 26.2083 6.30437 25.8923 6.40624C25.5394 6.51634 25.2728 6.68022 25.094 6.89573C24.9152 7.11179 24.8146 7.36621 24.793 7.65491C24.7679 7.8914 24.8397 8.12208 24.9257 8.31948C25.0187 8.51114 25.1723 8.68926 25.3826 8.85486C25.593 9.0138 25.8647 9.16305 26.1982 9.30275C26.5322 9.44261 26.9315 9.57448 27.3953 9.69539L28.9956 10.1269C30.0752 10.4153 30.9945 10.7683 31.7518 11.1879C32.5091 11.6076 33.1216 12.0884 33.5892 12.6281C34.0572 13.1615 34.3899 13.7528 34.5878 14.4008C34.7919 15.0488 34.8782 15.7484 34.8453 16.4998C34.7709 17.797 34.3883 18.8797 33.6988 19.7452C33.0094 20.6105 32.0565 21.1271 30.8375 21.5333C29.6258 21.9394 26.5168 22.1313 26.5111 22.1317C26.5111 22.1317 15.2865 23.0198 10.7197 23.3748C10.1194 23.473 9.48793 23.521 8.82536 23.5189C8.82346 23.519 8.8222 23.5192 8.82166 23.5192V23.5189C8.59995 23.5181 8.37475 23.5121 8.14607 23.5001C6.44395 23.4109 4.96929 23.0373 3.72206 22.3794C2.47516 21.715 1.52387 20.8182 0.868127 19.6889C0.219151 18.5535-0.065976 17.2344 0.0127857 15.7314L0.619679 4.05953L6.00202 3.57365L5.39386 15.5496C5.36188 16.1598 5.46823 16.7129 5.71275 17.2087C5.95761 17.6982 6.31057 18.0902 6.77172 18.3849C7.23932 18.6799 7.77828 18.8434 8.38848 18.8754C9.00508 18.9077 9.55809 18.8014 10.0475 18.5566C10.537 18.3117 10.929 17.9587 11.2237 17.4975C11.5187 17.0299 11.6823 16.491 11.7143 15.8809L12.3746 3.02502L17.7324 2.55151L17.0469 16.6241C17.0111 17.3079 16.9027 17.9459 16.7223 18.5382C21.375 18.1801 26.4588 17.7876 26.6641 17.773C27.3172 17.7088 27.7198 17.7183 28.1126 17.5972C28.505 17.4761 28.8078 17.2956 29.0199 17.0558C29.2322 16.8157 29.3486 16.5338 29.3719 16.213C29.3811 15.911 29.296 15.6417 29.1152 15.407C28.941 15.1662 28.6429 14.9446 28.2224 14.7424C27.8018 14.5336 27.2288 14.3311 26.5053 14.1322L24.5624 13.6053C22.8353 13.1347 21.4905 12.429 20.5286 11.4898C19.5735 10.5445 19.0973 9.28733 19.1845 7.7462C19.2438 6.49344 19.6356 5.41565 20.3592 4.51327C21.0894 3.60513 22.0682 2.91909 23.2965 2.45544C24.479 2.01178 25.6752 1.99987 27.2921 1.87661L40.2368 0.844721L50 0L49.7738 4.31636Z" fill="rgba(255,255,255,0.35)"/></svg>
+        </a>
+        <p><span data-hr="Prva hrvatska udruga posvećena isključivo sportskoj fizioterapiji osnovana 2026. Okupljamo stručnjake, educiramo zajednicu i podižemo standarde profesije." data-en="Croatia's first association dedicated exclusively to sports physiotherapy, founded in 2026. We gather experts, educate the community, and raise professional standards.">Prva hrvatska udruga posvećena isključivo sportskoj fizioterapiji osnovana 2026. Okupljamo stručnjake, educiramo zajednicu i podižemo standarde profesije.</span></p>
+        <div class="footer-socials">
+          <a href="https://instagram.com/usf.hr" target="_blank" rel="noopener" aria-label="Instagram"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+          <a href="https://facebook.com/usf" target="_blank" rel="noopener" aria-label="Facebook"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+          <a href="https://linkedin.com/company/usf.hr" target="_blank" rel="noopener" aria-label="LinkedIn"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+          <a href="https://youtube.com/@usf.hr" target="_blank" rel="noopener" aria-label="YouTube"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+        </div>
+      </div>
+      <!-- Col 2: Payment details (donations) -->
+      <div class="footer-col footer-col-pay">
+        <h4><span data-hr="Podaci za uplatu" data-en="Payment details">Podaci za uplatu</span></h4>
+        <ul>
+          <li id="usfPayName">Udruga sportskih fizioterapeuta</li>
+          <li id="usfPayAddress">Lojenov prilaz 4, Zagreb</li>
+          <li>IBAN: <span id="usfPayIban">HR4623600001103297330</span></li>
+          <li>SWIFT: <span id="usfPaySwift">ZABAHR2X</span></li>
+                  </ul>
+        <script>try{var _op=JSON.parse(localStorage.getItem('usf_org_payment')||'null');if(_op){if(_op.name)document.getElementById('usfPayName').textContent=_op.name;if(_op.iban)document.getElementById('usfPayIban').textContent=_op.iban;if(_op.swift)document.getElementById('usfPaySwift').textContent=_op.swift;var _a=document.getElementById('usfPayAddress');if(_a&&_op.address)_a.textContent=_op.address;}}catch(e){}</script>
+      </div>
+
+      <div class="footer-col footer-col-nav">
+        <ul style="grid-template-columns:1fr;"><li><a href="edukacije.html"><span data-hr="Edukacije" data-en="Education">Edukacije</span></a></li><li><a href="blog.html"><span data-hr="Članci" data-en="Articles">Članci</span></a></li><li><a href="clanstvo.html"><span data-hr="Članstvo" data-en="Membership">Članstvo</span></a></li><li><a href="o-nama.html"><span data-hr="O nama" data-en="About">O nama</span></a></li><li><a href="donacije.html"><span data-hr="Donacije" data-en="Donate">Donacije</span></a></li><li><a href="kontakt.html"><span data-hr="Kontakt" data-en="Contact">Kontakt</span></a></li></ul>
+      </div>
+      <div class="footer-col">
+        <p style="font-size:0.88rem;font-weight:400;color:var(--text-muted);margin-bottom:14px;"><span data-hr="Pretplati se na newsletter" data-en="Subscribe to our newsletter">Pretplati se na newsletter</span></p>
+        <form onsubmit="event.preventDefault();alert(document.documentElement.lang==='en'?'Thank you for subscribing!':'Hvala na pretplati!');" style="display:flex;flex-direction:column;gap:8px;">
+          <input type="text" placeholder="Ime" data-hr-placeholder="Ime" data-en-placeholder="Name" style="background:rgba(255,255,255,0.06);border:none;border-radius:10px;padding:10px 16px;color:#fff;font-size:0.82rem;font-family:inherit;outline:none;" required>
+          <input type="email" placeholder="Email" data-hr-placeholder="Email" data-en-placeholder="Email" style="background:rgba(255,255,255,0.06);border:none;border-radius:10px;padding:10px 16px;color:#fff;font-size:0.82rem;font-family:inherit;outline:none;" required>
+          <p style="font-size:0.72rem;color:var(--text-faint);line-height:1.5;margin-top:4px;"><span data-hr="Pretplatom pristajete na našu " data-en="By subscribing you agree to our ">Pretplatom pristajete na našu </span><a href="legal.html" style="color:var(--text-faint);text-decoration:underline;transition:color 0.3s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text-faint)'"><span data-hr="politiku privatnosti" data-en="Privacy Policy">politiku privatnosti</span></a>.</p>
+          <button type="submit" style="background:rgba(255,255,255,0.08);color:var(--text-muted);border:none;border-radius:10px;padding:10px 20px;font-size:0.85rem;font-weight:400;font-family:inherit;cursor:none;transition:all 0.3s;white-space:nowrap;width:100%;margin-top:4px;" onmouseover="this.style.background='rgba(255,255,255,0.15)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.08)';this.style.color='var(--text-muted)'"><span data-hr="Pretplati se" data-en="Subscribe">Pretplati se</span></button>
+        </form>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span><span data-hr="© 2026 Udruga sportskih fizioterapeuta" data-en="© 2026 Association of Sports Physiotherapists">© 2026 Udruga sportskih fizioterapeuta</span> <span style="display:inline-block;width:24px;"></span> <a href="legal.html" style="color:var(--text-faint);transition:color 0.3s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text-faint)'"><span data-hr="Pravne informacije" data-en="Legal">Pravne informacije</span></a></span>
+      <span>Website by <a href="https://pegula.studio" target="_blank" style="color:var(--text-faint);transition:color 0.3s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text-faint)'">pegula.studio</a></span>
+    </div>
+    </div>
+  </footer>
+
+  <script>
+    setTimeout(function() {
+      var loader = document.getElementById('pageLoader');
+      var loaderLeft = document.getElementById('pageLoaderLeft');
+      if (loader && !loader.classList.contains('skip')) {
+        loader.classList.add('crack');
+        if (loaderLeft) loaderLeft.classList.add('crack');
+        document.documentElement.classList.remove('loading');
+        setTimeout(function(){
+          loader.classList.add('crack-full');
+          setTimeout(function(){
+            loader.classList.add('done');
+            if (loaderLeft) loaderLeft.classList.add('done');
+          }, 400);
+        }, 500);
+      }
+    }, 800);
+  </script>
+
+  <script>
+    // Nav scroll
+    var navWrapper = document.getElementById('navbar');
+    window.addEventListener('scroll', function() { navWrapper.classList.toggle('scrolled', window.scrollY > 80); });
+
+    // Nav auth check
+    (function() {
+      var raw = localStorage.getItem('usf_current_user');
+      if (raw) {
+        try {
+          var user = JSON.parse(raw);
+          var auth = document.getElementById('navAuth');
+          if (auth && user) {
+            auth.innerHTML = '<a href="dashboard.html" class="nav-profile-circle" title="Moj profil" style="display:flex;align-items:flex-end;justify-content:center;"><svg width="34" height="34" viewBox="0 0 24 24" fill="#fff" style="margin-bottom:-8px;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></a>';
+          }
+        } catch(e) {}
+      }
+    })();
+
+    // ===== DATA =====
+    var currentLang = localStorage.getItem('usf_lang') || 'hr';
+    var currentFilter = 'all';
+
+    var eduEvents = [
+      { id: 1, titleHr: 'Prevencija sportskih ozljeda', titleEn: 'Sports Injury Prevention', type: 'radionica', typeHr: 'Radionica', typeEn: 'Workshop', dateHr: '15.–16. lipnja 2026.', dateEn: 'June 15–16, 2026', locationHr: 'Zagreb, Hotel Esplanade', locationEn: 'Zagreb, Hotel Esplanade', priceHr: 'Uključeno u članarinu', priceEn: 'Included in membership', image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop' },
+      { id: 2, titleHr: 'Povratak sportu nakon ACL rekonstrukcije', titleEn: 'Return to Sport After ACL Reconstruction', type: 'seminar', typeHr: 'Seminar', typeEn: 'Seminar', dateHr: '10. srpnja 2026.', dateEn: 'July 10, 2026', locationHr: 'Split, Medicinski fakultet', locationEn: 'Split, Medical Faculty', priceHr: '50 €', priceEn: '50 €', image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&h=400&fit=crop' },
+      { id: 3, titleHr: 'Manualna terapija u sportu', titleEn: 'Manual Therapy in Sports', type: 'tecaj', typeHr: 'Tečaj', typeEn: 'Course', dateHr: '5.–7. kolovoza 2026.', dateEn: 'August 5–7, 2026', locationHr: 'Rijeka, KBC', locationEn: 'Rijeka, Clinical Hospital', priceHr: '150 €', priceEn: '150 €', image: 'https://images.unsplash.com/photo-1519824145371-296894a0daa9?w=600&h=400&fit=crop' },
+      { id: 4, titleHr: 'USF Godišnja konferencija 2026', titleEn: 'USF Annual Conference 2026', type: 'konferencija', typeHr: 'Konferencija', typeEn: 'Conference', dateHr: '15.–16. rujna 2026.', dateEn: 'September 15–16, 2026', locationHr: 'Zagreb, Kongresni centar', locationEn: 'Zagreb, Congress Center', priceHr: 'Uključeno u članarinu', priceEn: 'Included in membership', image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop' },
+      { id: 5, titleHr: 'Regeneracija sportaša', titleEn: 'Athlete Recovery', type: 'radionica', typeHr: 'Radionica', typeEn: 'Workshop', dateHr: '20. listopada 2026.', dateEn: 'October 20, 2026', locationHr: 'Osijek, Sportska dvorana', locationEn: 'Osijek, Sports Hall', priceHr: 'Uključeno u članarinu', priceEn: 'Included in membership', image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&h=400&fit=crop' },
+      { id: 6, titleHr: 'Biomehanika u sportu', titleEn: 'Biomechanics in Sports', type: 'seminar', typeHr: 'Seminar', typeEn: 'Seminar', dateHr: '12. studenoga 2026.', dateEn: 'November 12, 2026', locationHr: 'Online (Zoom)', locationEn: 'Online (Zoom)', priceHr: '75 €', priceEn: '75 €', image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&h=400&fit=crop' },
+      { id: 7, titleHr: 'Taping tehnike u sportu', titleEn: 'Sports Taping Techniques', type: 'radionica', typeHr: 'Radionica', typeEn: 'Workshop', dateHr: '3. prosinca 2026.', dateEn: 'December 3, 2026', locationHr: 'Zagreb, Kineziološki fakultet', locationEn: 'Zagreb, Faculty of Kinesiology', priceHr: 'Uključeno u članarinu', priceEn: 'Included in membership', image: 'https://images.unsplash.com/photo-1597764690523-15bea4c581c9?w=600&h=400&fit=crop' },
+      { id: 8, titleHr: 'Ultrazvuk u dijagnostici sportskih ozljeda', titleEn: 'Ultrasound in Sports Injury Diagnostics', type: 'seminar', typeHr: 'Seminar', typeEn: 'Seminar', dateHr: '18. siječnja 2027.', dateEn: 'January 18, 2027', locationHr: 'Split, KBC Split', locationEn: 'Split, Clinical Hospital', priceHr: '90 €', priceEn: '90 €', image: 'https://images.unsplash.com/photo-1559757175-5700dde675bc?w=600&h=400&fit=crop' },
+      { id: 9, titleHr: 'Funkcionalni trening za rehabilitaciju', titleEn: 'Functional Training for Rehabilitation', type: 'tecaj', typeHr: 'Tečaj', typeEn: 'Course', dateHr: '10.–12. veljače 2027.', dateEn: 'February 10–12, 2027', locationHr: 'Rijeka, Sportski centar Kantrida', locationEn: 'Rijeka, Kantrida Sports Center', priceHr: '200 €', priceEn: '200 €', image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&h=400&fit=crop' },
+      { id: 10, titleHr: 'Prehrana sportaša — uloga fizioterapeuta', titleEn: 'Athlete Nutrition — The Physiotherapist\'s Role', type: 'seminar', typeHr: 'Seminar', typeEn: 'Seminar', dateHr: '5. ožujka 2027.', dateEn: 'March 5, 2027', locationHr: 'Online (Zoom)', locationEn: 'Online (Zoom)', priceHr: '40 €', priceEn: '40 €', image: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&h=400&fit=crop' },
+      { id: 11, titleHr: 'Psihologija ozljede i oporavka', titleEn: 'Psychology of Injury and Recovery', type: 'radionica', typeHr: 'Radionica', typeEn: 'Workshop', dateHr: '22. ožujka 2027.', dateEn: 'March 22, 2027', locationHr: 'Zagreb, Hotel Westin', locationEn: 'Zagreb, Hotel Westin', priceHr: 'Uključeno u članarinu', priceEn: 'Included in membership', image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&h=400&fit=crop' },
+      { id: 12, titleHr: 'Dry needling u sportskoj fizioterapiji', titleEn: 'Dry Needling in Sports Physiotherapy', type: 'tecaj', typeHr: 'Tečaj', typeEn: 'Course', dateHr: '15.–16. travnja 2027.', dateEn: 'April 15–16, 2027', locationHr: 'Osijek, Medicinski fakultet', locationEn: 'Osijek, Medical Faculty', priceHr: '180 €', priceEn: '180 €', image: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=600&h=400&fit=crop' },
+      { id: 13, titleHr: 'Kineziologija u rehabilitaciji', titleEn: 'Kinesiology in Rehabilitation', type: 'tecaj', typeHr: 'Tečaj', typeEn: 'Course', dateHr: '20. studenoga 2026.', dateEn: 'November 20, 2026', locationHr: 'Zagreb, Kineziološki fakultet', locationEn: 'Zagreb, Faculty of Kinesiology', priceHr: '120 €', priceEn: '120 €', image: 'https://images.unsplash.com/photo-1508129214940-7b2223ae0a08?w=600&h=400&fit=crop' },
+      { id: 14, titleHr: 'Elektromiografija u sportu', titleEn: 'Electromyography in Sports', type: 'seminar', typeHr: 'Seminar', typeEn: 'Seminar', dateHr: '5. prosinca 2026.', dateEn: 'December 5, 2026', locationHr: 'Split, Klinički bolnički centar', locationEn: 'Split, Clinical Hospital Center', priceHr: '85 €', priceEn: '85 €', image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&h=400&fit=crop' },
+      { id: 15, titleHr: 'Osteopatija za sportaše', titleEn: 'Osteopathy for Athletes', type: 'radionica', typeHr: 'Radionica', typeEn: 'Workshop', dateHr: '15. siječnja 2027.', dateEn: 'January 15, 2027', locationHr: 'Rijeka, Sportski centar', locationEn: 'Rijeka, Sports Center', priceHr: 'Uključeno u članarinu', priceEn: 'Included in membership', image: 'https://images.unsplash.com/photo-1489659831163-682b5af42225?w=600&h=400&fit=crop' },
+      { id: 16, titleHr: 'Rehabilitacija ramenog zgloba', titleEn: 'Shoulder Joint Rehabilitation', type: 'tecaj', typeHr: 'Tečaj', typeEn: 'Course', dateHr: '28.–29. siječnja 2027.', dateEn: 'January 28–29, 2027', locationHr: 'Zagreb, Sportska dvorana Martinkovac', locationEn: 'Zagreb, Martinkovac Sports Hall', priceHr: '175 €', priceEn: '175 €', image: 'https://images.unsplash.com/photo-1597452485669-2c7bb5fef90d?w=600&h=400&fit=crop' },
+      { id: 17, titleHr: 'Sportska masaža: napredne tehnike', titleEn: 'Sports Massage: Advanced Techniques', type: 'radionica', typeHr: 'Radionica', typeEn: 'Workshop', dateHr: '10. veljače 2027.', dateEn: 'February 10, 2027', locationHr: 'Osijek, Hotel Waldinger', locationEn: 'Osijek, Hotel Waldinger', priceHr: 'Uključeno u članarinu', priceEn: 'Included in membership', image: 'https://images.unsplash.com/photo-1519824145371-296894a0daa9?w=600&h=400&fit=crop' },
+      { id: 18, titleHr: 'Analiza pokreta pomoću AI tehnologije', titleEn: 'Movement Analysis Using AI Technology', type: 'seminar', typeHr: 'Seminar', typeEn: 'Seminar', dateHr: '25. veljače 2027.', dateEn: 'February 25, 2027', locationHr: 'Online (Zoom)', locationEn: 'Online (Zoom)', priceHr: '60 €', priceEn: '60 €', image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop' },
+      { id: 19, titleHr: 'Prevencija ozljeda u timskim sportovima', titleEn: 'Injury Prevention in Team Sports', type: 'konferencija', typeHr: 'Konferencija', typeEn: 'Conference', dateHr: '15.–16. ožujka 2027.', dateEn: 'March 15–16, 2027', locationHr: 'Zagreb, Kongresni centar', locationEn: 'Zagreb, Congress Center', priceHr: 'Uključeno u članarinu', priceEn: 'Included in membership', image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&h=400&fit=crop' },
+      { id: 20, titleHr: 'Posturalna analiza i korekcija', titleEn: 'Postural Analysis and Correction', type: 'tecaj', typeHr: 'Tečaj', typeEn: 'Course', dateHr: '2.–3. travnja 2027.', dateEn: 'April 2–3, 2027', locationHr: 'Split, Poliklinika Medico', locationEn: 'Split, Medico Polyclinic', priceHr: '140 €', priceEn: '140 €', image: 'https://images.unsplash.com/photo-1490696809909-71f5f1fd23e5?w=600&h=400&fit=crop' },
+      { id: 21, titleHr: 'Hidrotherapy u sportskoj rehabilitaciji', titleEn: 'Hydrotherapy in Sports Rehabilitation', type: 'radionica', typeHr: 'Radionica', typeEn: 'Workshop', dateHr: '18. travnja 2027.', dateEn: 'April 18, 2027', locationHr: 'Rijeka, Bazeni Kantrida', locationEn: 'Rijeka, Kantrida Pools', priceHr: 'Uključeno u članarinu', priceEn: 'Included in membership', image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop' },
+      { id: 22, titleHr: 'Krioterapija i termoterapija', titleEn: 'Cryotherapy and Thermotherapy', type: 'seminar', typeHr: 'Seminar', typeEn: 'Seminar', dateHr: '8. svibnja 2027.', dateEn: 'May 8, 2027', locationHr: 'Online (Zoom)', locationEn: 'Online (Zoom)', priceHr: '45 €', priceEn: '45 €', image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&h=400&fit=crop' },
+      { id: 23, titleHr: 'Rehabilitacija nakon sportske operacije', titleEn: 'Rehabilitation After Sports Surgery', type: 'tecaj', typeHr: 'Tečaj', typeEn: 'Course', dateHr: '22.–24. svibnja 2027.', dateEn: 'May 22–24, 2027', locationHr: 'Zagreb, KBC Rebro', locationEn: 'Zagreb, KBC Rebro', priceHr: '250 €', priceEn: '250 €', image: 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=600&h=400&fit=crop' },
+      { id: 24, titleHr: 'Mentalno zdravlje sportaša', titleEn: 'Mental Health of Athletes', type: 'konferencija', typeHr: 'Konferencija', typeEn: 'Conference', dateHr: '10. lipnja 2027.', dateEn: 'June 10, 2027', locationHr: 'Osijek, Filozofski fakultet', locationEn: 'Osijek, Faculty of Philosophy', priceHr: 'Uključeno u članarinu', priceEn: 'Included in membership', image: 'https://images.unsplash.com/photo-1483721310020-03333e577078?w=600&h=400&fit=crop' }
+    ];
+
+    var blogArticles = [
+      { id: 1, cat_hr: 'Prevencija', cat_en: 'Prevention', title_hr: 'Prevencija ozljeda prednjeg križnog ligamenta kod sportaša', title_en: 'ACL injury prevention in athletes', excerpt_hr: 'ACL ozljede su među najučestalijim i najkompleksnijim ozljedama u sportu. Istražujemo najnovije preventivne protokole...', excerpt_en: 'ACL injuries are among the most common and complex injuries in sports. We explore the latest preventive protocols...', image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&h=400&fit=crop' },
+      { id: 2, cat_hr: 'Rehabilitacija', cat_en: 'Rehabilitation', title_hr: 'Moderna rehabilitacija nakon operacije ramena', title_en: 'Modern rehabilitation after shoulder surgery', excerpt_hr: 'Novi pristupi u postoperativnoj rehabilitaciji ramena kod sportaša s naglaskom na rani povratak funkcionalnim aktivnostima...', excerpt_en: 'New approaches in postoperative shoulder rehabilitation for athletes with emphasis on early return to functional activities...', image: 'https://images.unsplash.com/photo-1588286840104-8957b019727f?w=800&h=400&fit=crop' },
+      { id: 3, cat_hr: 'Vijesti', cat_en: 'News', title_hr: 'Najava: Godišnja konferencija USF 2026', title_en: 'Announcement: USF Annual Conference 2026', excerpt_hr: 'Sve informacije o nadolazećoj konferenciji sportskih fizioterapeuta koja će se održati u Zagrebu u rujnu...', excerpt_en: 'All information about the upcoming sports physiotherapy conference to be held in Zagreb in September...', image: 'https://images.unsplash.com/photo-1483721310020-03333e577078?w=800&h=400&fit=crop' },
+      { id: 4, cat_hr: 'Znanost', cat_en: 'Science', title_hr: 'Uloga ekscentričnog treninga u prevenciji tendinopatija', title_en: 'The role of eccentric training in tendinopathy prevention', excerpt_hr: 'Pregled literature o učinkovitosti ekscentričnog treninga u prevenciji i liječenju tendinopatija kod sportaša...', excerpt_en: 'A literature review on the effectiveness of eccentric training in preventing and treating tendinopathies in athletes...', image: 'https://images.unsplash.com/photo-1489659831163-682b5af42225?w=800&h=400&fit=crop' },
+      { id: 5, cat_hr: 'Praksa', cat_en: 'Practice', title_hr: 'Taping tehnike u sportskoj fizioterapiji', title_en: 'Taping techniques in sports physiotherapy', excerpt_hr: 'Praktični vodič kroz najčešće korištene taping tehnike u sportu — od klasičnog atletskog tapinga do kineziotapinga...', excerpt_en: 'A practical guide to the most commonly used taping techniques in sports — from classic athletic taping to kinesiotaping...', image: 'https://images.unsplash.com/photo-1490696809909-71f5f1fd23e5?w=800&h=400&fit=crop' },
+      { id: 6, cat_hr: 'Edukacija', cat_en: 'Education', title_hr: 'Return-to-sport testiranje: Što svaki fizioterapeut treba znati', title_en: 'Return-to-sport testing: What every physiotherapist needs to know', excerpt_hr: 'Sveobuhvatan pregled kriterija i testova za siguran povratak sportaša aktivnostima nakon ozljede...', excerpt_en: 'A comprehensive overview of criteria and tests for safe athlete return to activities after injury...', image: 'https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?w=800&h=400&fit=crop' },
+      { id: 7, cat_hr: 'Prevencija', cat_en: 'Prevention', title_hr: 'Upravljanje opterećenjem kod mladih sportaša', title_en: 'Load management in young athletes', excerpt_hr: 'Kako pravilno dozirati trening kod adolescenata i prevenirati ozljede preopterećenja u razvoju...', excerpt_en: 'How to properly dose training in adolescents and prevent overuse injuries during development...', image: 'https://images.unsplash.com/photo-1517963879433-6ad2b056d712?w=800&h=400&fit=crop' },
+      { id: 8, cat_hr: 'Rehabilitacija', cat_en: 'Rehabilitation', title_hr: 'Rehabilitacija nakon rupture Ahilove tetive', title_en: 'Rehabilitation after Achilles tendon rupture', excerpt_hr: 'Usporedba konzervativnog i operativnog pristupa te protokoli rane mobilizacije za brži oporavak...', excerpt_en: 'Comparison of conservative and surgical approaches and early mobilization protocols for faster recovery...', image: 'https://images.unsplash.com/photo-1508129214940-7b2223ae0a08?w=800&h=400&fit=crop' },
+      { id: 9, cat_hr: 'Znanost', cat_en: 'Science', title_hr: 'Blood flow restriction trening u rehabilitaciji', title_en: 'Blood flow restriction training in rehabilitation', excerpt_hr: 'Pregled dokaza o učinkovitosti BFR treninga u ranoj fazi rehabilitacije za održavanje mišićne mase...', excerpt_en: 'A review of evidence on BFR training effectiveness in early rehabilitation for maintaining muscle mass...', image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=400&fit=crop' },
+      { id: 10, cat_hr: 'Vijesti', cat_en: 'News', title_hr: 'USF potpisao suradnju s Kineziološkim fakultetom', title_en: 'USF signed collaboration with Faculty of Kinesiology', excerpt_hr: 'Nova suradnja otvorit će mogućnosti za zajedničke istraživačke projekte i stručnu praksu studenata...', excerpt_en: 'New collaboration will open opportunities for joint research projects and student internships...', image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&h=400&fit=crop' },
+      { id: 11, cat_hr: 'Praksa', cat_en: 'Practice', title_hr: 'Dry needling u sportskoj fizioterapiji: Indikacije i tehnike', title_en: 'Dry needling in sports physiotherapy: Indications and techniques', excerpt_hr: 'Sve što trebate znati o primjeni dry needlinga u tretmanu trigger točaka i miofascijalne boli kod sportaša...', excerpt_en: 'Everything you need to know about applying dry needling in treating trigger points and myofascial pain in athletes...', image: 'https://images.unsplash.com/photo-1519824145371-296894a0daa9?w=800&h=400&fit=crop' },
+      { id: 12, cat_hr: 'Edukacija', cat_en: 'Education', title_hr: 'Kako postati certificirani sportski fizioterapeut u Hrvatskoj', title_en: 'How to become a certified sports physiotherapist in Croatia', excerpt_hr: 'Vodič kroz edukacijske puteve, certifikacije i specijalizacije dostupne sportskim fizioterapeutima u Hrvatskoj...', excerpt_en: 'A guide through educational paths, certifications and specializations available to sports physiotherapists in Croatia...', image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&h=400&fit=crop' },
+      { id: 13, cat_hr: 'Oporavak', cat_en: 'Recovery', title_hr: 'Utjecaj sna na sportski oporavak', title_en: 'Impact of Sleep on Athletic Recovery', excerpt_hr: 'Kvalitetan san ključan je za regeneraciju mišića i mentalnu pripremu sportaša...', excerpt_en: 'Quality sleep is crucial for muscle regeneration and mental preparation of athletes...', image: 'https://images.unsplash.com/photo-1489659831163-682b5af42225?w=600&h=400&fit=crop' },
+      { id: 14, cat_hr: 'Trening', cat_en: 'Training', title_hr: 'Proprioceptivni trening za sportaše', title_en: 'Proprioceptive Training for Athletes', excerpt_hr: 'Propriocepcija igra ključnu ulogu u prevenciji ozljeda i poboljšanju sportske izvedbe...', excerpt_en: 'Proprioception plays a key role in injury prevention and improving athletic performance...', image: 'https://images.unsplash.com/photo-1508129214940-7b2223ae0a08?w=600&h=400&fit=crop' },
+      { id: 15, cat_hr: 'Tehnike', cat_en: 'Techniques', title_hr: 'Elektroterapija u modernoj fizioterapiji', title_en: 'Electrotherapy in Modern Physiotherapy', excerpt_hr: 'Pregled najnovijih elektroterapijskih metoda i njihove primjene u sportskoj rehabilitaciji...', excerpt_en: 'Overview of the latest electrotherapy methods and their application in sports rehabilitation...', image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&h=400&fit=crop' },
+      { id: 16, cat_hr: 'Rehabilitacija', cat_en: 'Rehabilitation', title_hr: 'Mentalna priprema sportaša nakon ozljede', title_en: 'Mental Preparation of Athletes After Injury', excerpt_hr: 'Psihološki aspekti oporavka jednako su važni kao i fizička rehabilitacija...', excerpt_en: 'Psychological aspects of recovery are equally important as physical rehabilitation...', image: 'https://images.unsplash.com/photo-1597452485669-2c7bb5fef90d?w=600&h=400&fit=crop' },
+      { id: 17, cat_hr: 'Tehnike', cat_en: 'Techniques', title_hr: 'Kinesio taping: dokazi i primjena', title_en: 'Kinesio Taping: Evidence and Application', excerpt_hr: 'Sustavni pregled literature o učinkovitosti kinesio tapinga u sportskoj fizioterapiji...', excerpt_en: 'Systematic review of literature on the effectiveness of kinesio taping in sports physiotherapy...', image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&h=400&fit=crop' },
+      { id: 18, cat_hr: 'Prevencija', cat_en: 'Prevention', title_hr: 'Prevencija ozljeda u nogometu', title_en: 'Injury Prevention in Football', excerpt_hr: 'FIFA 11+ program i drugi dokazani protokoli za smanjenje ozljeda u nogometu...', excerpt_en: 'FIFA 11+ program and other evidence-based protocols for reducing injuries in football...', image: 'https://images.unsplash.com/photo-1490696809909-71f5f1fd23e5?w=600&h=400&fit=crop' },
+      { id: 19, cat_hr: 'Trening', cat_en: 'Training', title_hr: 'Biomehanička analiza trčanja', title_en: 'Biomechanical Running Analysis', excerpt_hr: 'Kako biomehanička analiza pokreta pomaže u optimizaciji tehnike trčanja i prevenciji ozljeda...', excerpt_en: 'How biomechanical movement analysis helps optimize running technique and prevent injuries...', image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&h=400&fit=crop' },
+      { id: 20, cat_hr: 'Rehabilitacija', cat_en: 'Rehabilitation', title_hr: 'Rehabilitacija sportaša treće životne dobi', title_en: 'Rehabilitation of Senior Athletes', excerpt_hr: 'Specifičnosti rehabilitacije starijih sportaša i prilagodba protokola njihovim potrebama...', excerpt_en: 'Specifics of rehabilitating senior athletes and adapting protocols to their needs...', image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop' },
+      { id: 21, cat_hr: 'Oporavak', cat_en: 'Recovery', title_hr: 'Prehrana za optimalan oporavak', title_en: 'Nutrition for Optimal Recovery', excerpt_hr: 'Uloga makronutrijenata i mikronutrijenata u procesu oporavka nakon intenzivnog treninga...', excerpt_en: 'The role of macronutrients and micronutrients in the recovery process after intense training...', image: 'https://images.unsplash.com/photo-1519824145371-296894a0daa9?w=600&h=400&fit=crop' },
+      { id: 22, cat_hr: 'Vijesti', cat_en: 'News', title_hr: 'USF radionica: izvještaj i zaključci', title_en: 'USF Workshop: Report and Conclusions', excerpt_hr: 'Sažetak ključnih zaključaka s posljednje USF radionice o sportskoj rehabilitaciji...', excerpt_en: 'Summary of key conclusions from the latest USF workshop on sports rehabilitation...', image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop' },
+      { id: 23, cat_hr: 'Tehnike', cat_en: 'Techniques', title_hr: 'Aquaterapija u sportskoj medicini', title_en: 'Aquatherapy in Sports Medicine', excerpt_hr: 'Prednosti vodene terapije u rehabilitaciji sportskih ozljeda i ubrzanju oporavka...', excerpt_en: 'Benefits of aquatic therapy in sports injury rehabilitation and accelerating recovery...', image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&h=400&fit=crop' },
+      { id: 24, cat_hr: 'Prevencija', cat_en: 'Prevention', title_hr: 'Upravljanje opterećenjem kod mladih sportaša', title_en: 'Load Management in Young Athletes', excerpt_hr: 'Strategije za pravilno doziranje trenažnog opterećenja kod adolescenata i prevenciju prenaprezanja...', excerpt_en: 'Strategies for proper training load dosing in adolescents and overuse prevention...', image: 'https://images.unsplash.com/photo-1559757175-5700dde675bc?w=600&h=400&fit=crop' }
+    ];
+
+    // ===== SEARCH LOGIC =====
+    function getQueryParam(name) {
+      var params = new URLSearchParams(window.location.search);
+      return params.get(name) || '';
+    }
+
+    function setFilter(f) {
+      currentFilter = f;
+      document.querySelectorAll('.search-tab').forEach(function(btn) {
+        btn.classList.toggle('active', btn.getAttribute('data-filter') === f);
+      });
+      renderResults();
+    }
+
+    function renderResults() {
+      var query = document.getElementById('searchInput').value.trim().toLowerCase();
+      var lang = currentLang;
+      var eduResults = [];
+      var blogResults = [];
+
+      if (query.length < 1) {
+        document.getElementById('searchResults').innerHTML = '<div class="empty-state">' + (lang === 'hr' ? 'Upišite pojam za pretraživanje.' : 'Enter a search term.') + '</div>';
+        document.getElementById('searchInfo').textContent = '';
+        return;
+      }
+
+      // Search education events
+      if (currentFilter === 'all' || currentFilter === 'edu') {
+        eduEvents.forEach(function(ev) {
+          var titleHr = ev.titleHr.toLowerCase();
+          var titleEn = ev.titleEn.toLowerCase();
+          var typeHr = ev.typeHr.toLowerCase();
+          var typeEn = ev.typeEn.toLowerCase();
+          var locHr = ev.locationHr.toLowerCase();
+          var locEn = ev.locationEn.toLowerCase();
+          if (titleHr.indexOf(query) !== -1 || titleEn.indexOf(query) !== -1 || typeHr.indexOf(query) !== -1 || typeEn.indexOf(query) !== -1 || locHr.indexOf(query) !== -1 || locEn.indexOf(query) !== -1) {
+            eduResults.push(ev);
+          }
+        });
+      }
+
+      // Search blog articles
+      if (currentFilter === 'all' || currentFilter === 'blog') {
+        blogArticles.forEach(function(a) {
+          var tHr = a.title_hr.toLowerCase();
+          var tEn = a.title_en.toLowerCase();
+          var cHr = a.cat_hr.toLowerCase();
+          var cEn = a.cat_en.toLowerCase();
+          var eHr = a.excerpt_hr.toLowerCase();
+          var eEn = a.excerpt_en.toLowerCase();
+          if (tHr.indexOf(query) !== -1 || tEn.indexOf(query) !== -1 || cHr.indexOf(query) !== -1 || cEn.indexOf(query) !== -1 || eHr.indexOf(query) !== -1 || eEn.indexOf(query) !== -1) {
+            blogResults.push(a);
+          }
+        });
+      }
+
+      var container = document.getElementById('searchResults');
+      var info = document.getElementById('searchInfo');
+      var totalCount = eduResults.length + blogResults.length;
+
+      if (totalCount === 0) {
+        container.innerHTML = '<div class="empty-state">' + (lang === 'hr' ? 'Nema rezultata za "' + document.getElementById('searchInput').value + '".' : 'No results for "' + document.getElementById('searchInput').value + '".') + '</div>';
+        info.textContent = '';
+        return;
+      }
+
+      info.textContent = (lang === 'hr' ? 'Pronađeno ' + totalCount + ' rezultata' : 'Found ' + totalCount + ' results');
+
+      var html = '';
+
+      // Education results as vertical cards
+      if (eduResults.length > 0) {
+        if (currentFilter === 'all') {
+          html += '<div class="search-section-label">' + (lang === 'hr' ? 'Edukacije' : 'Education') + '</div>';
+        }
+        html += '<div class="event-grid">';
+        eduResults.forEach(function(ev) {
+          var title = lang === 'hr' ? ev.titleHr : ev.titleEn;
+          var typeName = lang === 'hr' ? ev.typeHr : ev.typeEn;
+          var date = lang === 'hr' ? ev.dateHr : ev.dateEn;
+          var loc = lang === 'hr' ? ev.locationHr : ev.locationEn;
+          var price = lang === 'hr' ? ev.priceHr : ev.priceEn;
+          html += '<a href="edukacija.html?id=' + ev.id + '" class="event-card">' +
+            '<div class="event-card-img-wrap">' +
+              '<img class="event-card-img" src="' + ev.image + '" alt="' + title + '" loading="lazy">' +
+            '</div>' +
+            '<div class="event-card-body">' +
+              '<div class="event-card-badges">' +
+                '<span class="event-card-type type-' + ev.type + '">' + typeName + '</span>' +
+              '</div>' +
+              '<h3>' + title + '</h3>' +
+              '<div class="event-meta">' + date + ', ' + loc + '</div>' +
+              '<span class="event-price">' + price + '</span>' +
+            '</div>' +
+          '</a>';
+        });
+        html += '</div>';
+      }
+
+      // Blog results as vertical cards
+      if (blogResults.length > 0) {
+        if (currentFilter === 'all') {
+          html += '<div class="search-section-label">' + (lang === 'hr' ? 'Članci' : 'Articles') + '</div>';
+        }
+        html += '<div class="blog-grid">';
+        blogResults.forEach(function(a) {
+          var title = lang === 'hr' ? a.title_hr : a.title_en;
+          var cat = lang === 'hr' ? a.cat_hr : a.cat_en;
+          var excerpt = lang === 'hr' ? a.excerpt_hr : a.excerpt_en;
+          html += '<a href="blog.html?id=' + a.id + '" class="blog-card">' +
+            '<div class="blog-thumb" style="background-image:url(\'' + a.image + '\')"></div>' +
+            '<div class="blog-body">' +
+              '<span class="cat">' + cat + '</span>' +
+              '<h3>' + title + '</h3>' +
+              '<p class="excerpt">' + excerpt + '</p>' +
+            '</div>' +
+          '</a>';
+        });
+        html += '</div>';
+      }
+
+      container.innerHTML = html;
+    }
+
+    // ===== LANGUAGE =====
+    function switchLang(lang) {
+      currentLang = lang;
+      document.documentElement.lang = lang;
+      localStorage.setItem('usf_lang', lang);
+      document.querySelectorAll('[data-hr]').forEach(function(el) {
+        el.textContent = el.getAttribute('data-' + lang);
+      });
+      document.querySelectorAll('[data-placeholder-hr]').forEach(function(el) {
+        el.placeholder = el.getAttribute('data-placeholder-' + lang);
+      });
+      document.querySelectorAll('.lang-switch button').forEach(function(btn) {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+      });
+      renderResults();
+    }
+
+    // ===== INIT =====
+    (function() {
+      var q = getQueryParam('q');
+      if (q) {
+        document.getElementById('searchInput').value = q;
+      }
+      var saved = localStorage.getItem('usf_lang');
+      if (saved && saved !== 'hr') {
+        switchLang(saved);
+      } else {
+        renderResults();
+      }
+
+      document.getElementById('searchInput').addEventListener('input', function() {
+        renderResults();
+      });
+    })();
+  </script>
+
+  <div class="custom-cursor" id="customCursor"><span data-hr="POGLEDAJ" data-en="VIEW">POGLEDAJ</span></div>
+  <script>
+    (function() {
+      var cursor = document.getElementById('customCursor');
+      if (!cursor) {
+        /* Nothing to draw, so give the real pointer back. */
+        document.documentElement.classList.remove('has-custom-cursor');
+        return;
+      }
+      cursor.style.opacity = '0';
+      var cursorShown = false;
+
+      var mouseX = 0, mouseY = 0;
+      var curX = 0, curY = 0;
+      var speed = 0.62;
+
+      /* The scrollbar belongs to the browser, not to the page: no rule reaches
+         it, so over there you get the real pointer and ours on top of it.
+         clientWidth and clientHeight stop at the gutter, so past them we stand
+         down and let the real one do its job. */
+      function inNativeGutter(e) {
+        var d = document.documentElement;
+        return e.clientX >= d.clientWidth || e.clientY >= d.clientHeight;
+      }
+
+      document.addEventListener('mousemove', function(e) {
+        if (inNativeGutter(e)) { cursor.style.opacity = '0'; return; }
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        if (cursorShown) cursor.style.opacity = '';
+        /* Jump to the first known position instead of easing in from the
+           top-left corner, which is where 0,0 would otherwise park it. */
+        if (!cursorShown) {
+          cursorShown = true;
+          curX = mouseX; curY = mouseY;
+          cursor.style.opacity = '';
+        }
+      });
+
+      function animateCursor() {
+        curX += (mouseX - curX) * speed;
+        curY += (mouseY - curY) * speed;
+        cursor.style.left = curX + 'px';
+        cursor.style.top = curY + 'px';
+        requestAnimationFrame(animateCursor);
+      }
+      requestAnimationFrame(animateCursor);
+
+      document.addEventListener('mouseleave', function() { cursor.style.opacity = '0'; });
+      document.addEventListener('mouseenter', function() { if (cursorShown) cursor.style.opacity = ''; });
+
+      document.addEventListener('mouseover', function(e) {
+        /* Page-specific entries come first so a page can name something
+           more precisely than the two defaults do. */
+        var targets = (window.USF_CURSOR_TARGETS || []).concat([
+          { sel: '.event-card', hr: 'Pogledaj edukaciju', en: 'View education' },
+          { sel: '.blog-card',  hr: 'Pogledaj članak',    en: 'View article' }
+        ]);
+        var btn = e.target.closest('a, button, .btn, input, select, textarea, [onclick]');
+
+        cursor.classList.remove('active-card', 'active-btn');
+
+        var named = null;
+        for (var i = 0; i < targets.length; i++) {
+          if (e.target.closest(targets[i].sel)) { named = targets[i]; break; }
+        }
+        if (named) {
+          var label = cursor.querySelector('span');
+          label.setAttribute('data-hr', named.hr);
+          label.setAttribute('data-en', named.en);
+          label.textContent = (document.documentElement.lang === 'en') ? named.en : named.hr;
+          cursor.classList.add('active-card');
+        } else if (btn) {
+          cursor.classList.add('active-btn');
+        }
+      });
+
+      // Apply saved language to cursor
+      var lang = localStorage.getItem('usf_lang');
+      if (lang && lang !== 'hr') {
+        var spans = cursor.querySelectorAll('[data-' + lang + ']');
+        spans.forEach(function(s) { s.textContent = s.getAttribute('data-' + lang); });
+      }
+    })();
+  </script>
+  <script>
+  (function() {
+    var revealEls = document.querySelectorAll('.scroll-reveal');
+    if (!revealEls.length) return;
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    revealEls.forEach(function(el) { observer.observe(el); });
+  })();
+  </script>
+</body>
+</html>

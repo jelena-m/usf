@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="hr">
+<html lang="hr" class="loading">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,16 +10,24 @@
 
     /* ===== RESET ===== */
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    html { overflow-x: hidden; }
+    html { overflow-x: clip; }
     body {
       font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #080808;
+      background: #000;
       color: #ffffff;
       line-height: 1.6;
-      overflow-x: hidden;
+      overflow-x: clip;
       -webkit-font-smoothing: antialiased;
     }
-    h1, h2, h3 { font-family: 'Bricolage Grotesque', sans-serif; }
+    .page-shell {
+      background: transparent;
+      border-radius: 20px;
+      margin: 16px;
+      overflow: clip;
+      position: relative;
+      transform: translateZ(0);
+    }
+    h1, h2, h3, h4 { font-family: 'Bricolage Grotesque', sans-serif; }
     a { text-decoration: none; color: inherit; }
     ::selection { background: #3B5BFF; color: #fff; }
 
@@ -29,10 +37,12 @@
       --blue-hover: #2A45E0;
       --blue-glow: rgba(59, 91, 255, 0.35);
       --blue-subtle: rgba(59, 91, 255, 0.12);
-      --bg: #080808;
-      --card: rgba(255,255,255,0.03);
-      --card-border: rgba(255,255,255,0.06);
-      --card-hover: rgba(255,255,255,0.06);
+      --bg: #000;
+      --card: rgba(255,255,255,0.07);
+      --card-border: transparent;
+      /* What the hover ADDS on top of --card, not what the card becomes.
+         3.2% over 7% composites to about 10%. */
+      --card-hover: rgba(255,255,255,0.032);
       --text: #ffffff;
       --text-secondary: #ffffff;
       --text-muted: rgba(255,255,255,0.35);
@@ -40,74 +50,205 @@
     }
 
     /* ===== PAGE LOADER ===== */
-    .page-loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #080808; display: flex; align-items: center; justify-content: center; z-index: 99999; transition: opacity 0.5s; }
-    .page-loader.hide { opacity: 0; pointer-events: none; }
+    html.loading { overflow: hidden; cursor: none; }
+    html.loading .custom-cursor { display: none; }
+    .page-loader {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #0e0e0e;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 99999;
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+      transition: clip-path 0.8s cubic-bezier(0.7, 0, 0.3, 1);
+    }
     .page-loader.skip { display: none; }
-    .page-loader svg { width: 80px; height: auto; }
-    .page-loader .logo-bg { fill: rgba(255,255,255,0.08); }
-    .page-loader .logo-fill { fill: #fff; clip-path: inset(100% 0 0 0); animation: fillUp 2.2s ease-out forwards; }
-    @keyframes fillUp { 0% { clip-path: inset(100% 0 0 0); } 100% { clip-path: inset(0% 0 0 0); } }
+    .page-loader svg { width: 100px; height: auto; opacity: 1; }
+    .page-loader .logo-bg { fill: rgba(255,255,255,0.05); }
+    .page-loader .logo-fill { fill: #fff; }
+    .page-loader.crack { clip-path: polygon(0 42%, 100% 58%, 100% 100%, 0 100%); pointer-events: none; box-shadow: 0 -30px 80px rgba(255,255,255,0.2), 0 -6px 30px rgba(255,255,255,0.12); }
+    .page-loader.crack-full { clip-path: polygon(0 110%, 100% 110%, 100% 110%, 0 110%); }
+    .page-loader.done { display: none; }
+    .page-loader-left {
+      position: fixed; top: 0; left: 0; width: 100%; height: 50%;
+      background: #0e0e0e; z-index: 99998;
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+      transition: clip-path 0.8s cubic-bezier(0.7, 0, 0.3, 1);
+    }
+    .page-loader-left.crack { clip-path: polygon(0 -10%, 100% -10%, 100% 42%, 0 58%); box-shadow: 0 30px 80px rgba(255,255,255,0.2), 0 6px 30px rgba(255,255,255,0.12); }
+    .page-loader-left.done { display: none; }
+    @keyframes logoFadeIn { 0% { opacity: 0; transform: scale(0.85); } 100% { opacity: 1; transform: scale(1); } }
+
+    /* Custom cursor */
+    /* The native cursor is hidden only once the script is actually running,
+       so a page where it fails still has a pointer. */
+    html.has-custom-cursor, html.has-custom-cursor body, html.has-custom-cursor *, html.has-custom-cursor *::before, html.has-custom-cursor *::after { cursor: none !important; }
+
+    /* `*` stops at the edge of the browser's own shadow trees. These are the
+       parts it draws itself — a textarea's resize grip, a number field's
+       spinners, a date field's calendar button — and each one brings the
+       native pointer back with it. Listed separately because an unknown
+       selector invalidates the entire rule it sits in. */
+    html.has-custom-cursor ::-webkit-resizer { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-inner-spin-button { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-outer-spin-button { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-calendar-picker-indicator { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-search-cancel-button { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-file-upload-button { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-scrollbar { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-scrollbar-thumb { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-scrollbar-track { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-scrollbar-corner { cursor: none !important; }
+    html.has-custom-cursor ::placeholder { cursor: none !important; }
+    html.has-custom-cursor ::selection { cursor: none !important; }
+
+    .custom-cursor {
+      position: fixed;
+      width: 0; height: 0;
+      pointer-events: none;
+      z-index: 99999;
+    }
+    .custom-cursor::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0;
+      width: 22px; height: 22px;
+      background-color: #fff;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 2 L19.6 10.5 L3.4 20.7 Z' fill='%23000' stroke='%23000' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat left top / contain;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 2 L19.6 10.5 L3.4 20.7 Z' fill='%23000' stroke='%23000' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat left top / contain;
+      filter: drop-shadow(0 1px 4px rgba(0,0,0,0.45));
+      transition: width 0.18s ease, height 0.18s ease, background-color 0.18s ease;
+    }
+    /* Once the label is there, the label is the thing being read — the
+       pointer gets out of its way: smaller, and the house blue instead of
+       white, which is what the reference does beside its own label. */
+    .custom-cursor.active-card::before {
+      width: 11px; height: 11px;
+      /* Half the resting size — the shrink is what the recording reads as,
+         and beside a white chip the pointer becomes the point the label
+         hangs from rather than a second thing to look at. Stays white: the
+         reference darkens against a pale page, and on a dark card a dark
+         arrow disappears. */
+      background-color: #fff;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 2 L19.6 10.5 L3.4 20.7 Z' fill='%23000' stroke='%23000' stroke-width='3.4' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat left top / contain;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 2 L19.6 10.5 L3.4 20.7 Z' fill='%23000' stroke='%23000' stroke-width='3.4' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat left top / contain;
+    }
+    /* The label hangs below and right of the tip so it never sits on top of
+       what you are about to click. Monospace uppercase is the house label
+       face — the same one the card categories use. */
+    .custom-cursor span {
+      position: absolute;
+      left: 12px; top: 11px;
+      background: #fff;
+      color: #080808;
+      font-family: monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: normal;
+      text-transform: uppercase;
+      white-space: nowrap;
+      padding: 6px 16px;
+      border-radius: 10px;
+      opacity: 0;
+      transform: scale(0.92);
+      transform-origin: top left;
+      transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.2, 0.8, 0.3, 1);
+    }
+    .custom-cursor.active-card span {
+      opacity: 1;
+      transform: scale(1);
+    }
+    html.loading .custom-cursor { display: none; }
+
 
     /* ===== NAV ===== */
     .nav-wrapper {
       position: fixed;
-      top: 0; left: 0; right: 0;
+      top: 12px; left: 20px; right: 20px;
       z-index: 1000;
-      background: linear-gradient(180deg, rgba(8,8,8,0.95) 0%, rgba(8,8,8,0) 100%);
-      transition: all 0.5s ease;
+      isolation: isolate;
+      /* Nothing at the top of the page: no surface, no blur. The scrim below
+         only appears once the page is moving under the bar. */
+      background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      border-radius: 20px;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .nav-wrapper.scrolled {
-      background: rgba(8,8,8,0.97);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border-bottom: 1px solid var(--card-border);
+      /* Dark, not light: the bar has to be darker than whatever passes under
+         it, or white type on it stops being white type on anything. */
+      background: rgba(10,10,10,0.58);
+      backdrop-filter: blur(50px) saturate(1.1);
+      -webkit-backdrop-filter: blur(50px) saturate(1.1);
+      border-bottom: none;
+      left: max(20px, calc(50% - 650px));
+      right: max(20px, calc(50% - 650px));
     }
     .nav {
       max-width: 1300px;
       margin: 0 auto;
-      padding: 24px 48px;
+      padding: 20px 40px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      transition: padding 0.5s ease;
+      transition: padding 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .nav-wrapper.scrolled .nav { padding: 16px 48px; }
+    .nav-wrapper.scrolled .nav { padding: 12px 40px; }
     .nav-logo { height: 24px; }
     .nav-logo svg { height: 100%; width: auto; }
-    .nav-right { display: flex; align-items: center; gap: 36px; }
+    .nav-left { display: flex; align-items: center; gap: 40px; }
+    .nav-right { display: flex; align-items: center; gap: 20px; }
     .nav-links { display: flex; gap: 28px; list-style: none; }
     .nav-links a {
       font-size: 0.85rem; font-weight: 400;
-      color: rgba(255,255,255,0.55);
+      color: rgba(255,255,255,0.72);
       transition: color 0.3s; letter-spacing: 0.2px;
     }
     .nav-links a:hover { color: #fff; }
     .nav-links a.active { color: #fff; }
     .nav-auth { display: flex; align-items: center; gap: 10px; }
+    /* the two buttons are a pair — closer to each other than to the switch */
+    .nav-right .nav-auth { margin-left: -10px; }
     .nav-auth-login-btn {
       font-family: 'Instrument Sans', sans-serif;
-      font-size: 0.82rem; font-weight: 600;
-      color: #fff; background: var(--blue);
-      border: none; border-radius: 6px;
+      /* Set exactly like Doniraj beside it — the two differ in surface, not
+         in voice, so the type has to be identical or the pair reads crooked. */
+      font-size: 0.85rem; font-weight: 400; letter-spacing: 0.2px;
+      /* secondary: Doniraj is the one primary action in this bar */
+      color: #fff; background: rgba(255,255,255,0.08);
+      border: none; border-radius: 10px;
       cursor: pointer; transition: all 0.3s;
       text-decoration: none; padding: 10px 20px;
       display: inline-flex; align-items: center;
     }
-    .nav-auth-login-btn:hover { background: var(--blue-hover); }
+    .nav-auth-login-btn:hover { background: rgba(255,255,255,0.16); }
+    .nav-donate-btn {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 0.85rem; font-weight: 400;
+      color: #fff;
+      /* Donating is the one thing the site asks a visitor to do, so it is the
+         one button that looks like an action rather than a link. */
+      background: var(--blue, #3B5BFF);
+      border: none; border-radius: 10px;
+      cursor: pointer; transition: all 0.3s;
+      text-decoration: none; padding: 10px 20px;
+      display: inline-flex; align-items: center;
+      letter-spacing: 0.2px;
+    }
+    .nav-donate-btn:hover { background: var(--blue-hover, #2A45E0); }
     .nav-profile-circle {
-      width: 34px; height: 34px; border-radius: 50%;
+      width: 32px; height: 32px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-family: 'Bricolage Grotesque', sans-serif;
+      font-family: 'Instrument Sans', sans-serif;
       font-size: 0.72rem; font-weight: 700; color: #fff;
-      background: var(--blue); overflow: hidden;
+      background: #2a2a2a; overflow: hidden;
       transition: all 0.3s; text-decoration: none;
       border: 2px solid transparent;
     }
     .nav-profile-circle:hover { border-color: rgba(255,255,255,0.3); }
     .nav-profile-circle img { width: 100%; height: 100%; object-fit: cover; }
-    .lang-switch { display: flex; align-items: center; gap: 0; background: rgba(255,255,255,0.08); border-radius: 6px; padding: 3px; border: 1px solid rgba(255,255,255,0.1); }
-    .lang-switch button { background: none; border: none; color: rgba(255,255,255,0.4); padding: 6px 10px; cursor: pointer; font-family: inherit; font-size: 0.72rem; font-weight: 600; letter-spacing: 1px; transition: all 0.3s; display: flex; align-items: center; gap: 6px; border-radius: 4px; }
-    .lang-switch button.active { background: rgba(255,255,255,0.15); color: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+    .lang-switch { display: flex; align-items: center; gap: 0; background: rgba(255,255,255,0.08); border-radius: 10px; padding: 3px; border: none; }
+    .lang-switch button { background: none; border: none; color: rgba(255,255,255,0.4); padding: 6px 10px; cursor: pointer; font-family: inherit; font-size: 0.72rem; font-weight: 600; letter-spacing: 1px; transition: all 0.3s; display: flex; align-items: center; gap: 6px; border-radius: 7px; }
+    .lang-switch button.active { background: rgba(255,255,255,0.15); color: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.3); border-radius: 7px; }
     .lang-switch button:hover { color: #fff; }
     .lang-flag { width: 18px; height: 13px; border-radius: 2px; display: inline-block; overflow: hidden; flex-shrink: 0; }
     .menu-toggle {
@@ -126,111 +267,362 @@
     .menu-toggle.open span:nth-child(3) { top: 9px; transform: rotate(-45deg); }
 
     /* ===== EVENT DETAIL PAGE ===== */
+    .event-hero-wrap {
+      background: transparent;
+    }
     .event-hero {
       position: relative;
-      width: 100%;
-      height: 420px;
+      max-width: 1300px;
+      margin: 0 auto;
       overflow: hidden;
     }
     .event-hero img {
       width: 100%;
-      height: 100%;
+      aspect-ratio: 5/2;
       object-fit: cover;
       display: block;
     }
+    .event-hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 180px;
+      z-index: 2;
+      background: linear-gradient(to bottom, rgba(8,8,8,0.85) 0%, rgba(8,8,8,0.4) 50%, rgba(8,8,8,0) 100%);
+      pointer-events: none;
+    }
     .event-hero-overlay {
-      position: absolute; inset: 0;
-      background: linear-gradient(to top, #080808 0%, rgba(8,8,8,0.4) 50%, rgba(8,8,8,0.2) 100%);
+      display: none;
     }
 
     .event-detail {
-      max-width: 800px;
-      margin: -80px auto 0;
-      padding: 0 48px 40px;
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 48px 48px 0;
       position: relative;
-      z-index: 2;
+      z-index: 3;
     }
-
     .event-detail-header {
-      margin-bottom: 24px;
+      margin-bottom: 32px;
     }
 
     .event-detail h1 {
-      font-size: clamp(2.6rem, 5vw, 4rem);
+      font-size: clamp(2.8rem, 6vw, 4.8rem);
       font-weight: 400;
-      line-height: 1;
+      line-height: 1.05;
       letter-spacing: -1px;
-      margin: 0 0 20px;
+      margin: 0 0 16px;
     }
 
-    .event-badges-row {
+    /* Two-column layout */
+    .event-detail-layout {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 12px;
+      gap: 64px;
+      align-items: flex-start;
     }
-    .membership-note { font-size: 0.82rem; color: rgba(255,255,255,0.45); line-height: 1.5; margin-bottom: 24px; }
+    /* The rail sits on the right: the text is what you came to read, so it starts
+       at the left edge and the terms, price and reserve button follow it. */
+    .event-detail-sidebar { order: 2; }
+    /* Who teaches it, what it costs, what it is — three answers, three boxes,
+       one row, before the description starts. */
+    .event-lead {
+      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px; align-items: stretch; margin-bottom: 44px;
+    }
+    .lead-box {
+      background: rgba(255,255,255,0.03); border-radius: 16px;
+      padding: 18px 20px 20px; min-width: 0;
+    }
+    .lead-box-label {
+      font-family: monospace; font-size: 10px; letter-spacing: 1px;
+      text-transform: uppercase; color: rgba(255,255,255,0.35);
+      margin-bottom: 14px;
+    }
+    .event-lead-speakers { display: flex; flex-direction: column; gap: 6px; }
+    .event-lead-speakers .speaker-link {
+      display: flex; align-items: center; gap: 12px;
+      padding: 6px 12px 6px 6px; border-radius: 999px;
+      background: rgba(255,255,255,0.03); color: #fff;
+      transition: background 0.3s, color 0.3s;
+    }
+    .event-lead-speakers a.speaker-link:hover { background: rgba(59,91,255,0.12); }
+    .event-lead-speakers .speaker-name { flex: 1; min-width: 0; font-size: 0.86rem; }
+    .event-lead-speakers .speaker-link-arrow {
+      width: 14px; height: 14px; flex-shrink: 0; color: rgba(255,255,255,0.28);
+      transition: color 0.3s, transform 0.3s;
+    }
+    .event-lead-speakers a.speaker-link:hover .speaker-link-arrow {
+      color: var(--blue); transform: translateX(3px);
+    }
+    .lead-box .event-facts-line { margin-bottom: 0; gap: 10px; }
+    .lead-box .price-split, .lead-box .rail-card { background: none; padding: 0; border-radius: 0; margin: 0; }
+    .lead-box > :last-child { margin-bottom: 0; }
+    @media (max-width: 900px) { .event-lead { grid-template-columns: 1fr; gap: 12px; } }
+    .event-detail-content { order: 1; }
+
+    /* Sticky rail with info */
+    .event-detail-sidebar {
+      width: 320px;
+      flex-shrink: 0;
+      position: -webkit-sticky;
+      position: sticky;
+      top: 100px;
+      align-self: flex-start;
+    }
+
+    /* RIGHT: scrolling description */
+    .event-detail-content {
+      flex: 1;
+      min-width: 0;
+      padding-bottom: 0;
+    }
+
+    /* Term-independent facts strip at the top of the right column */
+    .event-facts {
+      margin-bottom: 36px;
+    }
+    /* No labelled grid: the values already say what they are — "Radionica",
+       "2 dana", "Hrvatski" — so TIP / TRAJANJE / JEZIK above each of them only
+       added weight. These four never change, so they open the left rail, one per
+       line in the same quiet mono the article rail uses. Everything the chosen
+       term does change — the date, the place — lives in the term card below. */
+    .event-facts-line {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 7px;
+      margin-bottom: 24px;
+      font-family: monospace;
+      font-size: 11px;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: normal;
+      color: rgba(255,255,255,0.45);
+    }
+    /* Same icon + label pairing as the article rail — 14px glyph, 6px gap. */
+    .event-facts-line > span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .event-facts-line svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+    /* A speaker is one more line of the same list, not a section of its own —
+       so it wears the same mono line, and the arrow is what says it opens. */
+    .event-facts-line > a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: rgba(255,255,255,0.45);
+      transition: color 0.25s;
+    }
+    .event-facts-line > a:hover { color: var(--blue); }
+    .fact-arrow {
+      width: 12px !important;
+      height: 12px !important;
+      color: rgba(255,255,255,0.25);
+      transition: color 0.25s, transform 0.25s;
+    }
+    .event-facts-line > a:hover .fact-arrow { color: var(--blue); transform: translateX(3px); }
+
+    /* ===== THE DETAILS (right column, top) =====
+       Price for the chosen term, then the speakers. */
+    /* ===== LEFT RAIL: term + price in one card, speakers in one row =====
+       Everything the decision needs sits on the left; the right column is the
+       description only. The rail stays under a screen height so it can keep
+       being sticky while the text scrolls past it. */
+    .rail-card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 22px;
+    }
+    .rail-prices { display: flex; flex-direction: column; gap: 9px; padding-top: 2px; }
+    .rail-price {
+      display: flex; align-items: baseline; justify-content: space-between;
+      gap: 14px; flex-wrap: wrap;
+    }
+    .rail-price-label {
+      font-family: 'SF Mono', Monaco, monospace; font-size: 11px;
+      text-transform: uppercase; letter-spacing: normal;
+      color: rgba(255,255,255,0.35); flex-shrink: 0;
+    }
+    .rail-price-val { font-size: 0.92rem; color: #fff; text-align: right; }
+    .price-row-value.included { font-size: 0.88rem; }
+    .price-row-value.muted { color: rgba(255,255,255,0.45); }
+    .rail-price-was { color: rgba(255,255,255,0.3); text-decoration: line-through; font-size: 0.82rem; margin-left: 6px; }
+    .rail-price-sub {
+      flex-basis: 100%; text-align: right;
+      display: inline-flex; align-items: center; justify-content: flex-end; gap: 5px;
+      font-size: 0.72rem; color: rgba(255,255,255,0.3); margin-top: -4px;
+    }
+    .rail-price-sub svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+
+    /* Shown when the id in the URL matches no education. */
+    .event-notfound { padding: 8px 0 40px; }
+    .event-notfound p {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 22px;
+      max-width: 520px;
+    }
+    /* Kept as the grouping element only — no surface of its own any more. */
+    .event-detail-box {
+      margin-bottom: 36px;
+    }
+    .event-detail-box-price { padding-top: 0; }
+    /* the rail only carries profession / hybrid badges now — collapse when empty */
+    .event-badges:empty { display: none; }
+    .speaker-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    /* No outline on the pills — the fill alone carries the shape, the arrow
+       carries the "this is clickable" signal. */
+    .event-detail-box .speaker-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 7px 14px 7px 7px;
+      border: none;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.03);
+      transition: background 0.3s, color 0.3s;
+    }
+    .event-detail-box .speaker-link:hover {
+      background: rgba(59,91,255,0.1);
+      color: #fff;
+    }
+    .event-detail-box .speaker-link-static {
+      cursor: default;
+      padding-right: 18px;
+    }
+    .event-detail-box .speaker-link-static:hover {
+      background: rgba(255,255,255,0.03);
+    }
+    .speaker-link-text {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      min-width: 0;
+    }
+    .speaker-link-arrow {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      color: rgba(255,255,255,0.28);
+      transition: color 0.3s, transform 0.3s;
+    }
+    .speaker-link:hover .speaker-link-arrow {
+      color: var(--blue);
+      transform: translateX(3px);
+    }
+    .event-detail-box .speaker-avatar { width: 40px; height: 40px; }
+    .event-detail-box .speaker-initials { font-size: 0.8rem; }
 
     .event-badges {
       display: flex;
       gap: 10px;
       align-items: center;
+      margin-bottom: 24px;
     }
 
     .event-card-type {
-      display: inline-block; font-size: 11px; font-weight: 600;
-      text-transform: uppercase; letter-spacing: 1px;
-      padding: 4px 10px; border-radius: 4px;
+      display: inline-block; font-size: 11px; font-weight: 400;
+      text-transform: uppercase; letter-spacing: normal;
+      font-family: monospace; color: rgba(255,255,255,0.45);
     }
-    .type-radionica { background: rgba(59,91,255,0.15); color: #7B9CFF; }
-    .type-seminar { background: rgba(168,85,247,0.15); color: #C4A5F7; }
-    .type-tecaj { background: rgba(20,184,166,0.15); color: #5EEAD4; }
-    .type-konferencija { background: rgba(245,158,11,0.15); color: #FCD34D; }
+    .type-radionica, .type-seminar, .type-tecaj, .type-konferencija, .type-webinar, .type-prezentacija { background: none; }
+    .permanent-access-badge { display: inline-flex; align-items: center; gap: 6px; padding: 0; border-radius: 0; background: none; color: rgba(255,255,255,0.45); font-family: monospace; font-size: 11px; font-weight: 400; text-transform: uppercase; letter-spacing: normal; margin-top: 8px; }
+    .public-access-badge { display: inline-flex; align-items: center; gap: 6px; padding: 0; border-radius: 0; background: none; color: rgba(255,255,255,0.45); font-family: monospace; font-size: 11px; font-weight: 400; text-transform: uppercase; letter-spacing: normal; margin-top: 8px; }
+    .hybrid-badge { display: inline-flex; align-items: center; gap: 6px; padding: 0; border-radius: 0; background: none; color: rgba(255,255,255,0.45); font-family: monospace; font-size: 11px; font-weight: 400; text-transform: uppercase; letter-spacing: normal; }
+    .schedule-day-format { display: inline-block; padding: 0; border-radius: 0; font-family: monospace; font-size: 11px; font-weight: 400; margin-left: 8px; text-transform: uppercase; letter-spacing: normal; }
+    .schedule-day-format.fmt-live { background: none; color: rgba(255,255,255,0.45); }
+    .schedule-day-format.fmt-online { background: none; color: rgba(255,255,255,0.45); }
 
-
-    .event-meta-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-      margin-bottom: 40px;
-      padding: 24px;
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 6px;
+    .sidebar-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-bottom: 28px;
     }
-    .event-meta-item {
+    .sidebar-meta-item {
       display: flex;
       flex-direction: column;
       gap: 4px;
     }
-    .event-meta-label {
-      font-size: 0.72rem;
-      font-weight: 600;
+    /* Same label style as the price cards (ČLANOVI / NEČLANOVI / SNIMKA) —
+       every small-caps label in this box now reads as one family. */
+    .sidebar-meta-label {
+      font-size: 0.66rem;
+      font-family: 'SF Mono', 'Monaco', monospace;
       text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: var(--text-muted);
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.38);
     }
-    .event-meta-value {
-      font-size: 0.95rem;
+    .sidebar-meta-value {
+      font-size: 1rem;
       color: #fff;
       font-weight: 500;
     }
+
+    .sidebar-signup {
+      margin-bottom: 28px;
+    }
+    .sidebar-signup .btn {
+      width: 100%;
+      justify-content: center;
+    }
+    /* Quieter than the reserve button above it — it is the secondary action.
+       Same corner radius as .btn, though: two buttons stacked in one rail
+       should not round differently. */
+    .sidebar-signup .sidebar-pdf-btn {
+      margin-top: 10px;
+      padding: 11px 16px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
 
     .event-description {
       margin-bottom: 0;
     }
     .event-description p {
-      font-size: 0.95rem;
+      font-size: 1rem;
       color: rgba(255,255,255,0.6);
-      line-height: 1.7;
-      margin-bottom: 16px;
+      line-height: 1.8;
+      margin-bottom: 20px;
       font-weight: 400;
+    }
+    .event-description h3 {
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: #fff;
+      margin: 40px 0 16px;
+      letter-spacing: -0.3px;
+    }
+    .event-description h3:first-child {
+      margin-top: 0;
+    }
+    .event-description ul {
+      margin: 0 0 20px 20px;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.8;
+      font-size: 1rem;
+    }
+    .event-description li {
+      margin-bottom: 8px;
     }
 
     .btn {
       display: inline-flex; align-items: center; gap: 10px;
-      padding: 10px 20px; border-radius: 6px;
+      padding: 10px 20px; border-radius: 10px;
       font-weight: 400; font-size: 0.95rem;
       transition: all 0.3s ease; letter-spacing: 0.2px;
       cursor: pointer; border: none; font-family: inherit;
@@ -247,16 +639,24 @@
       z-index: 9999;
       align-items: center;
       justify-content: center;
+      /* The payment step is tall; on a short window it has to stay reachable. */
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 24px 0;
     }
     .modal-overlay.show { display: flex; }
     .modal {
       background: #141414;
-      border: 1px solid var(--card-border);
+      border: none;
       border-radius: 16px;
       padding: 40px;
       max-width: 440px;
       width: 90%;
       text-align: center;
+      /* Never taller than the window — scroll inside instead of getting clipped. */
+      max-height: calc(100vh - 48px);
+      overflow-y: auto;
+      margin: auto;
     }
     .modal h3 {
       font-size: 1.4rem;
@@ -285,11 +685,201 @@
     }
     .modal-success-icon svg { width: 28px; height: 28px; color: var(--blue); }
 
+    /* ===== ENROLLMENT MODAL EXTENDED ===== */
+    .modal.modal-wide { max-width: 560px; text-align: left; }
+    .modal-wide h3 { text-align: center; }
+    .modal-wide > p { text-align: center; }
+    .modal-payment-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .modal-payment-item {
+      background: rgba(255,255,255,0.04);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .modal-payment-item .mpi-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 3px;
+    }
+    .modal-payment-item .mpi-value {
+      font-size: 0.82rem;
+      color: #fff;
+    }
+    .modal-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+      margin: 20px 0;
+    }
+    /* Refund terms shown in the confirmation step, before the user commits */
+    .modal-cancel-summary {
+      text-align: left;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin: 18px 0 22px;
+    }
+    .modal-cancel-summary-title {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 9px;
+    }
+    .modal-cancel-summary-title svg { width: 13px; height: 13px; flex-shrink: 0; }
+    .modal-cancel-summary-line {
+      font-size: 0.82rem;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.6);
+    }
+    .modal-cancel-summary-line strong { color: #fff; font-weight: 500; }
+    .modal-cancel-summary-line.muted {
+      margin-top: 6px;
+      font-size: 0.76rem;
+      color: rgba(255,255,255,0.35);
+    }
+    /* Same line, but sitting above the calculation instead of under it. */
+    .modal-cancel-summary-line.muted.above {
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+    /* Same calculated refund box as the page, sized down for the modal */
+    /* Three windows in a row rather than three bars down the dialog. At ~160px
+       a card cannot hold the date and the amount side by side, so inside each
+       one the date sits above its amount — the same shape the page uses. */
+    .modal-cancel-summary .cancellation-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 0;
+    }
+    .modal-cancel-summary .cancellation-item {
+      flex-direction: column; align-items: flex-start; justify-content: flex-start;
+      padding: 12px 13px; border-radius: 8px; background: rgba(255,255,255,0.04); gap: 7px;
+    }
+    .modal-cancel-summary .cancel-amount-line { align-items: flex-start; text-align: left; }
+    /* No reserved height here either — the rows are independent of each other now. */
+    .modal-cancel-summary .cancellation-item .cancel-period { font-size: 0.76rem; letter-spacing: 0.1px; line-height: 1.3; }
+    .modal-cancel-summary .cancellation-item .cancel-refund { font-size: 1.05rem; }
+    .modal-cancel-summary .cancel-refund-sub { font-size: 0.66rem; }
+    .modal-cancel-summary .cancel-row + .cancel-row { margin-top: 14px; }
+    .modal-cancel-summary .cancel-note-card { padding: 12px 14px; font-size: 0.78rem; border-radius: 8px; background: rgba(255,255,255,0.04); }
+    .modal-radio-group {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .modal-radio-group label {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.1);
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.6);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .modal-radio-group label:hover {
+      border-color: rgba(255,255,255,0.2);
+      color: #fff;
+    }
+    .modal-radio-group input[type="radio"] { display: none; }
+    .modal-radio-group input[type="radio"]:checked + label {
+      border-color: var(--blue);
+      background: rgba(59,91,255,0.08);
+      color: #fff;
+    }
+    .modal-company-fields {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+      animation: fadeUp 0.3s ease;
+    }
+    .modal-company-fields.show { display: flex; }
+    .modal-company-fields input {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: #fff;
+      font-size: 0.85rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .modal-company-fields input:focus { border-color: var(--blue); }
+    .modal-company-fields input::placeholder { color: rgba(255,255,255,0.3); }
+    .modal-upload-area {
+      border: 1px dashed rgba(255,255,255,0.15);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .modal-upload-area:hover {
+      border-color: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.03);
+    }
+    .modal-upload-area svg { margin-bottom: 8px; color: rgba(255,255,255,0.4); }
+    .modal-upload-area .upload-text {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.4);
+    }
+    .modal-upload-area .upload-hint {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.25);
+      margin-top: 4px;
+    }
+    .modal-upload-area .upload-filename {
+      font-size: 0.82rem;
+      color: var(--blue);
+      margin-top: 6px;
+      display: none;
+    }
+    /* Just the education name under the heading — the heading carries the verb,
+       so the sentence around it was only taking up room. */
+    .modal-lead {
+      margin-bottom: 0;
+      color: rgba(255,255,255,0.75);
+    }
+    /* Actions sit together at the right edge, Odustani left of the primary. */
+    .modal-wide .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 24px;
+    }
+    .modal-actions .btn { margin: 0; }
+    .modal-section-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 10px;
+    }
+
     /* ===== RELATED EDUCATIONS ===== */
     .related-section {
       max-width: 1300px;
       margin: 0 auto;
-      padding: 80px 48px 120px;
+      padding: 120px 48px 140px;
     }
     .related-section h2 {
       font-size: clamp(2.6rem, 5vw, 4rem);
@@ -300,38 +890,42 @@
     }
     .related-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 24px;
     }
     .event-card {
       background: var(--card);
       border: 1px solid var(--card-border);
-      border-radius: 6px;
+      border-radius: 20px;
       overflow: hidden;
       transition: background 0.3s;
       display: flex; flex-direction: column;
     }
-    .event-card:hover {
-      background: var(--card-hover);
-    }
+    /* the sweep replaces the tint */
     .event-card-img-wrap {
       position: relative;
+      margin: 20px 20px 0;
+      border-radius: 12px;
+      overflow: hidden;
     }
     .event-card-img-wrap img {
       width: 100%;
-      aspect-ratio: 16/9;
+      aspect-ratio: 5/2;
       object-fit: cover;
       display: block;
+      filter: saturate(0.4);
+      transition: filter 0.4s ease;
     }
-    .event-card-badges { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .event-card:hover .event-card-img-wrap img { filter: saturate(1); }
+    .event-card-badges { display: flex; align-items: center; gap: 16px; margin-bottom: 10px; }
     .event-card-body {
-      padding: 20px; flex: 1; display: flex; flex-direction: column;
+      padding: 14px 20px 20px; flex: 1; display: flex; flex-direction: column;
     }
     .event-card-body h3 {
       font-size: 1.1rem;
       font-weight: 500;
       line-height: 1.3;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
       color: #fff;
     }
     .event-card-body .event-card-meta {
@@ -348,122 +942,796 @@
       display: block;
     }
 
-    /* ===== BOTTOM CTA (sign up + contact side by side) ===== */
-    .bottom-cta {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 0 48px 64px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-    .bottom-cta-box {
-      padding: 28px;
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 6px;
-    }
-    .bottom-cta-box h3 {
-      font-size: 1.2rem;
-      font-weight: 400;
-      margin-bottom: 12px;
-      letter-spacing: -0.3px;
-    }
-    .bottom-cta-box p {
-      font-size: 0.88rem;
-      color: rgba(255,255,255,0.5);
-      line-height: 1.5;
-      margin-bottom: 20px;
-    }
-    .bottom-cta-box .contact-items {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .bottom-cta-box .contact-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 0.88rem;
-      color: rgba(255,255,255,0.6);
+    /* ===== BOTTOM CTA (removed — info now in sidebar) ===== */
+
+    /* ===== PAGE CONTENT WRAP ===== */
+    .page-content-wrap {
+      background: var(--bg);
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
     }
 
     /* ===== FOOTER ===== */
     .footer {
-      border-top: 1px solid var(--card-border);
-      padding: 56px 48px 28px; max-width: 1300px; margin: 0 auto;
+      background: #121212;
     }
-    .footer-grid { display: grid; grid-template-columns: 1fr 1fr auto; gap: 64px; margin-bottom: 48px; }
+    .footer-inner {
+      padding: 100px 48px 28px; max-width: 1300px; margin: 0 auto;
+    }
+    .footer-logo { display: inline-block; margin-bottom: 8px; }
+    .footer-logo svg { height: 24px; width: auto; }
+    /* Four equal columns and one gap value: the spacing between them is then
+       the same everywhere, without inline margins nudging individual ones. */
+    /* One gap value and a first column that takes up the slack: the space
+       between the columns is then literally the same number everywhere,
+       instead of leftover width being shared out around content of very
+       different widths. */
+    .footer-grid { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 72px; margin-bottom: 48px; }
+    .footer-grid > .footer-col { flex: 0 0 auto; }
+    .footer-grid > .footer-col:first-child { flex: 1 1 300px; min-width: 260px; }
+    .footer-grid > .footer-col:last-child { flex: 0 0 260px; }
+    .footer-col-pay ul li { margin-bottom: 8px; white-space: nowrap; }
     .footer-col h4 { font-size: 0.75rem; font-weight: 400; text-transform: uppercase; letter-spacing: 2.5px; color: var(--text-muted); margin-bottom: 16px; }
+    /* set like "Pretplati se na newsletter" in the column beside it */
+    .footer-col-pay h4 { font-size: 0.88rem; text-transform: none; letter-spacing: 0; margin-bottom: 14px; }
     .footer-col p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
     .footer-col ul { list-style: none; }
     .footer-col-nav ul { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
     .footer-col ul li { margin-bottom: 11px; font-size: 0.88rem; color: var(--text-muted); }
+    /* An IBAN and a SWIFT are one block of details, not four separate points. */
+    .footer-col-pay ul li { margin-bottom: 4px; line-height: 1.5; }
     .footer-col ul li a { font-size: 0.88rem; color: var(--text-muted); transition: color 0.3s; }
     .footer-col ul li a:hover { color: var(--blue); }
+    .footer-socials { display: flex; gap: 16px; margin-top: 20px; }
+    .footer-socials a { color: var(--text-muted); transition: color 0.3s; }
+    .footer-socials a:hover { color: #fff; }
     .footer-bottom {
       display: flex; justify-content: space-between; align-items: center;
-      padding-top: 20px; border-top: 1px solid var(--card-border);
+      padding-top: 20px;
       font-size: 0.78rem; color: var(--text-faint);
     }
     .footer-bottom a { color: var(--text-faint); transition: color 0.3s; }
     .footer-bottom a:hover { color: var(--blue); }
+
+    /* ===== SIDEBAR ENHANCEMENTS ===== */
+    .sidebar-meta-item.price-split {
+      flex-direction: column;
+      gap: 4px;
+    }
+    /* price as cards — members / non-members / recording */
+    .price-cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 6px;
+    }
+    .price-cards.price-cards-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .price-card {
+      background: rgba(255,255,255,0.03);
+      border: none;
+      border-radius: 12px;
+      padding: 15px 17px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      min-width: 0;
+    }
+    .price-card-label {
+      font-size: 0.66rem;
+      font-family: 'SF Mono', 'Monaco', monospace;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.38);
+    }
+    .price-card-value {
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: #fff;
+      line-height: 1.25;
+      font-family: 'Instrument Sans', sans-serif;
+    }
+    /* "Uključeno u članarinu" reads as a price like any other — same colour and
+       weight as "120 €", only stepped down in size because the string is long. */
+    .price-card-value.included { font-size: 1rem; }
+    .price-card-value.muted { color: rgba(255,255,255,0.5); font-size: 1rem; }
+    .price-card-sub {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.7rem;
+      line-height: 1.35;
+      color: rgba(255,255,255,0.3);
+      margin-top: auto;
+    }
+    .price-card-sub svg { width: 11px; height: 11px; flex-shrink: 0; }
+    /* The early-bird note sits directly under the headline amount and explains
+       what that amount is. Grey, not blue — it is a caption, and blue kept
+       promising a link that was never there. */
+    /* Negative margins pull against the card's 7px flex gap: the caption hugs
+       the amount it describes (4px), the struck-through rate sits a touch
+       further out (6px) so the three lines group as price → why → was. */
+    .price-card-sub.price-card-early {
+      display: block;
+      margin-top: -3px;
+      color: rgba(255,255,255,0.42);
+    }
+    .price-card-was {
+      display: block;
+      margin-top: -1px;
+      font-size: 0.78rem;
+      line-height: 1.2;
+      font-family: 'Instrument Sans', sans-serif;
+      color: rgba(255,255,255,0.28);
+      text-decoration: line-through;
+      text-decoration-thickness: 1px;
+    }
+    .speaker-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0;
+      color: #fff;
+      transition: color 0.3s;
+    }
+    .speaker-link:hover {
+      color: var(--blue);
+    }
+    .speaker-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(59,91,255,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .speaker-avatar svg {
+      width: 16px;
+      height: 16px;
+      color: var(--blue);
+    }
+    .speaker-avatar img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: saturate(0.55);
+      transition: filter 0.35s ease;
+    }
+    .speaker-link:hover .speaker-avatar img { filter: saturate(1); }
+    .speaker-initials {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: var(--blue);
+      font-family: 'Instrument Sans', sans-serif;
+    }
+    .speaker-name {
+      font-size: 0.88rem;
+      font-weight: 400;
+    }
+    .sidebar-pdf-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px 20px;
+      background: rgba(255,255,255,0.06);
+      border: none;
+      border-radius: 12px;
+      color: rgba(255,255,255,0.7);
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 400;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+    }
+    .sidebar-pdf-btn:hover {
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+    }
+    .sidebar-pdf-btn svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+    .recording-info {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 14px;
+      background: rgba(59,91,255,0.06);
+      border-radius: 10px;
+      margin-top: 12px;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.5;
+    }
+    .recording-info svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      color: var(--blue);
+      margin-top: 1px;
+    }
+    .recording-gated {
+      position: relative;
+      padding: 14px;
+      background: rgba(59,91,255,0.04);
+      border: 1px dashed rgba(59,91,255,0.2);
+      border-radius: 10px;
+      margin-top: 12px;
+      text-align: center;
+    }
+    .recording-gated .gated-icon {
+      width: 20px; height: 20px; color: var(--amber); margin-bottom: 6px;
+    }
+    .recording-gated .gated-text {
+      font-size: 0.78rem; color: rgba(255,255,255,0.5); line-height: 1.4;
+    }
+    .profession-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-family: monospace; font-size: 11px; font-weight: 400; padding: 0;
+      border-radius: 0; background: none;
+      color: rgba(255,255,255,0.45); border: none;
+      text-transform: uppercase; letter-spacing: normal;
+    }
+    .profession-badge svg { width: 12px; height: 12px; }
+    .btn-waitlist {
+      width: 100%;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: transparent;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+      display: block;
+    }
+    .btn-waitlist:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.25);
+    }
+
+    .donation-copy-icon {
+      position: absolute;
+      top: 13px;
+      right: 14px;
+      width: 15px;
+      height: 15px;
+      color: rgba(255,255,255,0.45);
+      opacity: 0;
+      transition: opacity 0.2s, color 0.2s;
+      pointer-events: none;
+    }
+    .donation-copy-icon svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .donation-copy-feedback {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      font-family: monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--green);
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    /* copy-on-hover inside the enrollment modal */
+    .modal-payment-item {
+      position: relative;
+      cursor: pointer;
+      transition: background 0.25s;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .modal-payment-item:hover {
+      background: rgba(255,255,255,0.08);
+    }
+    .modal-payment-item:focus-visible {
+      outline: 1px solid var(--blue);
+      outline-offset: 2px;
+    }
+    .modal-payment-item .mpi-label {
+      padding-right: 22px;
+    }
+    .modal-payment-item .donation-copy-icon {
+      top: 10px;
+      right: 11px;
+      width: 13px;
+      height: 13px;
+    }
+    .modal-payment-item .donation-copy-feedback {
+      top: 9px;
+      right: 11px;
+      font-size: 9px;
+    }
+    .modal-payment-item:hover .donation-copy-icon,
+    .modal-payment-item:focus-visible .donation-copy-icon {
+      opacity: 1;
+      color: rgba(255,255,255,0.75);
+    }
+    .modal-payment-item.copied {
+      background: rgba(34,197,94,0.1);
+    }
+    .modal-payment-item.copied .donation-copy-feedback {
+      opacity: 1;
+    }
+    .modal-payment-item.copied .donation-copy-icon {
+      opacity: 0;
+    }
+
+    /* ===== TERM SELECTOR ===== */
+    .term-selector {
+      margin-bottom: 20px;
+    }
+    .term-selector-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 8px;
+    }
+    .term-selector-label .term-count {
+      color: rgba(255,255,255,0.75);
+      font-weight: 500;
+    }
+    .term-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .term-tab {
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: transparent;
+      color: rgba(255,255,255,0.5);
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+      line-height: 1.4;
+    }
+    .term-tab:hover {
+      border-color: rgba(255,255,255,0.2);
+      color: #fff;
+    }
+    .term-tab.active {
+      border-color: var(--blue);
+      background: rgba(59,91,255,0.08);
+      color: #fff;
+    }
+    .term-tab.status-closed {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    .term-tab.status-cancelled {
+      opacity: 0.4;
+      text-decoration: line-through;
+      pointer-events: none;
+    }
+    .term-tab .term-tab-date {
+      font-weight: 500;
+      display: block;
+    }
+    .term-tab .term-tab-location {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.35);
+    }
+    .term-tab .term-status-badge {
+      display: inline-block;
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-top: 4px;
+    }
+    .term-status-badge {
+      display: inline-block;
+      font-size: 0.74rem;
+      letter-spacing: 0.2px;
+      line-height: 1.3;
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-weight: 500;
+    }
+    .term-status-badge.open { background: rgba(74,222,128,0.12); color: #4ade80; }
+    .term-status-badge.closed { background: rgba(239,68,68,0.12); color: #ef4444; }
+    .term-status-badge.cancelled { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.35); }
+
+    /* ===== TERM DROPDOWN (custom, dark-theme) ===== */
+    .term-dd { position: relative; }
+    .term-dd-toggle {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-align: left;
+      /* Lighter than the surrounding cards — with no outline, the fill is the
+         only thing telling you this is a control you can open. */
+      background: rgba(255,255,255,0.07);
+      /* No resting outline — transparent so the box keeps its size and the open
+         state can still light the edge blue. */
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 13px 15px;
+      color: #fff;
+      font-family: 'Instrument Sans', sans-serif;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    /* Hover and open lift another step so they still read as a change. */
+    .term-dd-toggle:hover { background: rgba(255,255,255,0.11); }
+    .term-dd-toggle:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+    .term-dd.open .term-dd-toggle { border-color: var(--blue); background: rgba(255,255,255,0.11); }
+    /* A single term has nothing to choose between, so it is not a control and
+       does not get a control's box — just the date, place and seats. */
+    .term-dd-static {
+      cursor: default;
+      background: transparent;
+      border-color: transparent;
+      padding-left: 0;
+      padding-right: 0;
+    }
+    .term-dd-static:hover { background: transparent; }
+    .term-dd-current { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+    .term-dd-current .term-dd-date { font-size: 0.92rem; font-weight: 500; color: #fff; }
+    .term-dd-current .term-dd-location { font-size: 0.74rem; color: rgba(255,255,255,0.4); }
+    .term-dd-current .term-status-badge { align-self: flex-start; margin-top: 7px; }
+    .term-dd-change {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      flex-shrink: 0;
+      align-self: flex-start;
+      margin-top: 2px;
+      font-size: 0.74rem;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+      color: rgba(255,255,255,0.55);
+      transition: color 0.2s;
+    }
+    .term-dd-toggle:hover .term-dd-change { color: #fff; }
+    .term-dd.open .term-dd-change { color: var(--blue); }
+    .term-dd-caret {
+      width: 16px; height: 16px; flex-shrink: 0;
+      color: inherit;
+      transition: transform 0.22s ease;
+    }
+    .term-dd.open .term-dd-caret { transform: rotate(180deg); }
+    .term-dd-panel {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0; right: 0;
+      z-index: 60;
+      background: #0b0b0b;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      padding: 6px;
+      box-shadow: 0 18px 44px rgba(0,0,0,0.65);
+      max-height: 320px;
+      overflow-y: auto;
+      display: none;
+    }
+    .term-dd.open .term-dd-panel { display: block; }
+    .term-dd-option {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 10px 12px;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: background 0.16s;
+    }
+    .term-dd-option:hover, .term-dd-option:focus { background: rgba(255,255,255,0.06); outline: none; }
+    .term-dd-option[aria-selected="true"] { background: rgba(59,91,255,0.14); }
+    .term-dd-option .term-dd-date { font-size: 0.86rem; font-weight: 500; color: #fff; }
+    .term-dd-option .term-dd-location { font-size: 0.72rem; color: rgba(255,255,255,0.4); }
+    .term-dd-option .term-status-badge { align-self: flex-start; margin-top: 3px; font-size: 0.7rem; letter-spacing: 0.2px; padding: 4px 9px; border-radius: 7px; }
+    .term-dd-option.disabled { opacity: 0.4; cursor: not-allowed; }
+    .term-dd-option.disabled:hover { background: transparent; }
+    .term-dd-option.disabled .term-dd-date { text-decoration: line-through; }
+
+    /* ===== CANCELLATION ===== */
+    /* Sits under the amount and names it — "Puni povrat" / "Polovica iznosa" /
+       "Bez povrata". The share of the fee is already spelled out in the
+       paragraph above the cards, so it is not repeated as a number here. */
+    .cancel-refund-sub {
+      font-size: 0.72rem;
+      line-height: 1.25;
+      color: rgba(255,255,255,0.3);
+    }
+
+    /* One row of cards per audience: members, then non-members. */
+    .cancel-row + .cancel-row { margin-top: 20px; }
+    .cancel-row .cancellation-grid { margin-bottom: 0; }
+    .cancel-note-card {
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+      padding: 16px 18px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: rgba(255,255,255,0.45);
+    }
+
+    /* ===== DAILY SCHEDULE ===== */
+    .schedule-section {
+      margin-top: 40px;
+      margin-bottom: 20px;
+    }
+    .schedule-section h3 {
+      font-size: 1.2rem;
+      font-weight: 400;
+      margin-bottom: 20px;
+    }
+    .schedule-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      position: relative;
+    }
+    /* The dot-and-rail timeline is gone; each day is just its own card, and the
+       stack of cards reads as the sequence on its own. Cards run the full width
+       now that nothing sits to their left. */
+    .schedule-day {
+      position: relative;
+      padding-bottom: 18px;
+    }
+    .schedule-day:last-child { padding-bottom: 0; }
+    .schedule-day + .schedule-day {
+      padding-top: 18px;
+    }
+    .schedule-day-content {
+      background: none;
+      border-radius: 0;
+      padding: 0;
+    }
+    .schedule-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+    .schedule-day-header {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .schedule-day-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #fff;
+    }
+    .schedule-day-date {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.5);
+    }
+    .schedule-day-location {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.35);
+    }
+    .schedule-items {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .schedule-item {
+      display: flex;
+      gap: 12px;
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.5;
+    }
+    /* Grey, not blue — nothing here is clickable, and blue was promising a
+       link. Same tone as the live/online format markers next to it. */
+    .schedule-item-time {
+      min-width: 50px;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.45);
+      font-weight: 500;
+      padding-top: 1px;
+    }
+    .schedule-item-desc {
+      flex: 1;
+    }
+
+    /* ===== CANCELLATION POLICY ===== */
+    /* Stacked is the base, and it is what the enrollment modal keeps — 560px is
+       too narrow for three panels side by side. The page overrides it below. */
+    .cancellation-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .cancellation-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+      padding: 13px 16px;
+      text-align: left;
+    }
+    /* A calendar date, so no caps. No reserved height either: the amount sits
+       beside the date now rather than under it, so a date that wraps no longer
+       drags the three amounts off a shared baseline. */
+    .cancellation-item .cancel-period {
+      font-size: 0.82rem;
+      letter-spacing: 0.2px;
+      line-height: 1.35;
+      color: rgba(255,255,255,0.45);
+    }
+    /* Amount over its wording, both flushed right against the date. */
+    .cancel-amount-line {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 1px;
+      flex-shrink: 0;
+      text-align: right;
+    }
+    /* White across all three windows. Green-amber-red graded them like a
+       warning, but none of these is an error — they are three amounts, and the
+       line beneath each one already says which is which. */
+    .cancellation-item .cancel-refund {
+      font-size: 1.15rem;
+      font-weight: 500;
+      line-height: 1.2;
+      font-family: 'Instrument Sans', sans-serif;
+      color: #fff;
+    }
 
     /* ===== RESPONSIVE ===== */
     @media (max-width: 1024px) {
       .event-meta-grid { grid-template-columns: 1fr; }
       .related-grid { grid-template-columns: repeat(2, 1fr); }
       .footer-grid { grid-template-columns: 1fr 1fr; }
+      .price-cards, .price-cards.price-cards-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 768px) {
-      .nav { padding: 16px 20px; }
+      .nav { padding: 14px 16px; }
       .nav-wrapper.scrolled .nav { padding: 16px 20px; }
-      .nav-right .nav-links {
+      .nav-left .nav-links {
         display: none !important;
         position: fixed;
         top: 0; left: 0; width: 100vw; height: 100vh;
-        background: rgba(8,8,8,0.98);
+        background: rgba(18,18,18,0.98);
         flex-direction: column;
         align-items: center;
         justify-content: center;
         gap: 32px;
         z-index: 9999;
       }
-      .nav-right .nav-links.show { display: flex !important; }
-      .nav-right .nav-links li { list-style: none; }
-      .nav-right .nav-links li a {
+      .nav-left .nav-links.show { display: flex !important; }
+      .nav-left .nav-links li { list-style: none; }
+      .nav-left .nav-links li a {
         font-size: 1.4rem;
-        color: rgba(255,255,255,0.8);
+        color: rgba(255,255,255,0.55);
         padding: 12px 24px;
         display: block;
       }
+      .nav-left .nav-links li a.active { color: #fff; }
       .menu-toggle { display: block; z-index: 10000; position: relative; }
-      .event-detail { padding: 0 20px 60px; }
-      .event-hero { height: 300px; }
-      .event-detail h1 { font-size: 1.8rem; }
-      .event-badges-row { flex-direction: column; align-items: flex-start; }
-      .related-section { padding: 0 20px 60px; }
+      .event-hero img { min-height: 240px; }
+      .event-detail { margin-top: 0; padding: 32px 20px 0; }
+      .event-detail h1 { font-size: 2.2rem; }
+      .event-detail-layout { flex-direction: column; gap: 32px; }
+      .event-detail-sidebar { order: 0; }
+      .event-detail-content { order: 1; }
+      .event-detail-sidebar { width: 100%; position: static; }
+      .event-detail-content { padding-bottom: 0; }
+      .related-section { padding: 80px 20px 80px; }
       .related-grid { grid-template-columns: 1fr; }
-      .bottom-cta { grid-template-columns: 1fr; padding: 0 20px 60px; }
-      .footer-grid { grid-template-columns: 1fr; }
+      .footer-grid { display: block; }
       .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
-      .footer { padding: 40px 20px 20px; }
+      .footer-inner { padding: 40px 20px 20px; }
+      .price-cards, .price-cards.price-cards-2 { grid-template-columns: 1fr; }
+      .speaker-list { flex-direction: column; }
+      .event-detail-box .speaker-link { width: 100%; }
+      .event-facts { margin-bottom: 28px; }
+      .event-detail-box { margin-bottom: 28px; }
+      .cancellation-item { gap: 12px; padding: 11px 14px; }
+      .cancellation-item .cancel-period { font-size: 0.78rem; }
+      .modal.modal-wide { max-width: 90%; padding: 28px 20px; }
+      .modal-payment-grid { grid-template-columns: 1fr; }
+      .modal-radio-group { flex-direction: column; }
+      .term-tabs { flex-direction: column; }
+      .term-tab { width: 100%; }
+      .schedule-day-content { padding: 0; }
+      .page-shell { margin: 8px; border-radius: 14px; }
+      .nav-wrapper { top: 8px; left: 12px; right: 12px; border-radius: 16px; }
+      .nav-wrapper.scrolled { left: 12px; right: 12px; }
     }
     @media (max-width: 480px) {
-      .event-hero { height: 240px; }
       .event-detail h1 { font-size: 1.5rem; }
+      .event-detail-sidebar { order: -1; }
+    }
+
+    @media (min-width: 1301px) {
+      .event-hero { border-radius: 12px; }
     }
 
     @keyframes fadeUp {
       to { opacity: 1; transform: translateY(0); }
     }
+
+    /* ===== SCROLL REVEAL ===== */
+    .scroll-reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .scroll-reveal.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    /* ===== HOVER FILL (round 49, from the home page) =====
+       The loader splits the page along a diagonal on
+       cubic-bezier(0.7, 0, 0.3, 1). The hover panel takes the same easing and
+       that edge mirrored — twelve degrees running up to the right — so the
+       two read as a pair. The panel is oversized and skewed, and
+       overflow: hidden crops it back to the card, corner radius included.
+       80px of overshoot covers the corner travel of a 12deg skew on the
+       widest card here (half of width x tan(12deg), about 41px). */
+    .event-card, .blog-card {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+    }
+    .event-card::after, .blog-card::after {
+      content: '';
+      position: absolute;
+      left: -4%; right: -4%; top: -80px; bottom: -80px;
+      z-index: -1;
+      background: var(--card-hover);
+      transform: translateY(130%) skewY(-12deg);
+      transition: transform 0.55s cubic-bezier(0.7, 0, 0.3, 1);
+    }
+    .event-card:hover::after, .blog-card:hover::after {
+      transform: translateY(0) skewY(-12deg);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .event-card::after, .blog-card::after { transition: none; }
+    }
   </style>
+  <script>
+  /* Set here rather than at the end of <body>: the rule that hides the native
+     pointer cannot apply to paints that happen before the script runs, and
+     that gap is where the two cursors are visible at once. If the cursor
+     itself fails to start, the script at the bottom takes this back off. */
+  document.documentElement.classList.add('has-custom-cursor');
+  </script>
 </head>
 <body>
 
   <!-- PAGE LOADER -->
+  <div class="page-loader-left" id="pageLoaderLeft"></div>
   <div class="page-loader" id="pageLoader">
-    <svg width="80" height="38" viewBox="0 0 50 24" xmlns="http://www.w3.org/2000/svg">
+    <svg width="140" height="67" viewBox="0 0 50 24" xmlns="http://www.w3.org/2000/svg">
       <path class="logo-bg" d="M49.7738 4.31636L42.0684 4.95287L41.8768 8.25898L49.5822 7.58349L49.356 11.8998L41.6506 12.5753L41.2208 21.0053L35.8397 21.4874L36.7292 5.43369L27.0818 6.19803C26.3994 6.26961 26.2083 6.30437 25.8923 6.40624C25.5394 6.51634 25.2728 6.68022 25.094 6.89573C24.9152 7.11179 24.8146 7.36621 24.793 7.65491C24.7679 7.8914 24.8397 8.12208 24.9257 8.31948C25.0187 8.51114 25.1723 8.68926 25.3826 8.85486C25.593 9.0138 25.8647 9.16305 26.1982 9.30275C26.5322 9.44261 26.9315 9.57448 27.3953 9.69539L28.9956 10.1269C30.0752 10.4153 30.9945 10.7683 31.7518 11.1879C32.5091 11.6076 33.1216 12.0884 33.5892 12.6281C34.0572 13.1615 34.3899 13.7528 34.5878 14.4008C34.7919 15.0488 34.8782 15.7484 34.8453 16.4998C34.7709 17.797 34.3883 18.8797 33.6988 19.7452C33.0094 20.6105 32.0565 21.1271 30.8375 21.5333C29.6258 21.9394 26.5168 22.1313 26.5111 22.1317C26.5111 22.1317 15.2865 23.0198 10.7197 23.3748C10.1194 23.473 9.48793 23.521 8.82536 23.5189C8.82346 23.519 8.8222 23.5192 8.82166 23.5192V23.5189C8.59995 23.5181 8.37475 23.5121 8.14607 23.5001C6.44395 23.4109 4.96929 23.0373 3.72206 22.3794C2.47516 21.715 1.52387 20.8182 0.868127 19.6889C0.219151 18.5535-0.065976 17.2344 0.0127857 15.7314L0.619679 4.05953L6.00202 3.57365L5.39386 15.5496C5.36188 16.1598 5.46823 16.7129 5.71275 17.2087C5.95761 17.6982 6.31057 18.0902 6.77172 18.3849C7.23932 18.6799 7.77828 18.8434 8.38848 18.8754C9.00508 18.9077 9.55809 18.8014 10.0475 18.5566C10.537 18.3117 10.929 17.9587 11.2237 17.4975C11.5187 17.0299 11.6823 16.491 11.7143 15.8809L12.3746 3.02502L17.7324 2.55151L17.0469 16.6241C17.0111 17.3079 16.9027 17.9459 16.7223 18.5382C21.375 18.1801 26.4588 17.7876 26.6641 17.773C27.3172 17.7088 27.7198 17.7183 28.1126 17.5972C28.505 17.4761 28.8078 17.2956 29.0199 17.0558C29.2322 16.8157 29.3486 16.5338 29.3719 16.213C29.3811 15.911 29.296 15.6417 29.1152 15.407C28.941 15.1662 28.6429 14.9446 28.2224 14.7424C27.8018 14.5336 27.2288 14.3311 26.5053 14.1322L24.5624 13.6053C22.8353 13.1347 21.4905 12.429 20.5286 11.4898C19.5735 10.5445 19.0973 9.28733 19.1845 7.7462C19.2438 6.49344 19.6356 5.41565 20.3592 4.51327C21.0894 3.60513 22.0682 2.91909 23.2965 2.45544C24.479 2.01178 25.6752 1.99987 27.2921 1.87661L40.2368 0.844721L50 0L49.7738 4.31636Z"/>
       <path class="logo-fill" d="M49.7738 4.31636L42.0684 4.95287L41.8768 8.25898L49.5822 7.58349L49.356 11.8998L41.6506 12.5753L41.2208 21.0053L35.8397 21.4874L36.7292 5.43369L27.0818 6.19803C26.3994 6.26961 26.2083 6.30437 25.8923 6.40624C25.5394 6.51634 25.2728 6.68022 25.094 6.89573C24.9152 7.11179 24.8146 7.36621 24.793 7.65491C24.7679 7.8914 24.8397 8.12208 24.9257 8.31948C25.0187 8.51114 25.1723 8.68926 25.3826 8.85486C25.593 9.0138 25.8647 9.16305 26.1982 9.30275C26.5322 9.44261 26.9315 9.57448 27.3953 9.69539L28.9956 10.1269C30.0752 10.4153 30.9945 10.7683 31.7518 11.1879C32.5091 11.6076 33.1216 12.0884 33.5892 12.6281C34.0572 13.1615 34.3899 13.7528 34.5878 14.4008C34.7919 15.0488 34.8782 15.7484 34.8453 16.4998C34.7709 17.797 34.3883 18.8797 33.6988 19.7452C33.0094 20.6105 32.0565 21.1271 30.8375 21.5333C29.6258 21.9394 26.5168 22.1313 26.5111 22.1317C26.5111 22.1317 15.2865 23.0198 10.7197 23.3748C10.1194 23.473 9.48793 23.521 8.82536 23.5189C8.82346 23.519 8.8222 23.5192 8.82166 23.5192V23.5189C8.59995 23.5181 8.37475 23.5121 8.14607 23.5001C6.44395 23.4109 4.96929 23.0373 3.72206 22.3794C2.47516 21.715 1.52387 20.8182 0.868127 19.6889C0.219151 18.5535-0.065976 17.2344 0.0127857 15.7314L0.619679 4.05953L6.00202 3.57365L5.39386 15.5496C5.36188 16.1598 5.46823 16.7129 5.71275 17.2087C5.95761 17.6982 6.31057 18.0902 6.77172 18.3849C7.23932 18.6799 7.77828 18.8434 8.38848 18.8754C9.00508 18.9077 9.55809 18.8014 10.0475 18.5566C10.537 18.3117 10.929 17.9587 11.2237 17.4975C11.5187 17.0299 11.6823 16.491 11.7143 15.8809L12.3746 3.02502L17.7324 2.55151L17.0469 16.6241C17.0111 17.3079 16.9027 17.9459 16.7223 18.5382C21.375 18.1801 26.4588 17.7876 26.6641 17.773C27.3172 17.7088 27.7198 17.7183 28.1126 17.5972C28.505 17.4761 28.8078 17.2956 29.0199 17.0558C29.2322 16.8157 29.3486 16.5338 29.3719 16.213C29.3811 15.911 29.296 15.6417 29.1152 15.407C28.941 15.1662 28.6429 14.9446 28.2224 14.7424C27.8018 14.5336 27.2288 14.3311 26.5053 14.1322L24.5624 13.6053C22.8353 13.1347 21.4905 12.429 20.5286 11.4898C19.5735 10.5445 19.0973 9.28733 19.1845 7.7462C19.2438 6.49344 19.6356 5.41565 20.3592 4.51327C21.0894 3.60513 22.0682 2.91909 23.2965 2.45544C24.479 2.01178 25.6752 1.99987 27.2921 1.87661L40.2368 0.844721L50 0L49.7738 4.31636Z"/>
     </svg>
@@ -475,33 +1743,38 @@
       var isReload = navEntries.length > 0 && navEntries[0].type === 'reload';
       if (!isReload) {
         loader.classList.add('skip');
+        var ll = document.getElementById('pageLoaderLeft');
+        if (ll) ll.classList.add('done');
+        document.documentElement.classList.remove('loading');
       }
     })();
   </script>
 
+
   <!-- NAV -->
   <div class="nav-wrapper" id="navbar">
   <nav class="nav">
+    <div class="nav-left">
     <a href="index.html" class="nav-logo">
       <svg width="50" height="24" viewBox="0 0 50 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M49.7738 4.31636L42.0684 4.95287L41.8768 8.25898L49.5822 7.58349L49.356 11.8998L41.6506 12.5753L41.2208 21.0053L35.8397 21.4874L36.7292 5.43369L27.0818 6.19803C26.3994 6.26961 26.2083 6.30437 25.8923 6.40624C25.5394 6.51634 25.2728 6.68022 25.094 6.89573C24.9152 7.11179 24.8146 7.36621 24.793 7.65491C24.7679 7.8914 24.8397 8.12208 24.9257 8.31948C25.0187 8.51114 25.1723 8.68926 25.3826 8.85486C25.593 9.0138 25.8647 9.16305 26.1982 9.30275C26.5322 9.44261 26.9315 9.57448 27.3953 9.69539L28.9956 10.1269C30.0752 10.4153 30.9945 10.7683 31.7518 11.1879C32.5091 11.6076 33.1216 12.0884 33.5892 12.6281C34.0572 13.1615 34.3899 13.7528 34.5878 14.4008C34.7919 15.0488 34.8782 15.7484 34.8453 16.4998C34.7709 17.797 34.3883 18.8797 33.6988 19.7452C33.0094 20.6105 32.0565 21.1271 30.8375 21.5333C29.6258 21.9394 26.5168 22.1313 26.5111 22.1317C26.5111 22.1317 15.2865 23.0198 10.7197 23.3748C10.1194 23.473 9.48793 23.521 8.82536 23.5189C8.82346 23.519 8.8222 23.5192 8.82166 23.5192V23.5189C8.59995 23.5181 8.37475 23.5121 8.14607 23.5001C6.44395 23.4109 4.96929 23.0373 3.72206 22.3794C2.47516 21.715 1.52387 20.8182 0.868127 19.6889C0.219151 18.5535 -0.065976 17.2344 0.0127857 15.7314L0.619679 4.05953L6.00202 3.57365L5.39386 15.5496C5.36188 16.1598 5.46823 16.7129 5.71275 17.2087C5.95761 17.6982 6.31057 18.0902 6.77172 18.3849C7.23932 18.6799 7.77828 18.8434 8.38848 18.8754C9.00508 18.9077 9.55809 18.8014 10.0475 18.5566C10.537 18.3117 10.929 17.9587 11.2237 17.4975C11.5187 17.0299 11.6823 16.491 11.7143 15.8809L12.3746 3.02502L17.7324 2.55151L17.0469 16.6241C17.0111 17.3079 16.9027 17.9459 16.7223 18.5382C21.375 18.1801 26.4588 17.7876 26.6641 17.773C27.3172 17.7088 27.7198 17.7183 28.1126 17.5972C28.505 17.4761 28.8078 17.2956 29.0199 17.0558C29.2322 16.8157 29.3486 16.5338 29.3719 16.213C29.3811 15.911 29.296 15.6417 29.1152 15.407C28.941 15.1662 28.6429 14.9446 28.2224 14.7424C27.8018 14.5336 27.2288 14.3311 26.5053 14.1322L24.5624 13.6053C22.8353 13.1347 21.4905 12.429 20.5286 11.4898C19.5735 10.5445 19.0973 9.28733 19.1845 7.7462C19.2438 6.49344 19.6356 5.41565 20.3592 4.51327C21.0894 3.60513 22.0682 2.91909 23.2965 2.45544C24.479 2.01178 25.6752 1.99987 27.2921 1.87661L40.2368 0.844721L50 0L49.7738 4.31636Z" fill="white"/></svg>
     </a>
-    <div class="nav-right">
       <ul class="nav-links">
-        <li><a href="index.html#about"><span data-hr="O nama" data-en="About">O nama</span></a></li>
-        <li><a href="index.html#ekspertiza"><span data-hr="Ekspertiza" data-en="Expertise">Ekspertiza</span></a></li>
-        <li><a href="index.html#fizioterapija"><span data-hr="Fizioterapija" data-en="Physiotherapy">Fizioterapija</span></a></li>
-        <li><a href="index.html#edukacije"><span data-hr="Edukacije" data-en="Education">Edukacije</span></a></li>
-        <li><a href="blog.html"><span data-hr="Blog" data-en="Blog">Blog</span></a></li>
-        <li><a href="index.html#clanstvo"><span data-hr="Članstvo" data-en="Membership">Članstvo</span></a></li>
-        <li><a href="index.html#kontakt"><span data-hr="Kontakt" data-en="Contact">Kontakt</span></a></li>
+        <li><a href="edukacije.html" class="active"><span data-hr="Edukacije" data-en="Education">Edukacije</span></a></li>
+        <li><a href="blog.html"><span data-hr="Članci" data-en="Articles">Članci</span></a></li>
+        <li><a href="clanstvo.html"><span data-hr="Članstvo" data-en="Membership">Članstvo</span></a></li>
+        <li><a href="o-nama.html"><span data-hr="O nama" data-en="About">O nama</span></a></li>
+        <li><a href="kontakt.html"><span data-hr="Kontakt" data-en="Contact">Kontakt</span></a></li>
       </ul>
       <button class="menu-toggle" onclick="var nl=document.querySelector('.nav-links');nl.classList.toggle('show');this.classList.toggle('open')" aria-label="Menu">
         <span></span><span></span><span></span>
       </button>
+    </div>
+    <div class="nav-right">
       <div class="lang-switch">
         <button class="active" data-lang="hr" onclick="switchLang('hr')"><svg class="lang-flag" viewBox="0 0 640 480"><rect width="640" height="160" fill="#FF0000"/><rect y="160" width="640" height="160" fill="#FFFFFF"/><rect y="320" width="640" height="160" fill="#171796"/><rect x="240" y="80" width="160" height="200" rx="0" ry="80" fill="#FF0000" stroke="#fff" stroke-width="4"/><g fill="#fff"><rect x="256" y="96" width="32" height="32"/><rect x="320" y="96" width="32" height="32"/><rect x="384" y="96" width="32" height="32"/><rect x="288" y="128" width="32" height="32"/><rect x="352" y="128" width="32" height="32"/><rect x="256" y="160" width="32" height="32"/><rect x="320" y="160" width="32" height="32"/><rect x="384" y="160" width="32" height="32"/><rect x="288" y="192" width="32" height="32"/><rect x="352" y="192" width="32" height="32"/><rect x="256" y="224" width="32" height="32"/><rect x="320" y="224" width="32" height="32"/><rect x="384" y="224" width="32" height="32"/></g></svg></button>
         <button data-lang="en" onclick="switchLang('en')"><svg class="lang-flag" viewBox="0 0 640 480"><rect width="640" height="480" fill="#012169"/><path d="M0 0l640 480M640 0L0 480" stroke="#fff" stroke-width="60"/><path d="M0 0l640 480M640 0L0 480" stroke="#C8102E" stroke-width="40"/><path d="M320 0v480M0 240h640" stroke="#fff" stroke-width="100"/><path d="M320 0v480M0 240h640" stroke="#C8102E" stroke-width="60"/></svg></button>
       </div>
+      <a href="donacije.html" class="nav-donate-btn"><span data-hr="Doniraj" data-en="Donate">Doniraj</span></a>
       <div class="nav-auth" id="navAuth">
         <a href="login.html" class="nav-auth-login-btn"><span data-hr="Pridruži se" data-en="Join now">Pridruži se</span></a>
       </div>
@@ -509,95 +1782,158 @@
   </nav>
   </div>
 
+  <div class="page-shell">
+
   <!-- EVENT HERO -->
+  <div class="event-hero-wrap">
   <div class="event-hero" id="eventHero">
     <img id="eventHeroImg" src="" alt="">
     <div class="event-hero-overlay"></div>
   </div>
+  </div>
 
-  <!-- EVENT DETAIL -->
+  <!-- EVENT DETAIL (outside page-content-wrap so it overlaps hero) -->
   <div class="event-detail" id="eventDetail">
     <div class="event-detail-header">
       <h1 id="eventTitle"></h1>
     </div>
-    <div class="event-badges-row">
-      <div class="event-badges" id="eventBadges"></div>
-      <button class="btn btn-primary" id="eventSignup" onclick="handleSignup()"><span data-hr="Prijavi se" data-en="Sign up">Prijavi se</span></button>
-    </div>
-    <div class="event-meta-grid">
-      <div class="event-meta-item">
-        <span class="event-meta-label"><span data-hr="Datum" data-en="Date">Datum</span></span>
-        <span class="event-meta-value" id="eventDate"></span>
-      </div>
-      <div class="event-meta-item">
-        <span class="event-meta-label"><span data-hr="Lokacija" data-en="Location">Lokacija</span></span>
-        <span class="event-meta-value" id="eventLocation"></span>
-      </div>
-      <div class="event-meta-item">
-        <span class="event-meta-label"><span data-hr="Cijena" data-en="Price">Cijena</span></span>
-        <span class="event-meta-value" id="eventPrice"></span>
-      </div>
-    </div>
-    <div class="event-description" id="eventDescription"></div>
-  </div>
 
-  <!-- BOTTOM CTA: Sign up + Contact side by side -->
-  <div class="bottom-cta">
-    <div class="bottom-cta-box">
-      <h3><span data-hr="Rezerviraj svoje mjesto" data-en="Reserve your spot">Rezerviraj svoje mjesto</span></h3>
-      <p><span data-hr="Osiguraj sudjelovanje na ovoj edukaciji." data-en="Secure your participation in this education.">Osiguraj sudjelovanje na ovoj edukaciji.</span></p>
-      <button class="btn btn-primary" onclick="handleSignup()"><span data-hr="Prijavi se" data-en="Sign up">Prijavi se</span></button>
-    </div>
-    <div class="bottom-cta-box">
-      <h3><span data-hr="Imate pitanja?" data-en="Have questions?">Imate pitanja?</span></h3>
-      <p><span data-hr="Kontaktirajte nas za više informacija." data-en="Contact us for more information.">Kontaktirajte nas za više informacija.</span></p>
-      <div class="contact-items">
-        <div class="contact-item">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.45)" stroke="none"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-          <span>info@usf.hr</span>
+    <div class="event-detail-layout">
+      <!-- LEFT: sticky rail — term picker (with remaining spots) + reserve -->
+      <div class="event-detail-sidebar">
+        <div class="event-badges" id="eventBadges"></div>
+
+
+        <!-- The dropdown carries its own surface, so a card around it was a box
+             inside a box. The price keeps its card — it is a set of rows and
+             needs something to sit on. -->
+        <div class="term-selector" id="termSelector"></div>
+
+        <div class="sidebar-signup" id="eventSignupSection">
+          <button class="btn btn-primary" id="eventSignup" onclick="handleSignup()"><span data-hr="Rezerviraj svoje mjesto" data-en="Reserve your spot">Rezerviraj svoje mjesto</span></button>
+          <!-- The PDF sits with the reserve button rather than beside the facts:
+               both are things you do, and down here the facts line keeps the
+               full width instead of wrapping around a button. -->
+          <button class="sidebar-pdf-btn" id="eventPdfBtn" onclick="downloadEducationInfo()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span data-hr="Preuzmi potvrdu o edukaciji (PDF)" data-en="Download education certificate (PDF)">Preuzmi potvrdu o edukaciji (PDF)</span>
+          </button>
         </div>
-        <div class="contact-item">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.45)" stroke="none"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-          <span>+385 99 123 4567</span>
+
+      </div>
+
+      <!-- RIGHT: nothing but the description and the programme, so the text
+           runs at full width instead of competing with a second column. -->
+      <div class="event-detail-content">
+        <!-- Who teaches it and what it costs are part of what you are reading
+             about, so they open the text rather than sit in the booking rail. -->
+        <div class="event-lead" id="eventLead">
+          <div class="lead-box" id="eventSpeakersBox">
+            <div class="lead-box-label"><span data-hr="Predavači" data-en="Speakers">Predavači</span></div>
+            <div class="event-lead-speakers" id="eventLeadSpeakers"></div>
+          </div>
+          <div class="lead-box">
+            <div class="lead-box-label"><span data-hr="Cijena" data-en="Price">Cijena</span></div>
+            <div class="rail-card price-split" id="eventPriceSection">
+              <div id="eventPriceContent"></div>
+              <div id="eventRecordingInfo"></div>
+            </div>
+          </div>
+          <div class="lead-box">
+            <div class="lead-box-label"><span data-hr="Detalji" data-en="Details">Detalji</span></div>
+            <div class="event-facts-line" id="eventFactsLine"></div>
+          </div>
         </div>
+        <div class="event-description" id="eventDescription"></div>
       </div>
     </div>
   </div>
+  </div><!-- end page-shell (hero only) -->
+
+  <!-- PAGE CONTENT WRAP (dark background) -->
+  <div class="page-content-wrap">
 
   <!-- RELATED EDUCATIONS -->
   <div class="related-section" id="relatedSection">
-    <div style="font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:3.5px; color:var(--blue); margin-bottom:16px;"><span data-hr="Edukacije" data-en="Education">Edukacije</span></div>
-    <h2><span data-hr="Ostale edukacije" data-en="Other educations">Ostale edukacije</span></h2>
+    <h2><span data-hr="Druge edukacije" data-en="Other educations">Druge edukacije</span></h2>
     <div class="related-grid" id="relatedGrid"></div>
-  </div>
-
-  <!-- ENROLLMENT MODAL -->
-  <div class="modal-overlay" id="enrollModal">
-    <div class="modal" id="modalContent"></div>
   </div>
 
   <!-- FOOTER -->
   <footer class="footer">
+
+    <div class="footer-inner">
     <div class="footer-grid">
-      <div class="footer-col"><h4>USF</h4><p><span data-hr="Prva hrvatska udruga posvećena isključivo sportskoj fizioterapiji osnovana 2026. Okupljamo stručnjake, educiramo zajednicu i podižemo standarde profesije." data-en="Croatia's first association dedicated exclusively to sports physiotherapy, founded in 2026. We gather experts, educate the community, and raise professional standards.">Prva hrvatska udruga posvećena isključivo sportskoj fizioterapiji osnovana 2026. Okupljamo stručnjake, educiramo zajednicu i podižemo standarde profesije.</span></p></div>
-      <div class="footer-col footer-col-nav"><h4><span data-hr="Navigacija" data-en="Navigation">Navigacija</span></h4><ul><li><a href="index.html#about"><span data-hr="O nama" data-en="About">O nama</span></a></li><li><a href="index.html#ekspertiza"><span data-hr="Ekspertiza" data-en="Expertise">Ekspertiza</span></a></li><li><a href="index.html#fizioterapija"><span data-hr="Fizioterapija" data-en="Physiotherapy">Fizioterapija</span></a></li><li><a href="index.html#edukacije"><span data-hr="Edukacije" data-en="Education">Edukacije</span></a></li><li><a href="blog.html"><span data-hr="Blog" data-en="Blog">Blog</span></a></li><li><a href="index.html#clanstvo"><span data-hr="Članstvo" data-en="Membership">Članstvo</span></a></li><li><a href="index.html#kontakt"><span data-hr="Kontakt" data-en="Contact">Kontakt</span></a></li></ul></div>
-      <div class="footer-col"><h4><span data-hr="Kontakt" data-en="Contact">Kontakt</span></h4><ul><li>info@usf.hr</li><li>+385 99 123 4567</li><li><span data-hr="Zagreb, Hrvatska" data-en="Zagreb, Croatia">Zagreb, Hrvatska</span></li></ul></div>
+      <div class="footer-col">
+        <a href="index.html" class="footer-logo" style="margin-bottom:16px;display:inline-block;">
+          <svg width="50" height="24" viewBox="0 0 50 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M49.7738 4.31636L42.0684 4.95287L41.8768 8.25898L49.5822 7.58349L49.356 11.8998L41.6506 12.5753L41.2208 21.0053L35.8397 21.4874L36.7292 5.43369L27.0818 6.19803C26.3994 6.26961 26.2083 6.30437 25.8923 6.40624C25.5394 6.51634 25.2728 6.68022 25.094 6.89573C24.9152 7.11179 24.8146 7.36621 24.793 7.65491C24.7679 7.8914 24.8397 8.12208 24.9257 8.31948C25.0187 8.51114 25.1723 8.68926 25.3826 8.85486C25.593 9.0138 25.8647 9.16305 26.1982 9.30275C26.5322 9.44261 26.9315 9.57448 27.3953 9.69539L28.9956 10.1269C30.0752 10.4153 30.9945 10.7683 31.7518 11.1879C32.5091 11.6076 33.1216 12.0884 33.5892 12.6281C34.0572 13.1615 34.3899 13.7528 34.5878 14.4008C34.7919 15.0488 34.8782 15.7484 34.8453 16.4998C34.7709 17.797 34.3883 18.8797 33.6988 19.7452C33.0094 20.6105 32.0565 21.1271 30.8375 21.5333C29.6258 21.9394 26.5168 22.1313 26.5111 22.1317C26.5111 22.1317 15.2865 23.0198 10.7197 23.3748C10.1194 23.473 9.48793 23.521 8.82536 23.5189C8.82346 23.519 8.8222 23.5192 8.82166 23.5192V23.5189C8.59995 23.5181 8.37475 23.5121 8.14607 23.5001C6.44395 23.4109 4.96929 23.0373 3.72206 22.3794C2.47516 21.715 1.52387 20.8182 0.868127 19.6889C0.219151 18.5535-0.065976 17.2344 0.0127857 15.7314L0.619679 4.05953L6.00202 3.57365L5.39386 15.5496C5.36188 16.1598 5.46823 16.7129 5.71275 17.2087C5.95761 17.6982 6.31057 18.0902 6.77172 18.3849C7.23932 18.6799 7.77828 18.8434 8.38848 18.8754C9.00508 18.9077 9.55809 18.8014 10.0475 18.5566C10.537 18.3117 10.929 17.9587 11.2237 17.4975C11.5187 17.0299 11.6823 16.491 11.7143 15.8809L12.3746 3.02502L17.7324 2.55151L17.0469 16.6241C17.0111 17.3079 16.9027 17.9459 16.7223 18.5382C21.375 18.1801 26.4588 17.7876 26.6641 17.773C27.3172 17.7088 27.7198 17.7183 28.1126 17.5972C28.505 17.4761 28.8078 17.2956 29.0199 17.0558C29.2322 16.8157 29.3486 16.5338 29.3719 16.213C29.3811 15.911 29.296 15.6417 29.1152 15.407C28.941 15.1662 28.6429 14.9446 28.2224 14.7424C27.8018 14.5336 27.2288 14.3311 26.5053 14.1322L24.5624 13.6053C22.8353 13.1347 21.4905 12.429 20.5286 11.4898C19.5735 10.5445 19.0973 9.28733 19.1845 7.7462C19.2438 6.49344 19.6356 5.41565 20.3592 4.51327C21.0894 3.60513 22.0682 2.91909 23.2965 2.45544C24.479 2.01178 25.6752 1.99987 27.2921 1.87661L40.2368 0.844721L50 0L49.7738 4.31636Z" fill="rgba(255,255,255,0.35)"/></svg>
+        </a>
+        <p><span data-hr="Prva hrvatska udruga posvećena isključivo sportskoj fizioterapiji osnovana 2026. Okupljamo stručnjake, educiramo zajednicu i podižemo standarde profesije." data-en="Croatia's first association dedicated exclusively to sports physiotherapy, founded in 2026. We gather experts, educate the community, and raise professional standards.">Prva hrvatska udruga posvećena isključivo sportskoj fizioterapiji osnovana 2026. Okupljamo stručnjake, educiramo zajednicu i podižemo standarde profesije.</span></p>
+        <div class="footer-socials">
+          <a href="https://instagram.com/usf.hr" target="_blank" rel="noopener" aria-label="Instagram"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+          <a href="https://facebook.com/usf" target="_blank" rel="noopener" aria-label="Facebook"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+          <a href="https://linkedin.com/company/usf.hr" target="_blank" rel="noopener" aria-label="LinkedIn"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+          <a href="https://youtube.com/@usf.hr" target="_blank" rel="noopener" aria-label="YouTube"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+        </div>
+      </div>
+      <!-- Col 2: Payment details (donations) -->
+      <div class="footer-col footer-col-pay">
+        <h4><span data-hr="Podaci za uplatu" data-en="Payment details">Podaci za uplatu</span></h4>
+        <ul>
+          <li id="usfPayName">Udruga sportskih fizioterapeuta</li>
+          <li id="usfPayAddress">Lojenov prilaz 4, Zagreb</li>
+          <li>IBAN: <span id="usfPayIban">HR4623600001103297330</span></li>
+          <li>SWIFT: <span id="usfPaySwift">ZABAHR2X</span></li>
+                  </ul>
+        <script>try{var _op=JSON.parse(localStorage.getItem('usf_org_payment')||'null');if(_op){if(_op.name)document.getElementById('usfPayName').textContent=_op.name;if(_op.iban)document.getElementById('usfPayIban').textContent=_op.iban;if(_op.swift)document.getElementById('usfPaySwift').textContent=_op.swift;var _a=document.getElementById('usfPayAddress');if(_a&&_op.address)_a.textContent=_op.address;}}catch(e){}</script>
+      </div>
+
+      <div class="footer-col footer-col-nav">
+        <ul style="grid-template-columns:1fr;"><li><a href="edukacije.html"><span data-hr="Edukacije" data-en="Education">Edukacije</span></a></li><li><a href="blog.html"><span data-hr="Članci" data-en="Articles">Članci</span></a></li><li><a href="clanstvo.html"><span data-hr="Članstvo" data-en="Membership">Članstvo</span></a></li><li><a href="o-nama.html"><span data-hr="O nama" data-en="About">O nama</span></a></li><li><a href="donacije.html"><span data-hr="Donacije" data-en="Donate">Donacije</span></a></li><li><a href="kontakt.html"><span data-hr="Kontakt" data-en="Contact">Kontakt</span></a></li></ul>
+      </div>
+      <div class="footer-col">
+        <p style="font-size:0.88rem;font-weight:400;color:var(--text-muted);margin-bottom:14px;"><span data-hr="Pretplati se na newsletter" data-en="Subscribe to our newsletter">Pretplati se na newsletter</span></p>
+        <form onsubmit="event.preventDefault();alert(document.documentElement.lang==='en'?'Thank you for subscribing!':'Hvala na pretplati!');" style="display:flex;flex-direction:column;gap:8px;">
+          <input type="text" placeholder="Ime" data-hr-placeholder="Ime" data-en-placeholder="Name" style="background:rgba(255,255,255,0.06);border:none;border-radius:10px;padding:10px 16px;color:#fff;font-size:0.82rem;font-family:inherit;outline:none;" required>
+          <input type="email" placeholder="Email" data-hr-placeholder="Email" data-en-placeholder="Email" style="background:rgba(255,255,255,0.06);border:none;border-radius:10px;padding:10px 16px;color:#fff;font-size:0.82rem;font-family:inherit;outline:none;" required>
+          <p style="font-size:0.72rem;color:var(--text-faint);line-height:1.5;margin-top:4px;"><span data-hr="Pretplatom pristajete na našu " data-en="By subscribing you agree to our ">Pretplatom pristajete na našu </span><a href="legal.html" style="color:var(--text-faint);text-decoration:underline;transition:color 0.3s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text-faint)'"><span data-hr="politiku privatnosti" data-en="Privacy Policy">politiku privatnosti</span></a>.</p>
+          <button type="submit" style="background:rgba(255,255,255,0.08);color:var(--text-muted);border:none;border-radius:10px;padding:10px 20px;font-size:0.85rem;font-weight:400;font-family:inherit;cursor:none;transition:all 0.3s;white-space:nowrap;width:100%;margin-top:4px;" onmouseover="this.style.background='rgba(255,255,255,0.15)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.08)';this.style.color='var(--text-muted)'"><span data-hr="Pretplati se" data-en="Subscribe">Pretplati se</span></button>
+        </form>
+      </div>
     </div>
     <div class="footer-bottom">
-      <span><span data-hr="&copy; 2026 Udruga sportskih fizioterapeuta" data-en="&copy; 2026 Association of Sports Physiotherapists">&copy; 2026 Udruga sportskih fizioterapeuta</span></span>
-      <span><span data-hr="Dizajn:" data-en="Design:">Dizajn:</span> <a href="https://www.jelenamandic.com/" target="_blank">Jelena Mandić</a></span>
+      <span><span data-hr="© 2026 Udruga sportskih fizioterapeuta" data-en="© 2026 Association of Sports Physiotherapists">© 2026 Udruga sportskih fizioterapeuta</span> <span style="display:inline-block;width:24px;"></span> <a href="legal.html" style="color:var(--text-faint);transition:color 0.3s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text-faint)'"><span data-hr="Pravne informacije" data-en="Legal">Pravne informacije</span></a></span>
+      <span>Website by <a href="https://pegula.studio" target="_blank" style="color:var(--text-faint);transition:color 0.3s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text-faint)'">pegula.studio</a></span>
+    </div>
     </div>
   </footer>
 
+  </div><!-- /page-content-wrap -->
+
+  <!-- ENROLLMENT MODAL (outside page-content-wrap for z-index) -->
+  <div class="modal-overlay" id="enrollModal">
+    <div class="modal" id="modalContent"></div>
+  </div>
+
+  <script src="usf-edukacije.js"></script>
   <script>
     // Page loader dismiss
     setTimeout(function() {
       var loader = document.getElementById('pageLoader');
+      var loaderLeft = document.getElementById('pageLoaderLeft');
       if (loader && !loader.classList.contains('skip')) {
-        loader.classList.add('hide');
-        setTimeout(function(){ loader.style.display='none'; }, 500);
+        loader.classList.add('crack');
+        if (loaderLeft) loaderLeft.classList.add('crack');
+        document.documentElement.classList.remove('loading');
+        setTimeout(function(){
+          loader.classList.add('crack-full');
+          setTimeout(function(){
+            loader.classList.add('done');
+            if (loaderLeft) loaderLeft.classList.add('done');
+          }, 400);
+        }, 500);
       }
-    }, 2800);
+    }, 800);
 
     // Nav scroll
     var navWrapper = document.getElementById('navbar');
@@ -611,12 +1947,7 @@
           var user = JSON.parse(raw);
           var auth = document.getElementById('navAuth');
           if (auth && user) {
-            var ini = ((user.firstName||'')[0]||'') + ((user.lastName||'')[0]||'');
-            if (user.profileImage) {
-              auth.innerHTML = '<a href="dashboard.html" class="nav-profile-circle" title="Moj profil"><img src="' + user.profileImage + '" alt=""></a>';
-            } else {
-              auth.innerHTML = '<a href="dashboard.html" class="nav-profile-circle" title="Moj profil">' + ini + '</a>';
-            }
+            auth.innerHTML = '<a href="dashboard.html" class="nav-profile-circle" title="Moj profil" style="display:flex;align-items:flex-end;justify-content:center;"><svg width="34" height="34" viewBox="0 0 24 24" fill="#fff" style="margin-bottom:-8px;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></a>';
           }
         } catch(e) {}
       }
@@ -638,123 +1969,100 @@
       // Re-render event detail in new language
       if (window._currentEvent) renderEvent(window._currentEvent, lang);
     }
+    /* A thin record built from what the dashboard stores, so a preview of an
+       admin-created education shows the education instead of "not found". It
+       carries only what usf_events knows; the richer fields simply stay empty. */
+    function usfEventFromAdmin(id, lang) {
+      var raw;
+      try { raw = JSON.parse(localStorage.getItem('usf_events') || '[]'); } catch (e) { return null; }
+      /* Whole days read better than "24 sata" when the number divides. */
+      function usfEvDuration(e, l) {
+        var h = parseFloat(e.duration);
+        if (!h) return '';
+        if (h >= 8 && h % 8 === 0) {
+          var d = h / 8;
+          return l === 'en' ? d + (d === 1 ? ' day' : ' days') + ' (' + h + ' h)'
+                            : d + (d === 1 ? ' dan' : ' dana') + ' (' + h + ' sati)';
+        }
+        return l === 'en' ? h + ' h' : h + ' sati';
+      }
+      function usfEvLanguage(e, l) {
+        var c = String(e.language || '').toLowerCase();
+        if (!c) return '';
+        var n = { hr: { hr: 'Hrvatski', en: 'Croatian' }, en: { hr: 'Engleski', en: 'English' } };
+        return (n[c] && n[c][l]) || e.language;
+      }
+      function usfEvMemberPrice(e, l) {
+        if (e.included) return l === 'en' ? 'Included in membership' : 'Uklju\u010deno u \u010dlanarinu';
+        var v = (e.memberPrice != null && e.memberPrice !== '') ? e.memberPrice : e.price;
+        var n = parseFloat(v);
+        if (isNaN(n)) return '';
+        return n > 0 ? n + ' \u20ac' : (l === 'en' ? 'Free' : 'Besplatno');
+      }
+      /* The same "Dan 1 / 09:00 ..." the admin form takes. */
+      function usfEvSchedule(e) {
+        var days = [], cur = null;
+        String(e.programme || '').split(/\r?\n/).forEach(function(line) {
+          var t = line.trim();
+          if (!t) return;
+          var head = t.match(/^((?:dan|day)\s*\d+)\s*(?:[\u2014\u2013-]\s*(.*))?$/i);
+          if (head) { cur = { dayHr: head[1], dayEn: head[1], dateHr: (head[2] || '').trim(),
+                              dateEn: (head[2] || '').trim(), items: [] }; days.push(cur); return; }
+          if (!cur) { cur = { dayHr: '', dayEn: '', dateHr: '', dateEn: '', items: [] }; days.push(cur); }
+          var it = t.match(/^(\d{1,2}[:.]\d{2}(?:\s*[\u2014\u2013-]\s*\d{1,2}[:.]\d{2})?)\s+(.*)$/);
+          if (it) cur.items.push({ timeHr: it[1], timeEn: it[1], descHr: it[2], descEn: it[2] });
+          else cur.items.push({ timeHr: '', timeEn: '', descHr: t, descEn: t });
+        });
+        return days.filter(function(d) { return d.items.length; });
+      }
+      var a = raw.filter(function(e) { return e.id === id; })[0];
+      if (!a) return null;
+      var price = (a.price && !a.included) ? (a.price + ' \u20ac') : (lang === 'en' ? 'Included in membership' : 'Uklju\u010deno u \u010dlanarinu');
+      return {
+        id: a.id,
+        titleHr: a.title || '', titleEn: a.titleEn || a.title || '',
+        descriptionHr: a.description || '', descriptionEn: a.descriptionEn || a.description || '',
+        dateHr: a.date || '', dateEn: a.date || '',
+        locationHr: a.location || '', locationEn: a.location || '',
+        durationHr: usfEvDuration(a, 'hr'), durationEn: usfEvDuration(a, 'en'),
+        languageHr: usfEvLanguage(a, 'hr'), languageEn: usfEvLanguage(a, 'en'),
+        categoryHr: a.category || '', categoryEn: a.category || '',
+        memberPriceHr: usfEvMemberPrice(a, 'hr'), memberPriceEn: usfEvMemberPrice(a, 'en'),
+        nonMemberPriceHr: price, nonMemberPriceEn: price,
+        extraHr: a.extra || '', extraEn: a.extraEn || a.extra || '',
+        speakers: a.instructor ? [{ name: a.instructor }] : [],
+        terms: (a.executions || []).map(function(x) {
+          return { dateHr: x.date || '', dateEn: x.date || '',
+                   locationHr: x.location || '', locationEn: x.location || '',
+                   spotsTotal: x.spots || 0, spotsTaken: 0 };
+        }),
+        schedule: usfEvSchedule(a), hasRecording: !!a.hasRecording
+      };
+    }
+
     // Init language from localStorage
     (function() {
       var saved = localStorage.getItem('usf_lang');
       if (saved && saved !== 'hr') switchLang(saved);
     })();
 
-    // Education events data
-    var events = [
-      {
-        id: 1,
-        titleHr: 'Prevencija sportskih ozljeda',
-        titleEn: 'Sports Injury Prevention',
-        type: 'radionica',
-        typeHr: 'Radionica',
-        typeEn: 'Workshop',
-        format: 'live',
-        dateHr: '15.–16. lipnja 2026.',
-        dateEn: 'June 15–16, 2026',
-        locationHr: 'Zagreb, Hotel Esplanade',
-        locationEn: 'Zagreb, Hotel Esplanade',
-        priceHr: 'Uključeno u članarinu',
-        priceEn: 'Included in membership',
-        image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=600&fit=crop',
-        descriptionHr: '<p>Radionica o prevenciji sportskih ozljeda namijenjena je fizioterapeutima, trenerima i ostalim stručnjacima koji rade sa sportašima. Tijekom dva dana polaznici će imati priliku naučiti najnovije metode procjene rizika od ozljeda te strategije prevencije temeljene na dokazima.</p><p>Program uključuje praktične vježbe, analizu pokreta i biomehaničku procjenu sportaša. Predavači su iskusni stručnjaci iz područja sportske medicine i fizioterapije s dugogodišnjim iskustvom rada s profesionalnim sportašima.</p><p>Polaznici će dobiti certifikat o završenoj radionici te pristup materijalima za daljnje učenje. Ova radionica je idealna prilika za umrežavanje s kolegama iz struke i razmjenu iskustava.</p>',
-        descriptionEn: '<p>The sports injury prevention workshop is designed for physiotherapists, coaches, and other professionals working with athletes. Over two days, participants will have the opportunity to learn the latest evidence-based risk assessment methods and injury prevention strategies.</p><p>The program includes practical exercises, movement analysis, and biomechanical assessment of athletes. The lecturers are experienced professionals from the fields of sports medicine and physiotherapy with years of experience working with professional athletes.</p><p>Participants will receive a certificate of completion and access to materials for further learning. This workshop is an ideal opportunity for networking with colleagues and exchanging experiences.</p>'
-      },
-      {
-        id: 2,
-        titleHr: 'Povratak sportu nakon ACL rekonstrukcije',
-        titleEn: 'Return to Sport After ACL Reconstruction',
-        type: 'seminar',
-        typeHr: 'Seminar',
-        typeEn: 'Seminar',
-        format: 'live',
-        dateHr: '10. srpnja 2026.',
-        dateEn: 'July 10, 2026',
-        locationHr: 'Split, Medicinski fakultet',
-        locationEn: 'Split, Medical Faculty',
-        priceHr: '50 €',
-        priceEn: '50 €',
-        image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1200&h=600&fit=crop',
-        descriptionHr: '<p>Seminar o povratku sportu nakon rekonstrukcije prednjeg križnog ligamenta (ACL) pruža detaljan uvid u najnovije protokole rehabilitacije. Polaznici će naučiti kako pravilno procijeniti spremnost sportaša za povratak natjecanjima te kako minimizirati rizik od ponovne ozljede.</p><p>Program obuhvaća pregled najnovijih istraživanja, kliničke smjernice i praktične testove za procjenu funkcionalnog oporavka. Poseban naglasak stavljen je na psihološke aspekte povratka sportu i važnost multidisciplinarnog pristupa.</p><p>Seminar vodi tim stručnjaka s iskustvom u rehabilitaciji profesionalnih sportaša. Polaznici će imati priliku za interaktivnu raspravu i analizu stvarnih slučajeva iz prakse.</p>',
-        descriptionEn: '<p>The seminar on return to sport after anterior cruciate ligament (ACL) reconstruction provides detailed insight into the latest rehabilitation protocols. Participants will learn how to properly assess an athlete\'s readiness to return to competition and how to minimize the risk of re-injury.</p><p>The program covers a review of the latest research, clinical guidelines, and practical tests for assessing functional recovery. Special emphasis is placed on the psychological aspects of returning to sport and the importance of a multidisciplinary approach.</p><p>The seminar is led by a team of experts with experience in rehabilitating professional athletes. Participants will have the opportunity for interactive discussion and analysis of real clinical cases.</p>'
-      },
-      {
-        id: 3,
-        titleHr: 'Manualna terapija u sportu',
-        titleEn: 'Manual Therapy in Sports',
-        type: 'tecaj',
-        typeHr: 'Tečaj',
-        typeEn: 'Course',
-        format: 'live',
-        dateHr: '5.–7. kolovoza 2026.',
-        dateEn: 'August 5–7, 2026',
-        locationHr: 'Rijeka, KBC',
-        locationEn: 'Rijeka, Clinical Hospital',
-        priceHr: '150 €',
-        priceEn: '150 €',
-        image: 'https://images.unsplash.com/photo-1519824145371-296894a0daa9?w=1200&h=600&fit=crop',
-        descriptionHr: '<p>Trodnevni tečaj manualne terapije u sportu osmišljen je za fizioterapeute koji žele unaprijediti svoje vještine u radu sa sportašima. Program pokriva napredne tehnike mobilizacije zglobova, manipulacije mekih tkiva i neuromuskularnu terapiju.</p><p>Svaki dan tečaja kombinira teorijsku nastavu s intenzivnim praktičnim radom u malim grupama. Polaznici će raditi pod nadzorom iskusnih instruktora i imati priliku vježbati tehnike na kolegama uz kontinuirani feedback.</p><p>Po završetku tečaja polaznici dobivaju certifikat koji potvrđuje stečene kompetencije. Tečaj je akreditiran od strane relevantnih stručnih tijela i nosi bodove za kontinuirani profesionalni razvoj.</p>',
-        descriptionEn: '<p>The three-day manual therapy in sports course is designed for physiotherapists who want to enhance their skills in working with athletes. The program covers advanced joint mobilization techniques, soft tissue manipulation, and neuromuscular therapy.</p><p>Each day of the course combines theoretical instruction with intensive practical work in small groups. Participants will work under the supervision of experienced instructors and have the opportunity to practice techniques on colleagues with continuous feedback.</p><p>Upon completion, participants receive a certificate confirming acquired competencies. The course is accredited by relevant professional bodies and carries points for continuing professional development.</p>'
-      },
-      {
-        id: 4,
-        titleHr: 'USF Godišnja konferencija 2026',
-        titleEn: 'USF Annual Conference 2026',
-        type: 'konferencija',
-        typeHr: 'Konferencija',
-        typeEn: 'Conference',
-        format: 'live',
-        dateHr: '15.–16. rujna 2026.',
-        dateEn: 'September 15–16, 2026',
-        locationHr: 'Zagreb, Kongresni centar',
-        locationEn: 'Zagreb, Congress Center',
-        priceHr: 'Uključeno u članarinu',
-        priceEn: 'Included in membership',
-        image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1200&h=600&fit=crop',
-        descriptionHr: '<p>USF Godišnja konferencija 2026 najveći je događaj godine za zajednicu sportskih fizioterapeuta u Hrvatskoj. Konferencija okuplja vodeće stručnjake, istraživače i praktičare iz cijele regije koji dijele najnovija saznanja i iskustva.</p><p>Program uključuje keynote predavanja, panel diskusije, praktične radionice i poster prezentacije. Teme pokrivaju širok raspon područja od prevencije ozljeda, rehabilitacije, do primjene novih tehnologija u sportskoj fizioterapiji.</p><p>Konferencija pruža izvrsnu priliku za umrežavanje, razmjenu ideja i profesionalni razvoj. Članovi USF-a imaju besplatan pristup konferenciji u sklopu članarine.</p>',
-        descriptionEn: '<p>The USF Annual Conference 2026 is the biggest event of the year for the sports physiotherapy community in Croatia. The conference brings together leading experts, researchers, and practitioners from across the region to share the latest knowledge and experiences.</p><p>The program includes keynote lectures, panel discussions, practical workshops, and poster presentations. Topics cover a wide range of areas from injury prevention, rehabilitation, to the application of new technologies in sports physiotherapy.</p><p>The conference provides an excellent opportunity for networking, exchange of ideas, and professional development. USF members have free access to the conference as part of their membership.</p>'
-      },
-      {
-        id: 5,
-        titleHr: 'Regeneracija sportaša',
-        titleEn: 'Athlete Recovery',
-        type: 'radionica',
-        typeHr: 'Radionica',
-        typeEn: 'Workshop',
-        format: 'live',
-        dateHr: '20. listopada 2026.',
-        dateEn: 'October 20, 2026',
-        locationHr: 'Osijek, Sportska dvorana',
-        locationEn: 'Osijek, Sports Hall',
-        priceHr: 'Uključeno u članarinu',
-        priceEn: 'Included in membership',
-        image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1200&h=600&fit=crop',
-        descriptionHr: '<p>Radionica o regeneraciji sportaša fokusira se na suvremene metode oporavka koje se koriste u profesionalnom sportu. Polaznici će naučiti kako optimizirati proces oporavka sportaša koristeći kombinirane pristupe temeljene na najnovijim znanstvenim dokazima.</p><p>Program obuhvaća teme poput krioterapije, kompresijske terapije, tehnike opuštanja mišića, planiranja oporavka unutar trenažnog ciklusa te praćenja pokazatelja umora i spremnosti sportaša.</p><p>Radionica je praktično orijentirana s demonstracijama opreme i tehnika. Polaznici će dobiti protokole oporavka koje mogu odmah primijeniti u svom radu sa sportašima.</p>',
-        descriptionEn: '<p>The athlete recovery workshop focuses on modern recovery methods used in professional sports. Participants will learn how to optimize the athlete recovery process using combined approaches based on the latest scientific evidence.</p><p>The program covers topics such as cryotherapy, compression therapy, muscle relaxation techniques, recovery planning within the training cycle, and monitoring indicators of fatigue and athlete readiness.</p><p>The workshop is practically oriented with equipment and technique demonstrations. Participants will receive recovery protocols that they can immediately apply in their work with athletes.</p>'
-      },
-      {
-        id: 6,
-        titleHr: 'Biomehanika u sportu',
-        titleEn: 'Biomechanics in Sports',
-        type: 'seminar',
-        typeHr: 'Seminar',
-        typeEn: 'Seminar',
-        format: 'online',
-        dateHr: '12. studenoga 2026.',
-        dateEn: 'November 12, 2026',
-        locationHr: 'Online (Zoom)',
-        locationEn: 'Online (Zoom)',
-        priceHr: '75 €',
-        priceEn: '75 €',
-        image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1200&h=600&fit=crop',
-        descriptionHr: '<p>Online seminar o biomehanici u sportu pruža temeljito razumijevanje biomehaničkih principa koji su ključni za analizu sportskog pokreta i prevenciju ozljeda. Seminar je dostupan putem Zoom platforme, što omogućuje sudjelovanje iz bilo kojeg mjesta.</p><p>Predavanja pokrivaju osnove kinematike i kinetike sportskog pokreta, analizu hoda i trčanja, biomehaničke aspekte čestih sportskih ozljeda te primjenu tehnologije za analizu pokreta u svakodnevnoj praksi.</p><p>Polaznici će imati pristup snimkama predavanja 30 dana nakon seminara te dodatnim materijalima za učenje. Seminar uključuje interaktivne sesije s mogućnošću postavljanja pitanja predavačima u stvarnom vremenu.</p>',
-        descriptionEn: '<p>The online seminar on biomechanics in sports provides a thorough understanding of biomechanical principles that are key to analyzing sports movement and preventing injuries. The seminar is available via the Zoom platform, allowing participation from anywhere.</p><p>Lectures cover the fundamentals of kinematics and kinetics of sports movement, gait and running analysis, biomechanical aspects of common sports injuries, and the application of technology for movement analysis in everyday practice.</p><p>Participants will have access to lecture recordings for 30 days after the seminar and additional learning materials. The seminar includes interactive sessions with the opportunity to ask lecturers questions in real time.</p>'
-      }
-    ];
+    /* === CONFIGURABLE EDUCATION TYPES === */
+    var educationTypes = {
+      radionica:     { hr: 'Radionica',              en: 'Workshop' },
+      seminar:       { hr: 'Seminar',                en: 'Seminar' },
+      tecaj:         { hr: 'Tečaj',                  en: 'Course' },
+      konferencija:  { hr: 'Konferencija',            en: 'Conference' },
+      webinar:       { hr: 'Webinar',                en: 'Webinar' },
+      prezentacija:  { hr: 'Prezentacija uređaja',   en: 'Device Presentation' }
+    };
+
+    function getTypeName(type, lang) {
+      var t = educationTypes[type];
+      return t ? (lang === 'hr' ? t.hr : t.en) : type;
+    }
+
+    // Education records come from the shared file — see usf-edukacije.js.
+    var events = USF_EDUCATIONS;
 
     // Render event
     function renderEvent(ev, lang) {
@@ -769,20 +2077,409 @@
       document.getElementById('eventHeroImg').src = ev.image;
       document.getElementById('eventHeroImg').alt = lang === 'hr' ? ev.titleHr : ev.titleEn;
 
-      // Badges (now below title, not on hero)
-      var typeClass = 'type-' + ev.type;
-      document.getElementById('eventBadges').innerHTML =
-        '<span class="event-card-type ' + typeClass + '">' + (lang === 'hr' ? ev.typeHr : ev.typeEn) + '</span>';
+      // Badges
+      var profBadgeHtml = '';
+      if (ev.requiredProfession && ev.requiredProfession.toLowerCase() !== 'all') {
+        var profNames = { fizioterapeut: { hr: 'Samo za fizioterapeute', en: 'Physiotherapists only' }, 'dr. med.': { hr: 'Samo za liječnike', en: 'Physicians only' }, kineziolog: { hr: 'Samo za kineziologe', en: 'Kinesiologists only' }, student: { hr: 'Samo za studente', en: 'Students only' } };
+        var pKey = ev.requiredProfession.toLowerCase();
+        var profLabel = profNames[pKey] ? (lang === 'hr' ? profNames[pKey].hr : profNames[pKey].en) : ev.requiredProfession;
+        profBadgeHtml = ' <span class="profession-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' + profLabel + '</span>';
+      }
+      // The type now lives in the details box on the right; the rail keeps
+      // only the profession / hybrid badges.
+      document.getElementById('eventBadges').innerHTML = profBadgeHtml.trim();
+      // Type reads as a plain fact value, like Category / Language — no coloured chip.
+      var typeTxt = getTypeName(ev.type, lang);
 
-      // Meta
-      document.getElementById('eventDate').textContent = lang === 'hr' ? ev.dateHr : ev.dateEn;
-      document.getElementById('eventLocation').textContent = lang === 'hr' ? ev.locationHr : ev.locationEn;
-      document.getElementById('eventPrice').textContent = lang === 'hr' ? ev.priceHr : ev.priceEn;
+      // Term selector — custom dropdown
+      var termContainer = document.getElementById('termSelector');
+      if (!termContainer) {
+        termContainer = document.createElement('div');
+        termContainer.id = 'termSelector';
+        termContainer.className = 'term-selector';
+        document.getElementById('eventBadges').after(termContainer);
+      }
+      // Croatian plural for "slobodno mjesto / slobodna mjesta / slobodnih mjesta"
+      var freeSpotsText = function(free, total) {
+        if (lang !== 'hr') return free + (free === 1 ? ' spot left of ' : ' spots left of ') + total;
+        var d1 = free % 10, d2 = free % 100;
+        var noun = (d1 === 1 && d2 !== 11) ? 'slobodno mjesto'
+                 : (d1 >= 2 && d1 <= 4 && (d2 < 12 || d2 > 14)) ? 'slobodna mjesta'
+                 : 'slobodnih mjesta';
+        return free + ' ' + noun + ' od ' + total;
+      };
+      var termStatusBadge = function(term) {
+        if (term.status === 'open') {
+          if (!term.spotsTotal) return '<span class="term-status-badge open">' + (lang === 'hr' ? 'Prijave otvorene' : 'Open for signup') + '</span>';
+          var free = term.spotsTotal - term.spotsTaken;
+          return '<span class="term-status-badge open">' + freeSpotsText(free, term.spotsTotal) + '</span>';
+        }
+        if (term.status === 'closed') return '<span class="term-status-badge closed">' + (lang === 'hr' ? 'Popunjeno' : 'Full') + '</span>';
+        if (term.status === 'cancelled') return '<span class="term-status-badge cancelled">' + (lang === 'hr' ? 'Otkazan' : 'Cancelled') + '</span>';
+        return '';
+      };
+      // The place is told once only, in the details box on the right. The term
+      // card carries the date and the free seats — the two things that actually
+      // change when you switch term.
+      if (ev.terms && ev.terms.length > 1) {
+        if (!window._activeTerm) window._activeTerm = ev.terms[0];
+        var act = window._activeTerm;
+        var termHtml = '<div class="term-selector-label" id="termSelectorLabel">' + (lang === 'hr' ? 'Dostupni termini ' : 'Available terms ') + '<span class="term-count">(' + ev.terms.length + ')</span></div>' +
+          '<div class="term-dd" id="termDd">' +
+            '<button type="button" class="term-dd-toggle" id="termDdToggle" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="termSelectorLabel termDdToggle" onclick="toggleTermDd(event)" onkeydown="termDdToggleKey(event)">' +
+              '<span class="term-dd-current">' +
+                '<span class="term-dd-date">' + (lang === 'hr' ? act.dateHr : act.dateEn) + '</span>' +
+                '<span class="term-dd-location">' + ((lang === 'hr' ? act.locationHr : act.locationEn) || '') + '</span>' +
+                termStatusBadge(act) +
+              '</span>' +
+              '<span class="term-dd-change">' +
+                '<span data-hr="Promijeni" data-en="Change">' + (lang === 'hr' ? 'Promijeni' : 'Change') + '</span>' +
+                '<svg class="term-dd-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>' +
+              '</span>' +
+            '</button>' +
+            '<div class="term-dd-panel" id="termDdPanel" role="listbox" aria-labelledby="termSelectorLabel">';
+        ev.terms.forEach(function(term, idx) {
+          var isActive = window._activeTerm.id === term.id;
+          var isDisabled = term.status === 'closed' || term.status === 'cancelled';
+          termHtml += '<div class="term-dd-option' + (isDisabled ? ' disabled' : '') + '" role="option"' +
+            ' aria-selected="' + (isActive ? 'true' : 'false') + '"' +
+            (isDisabled ? ' aria-disabled="true"' : ' tabindex="-1"') +
+            ' data-idx="' + idx + '"' +
+            (isDisabled ? '' : ' onclick="selectTerm(' + idx + ')" onkeydown="termDdOptionKey(event,' + idx + ')"') + '>' +
+            '<span class="term-dd-date">' + (lang === 'hr' ? term.dateHr : term.dateEn) + '</span>' +
+            '<span class="term-dd-location">' + ((lang === 'hr' ? term.locationHr : term.locationEn) || '') + '</span>' +
+            termStatusBadge(term) + '</div>';
+        });
+        termHtml += '</div></div>';
+        termContainer.innerHTML = termHtml;
+        termContainer.style.display = '';
+        // Use active term's data
+        var activeTerm = window._activeTerm;
+        // Update spots from active term
+        ev._activeSpots = { total: activeTerm.spotsTotal, taken: activeTerm.spotsTaken };
+      } else {
+        // One term — the same card, minus the dropdown. It used to be hidden
+        // here, which left single-term educations with a differently shaped
+        // page; now that date and location are told only once, the card has to
+        // be present on every education or they would not be told at all.
+        var only = (ev.terms && ev.terms.length === 1) ? ev.terms[0] : {
+          dateHr: ev.dateHr, dateEn: ev.dateEn,
+          locationHr: ev.locationHr, locationEn: ev.locationEn,
+          spotsTotal: ev.spotsTotal, spotsTaken: ev.spotsTaken,
+          // Events without a terms array carry no status of their own, so it
+          // comes from the seats — matching the waitlist switch further down.
+          status: (ev.spotsTotal && ev.spotsTotal - ev.spotsTaken <= 0) ? 'closed' : 'open'
+        };
+        termContainer.innerHTML =
+          '<div class="term-selector-label">' + (lang === 'hr' ? 'Termin' : 'Term') + '</div>' +
+          '<div class="term-dd">' +
+            '<div class="term-dd-toggle term-dd-static">' +
+              '<span class="term-dd-current">' +
+                '<span class="term-dd-date">' + ((lang === 'hr' ? only.dateHr : only.dateEn) || '') + '</span>' +
+                '<span class="term-dd-location">' + ((lang === 'hr' ? only.locationHr : only.locationEn) || '') + '</span>' +
+                termStatusBadge(only) +
+              '</span>' +
+            '</div>' +
+          '</div>';
+        termContainer.style.display = '';
+        ev._activeSpots = null;
+      }
+
+      // The four facts that hold for every term, no labels above them. Anything
+      // missing simply drops out, and the category drops out when it only
+      // repeats the type ("Konferencija · Konferencija"). The clock, globe and
+      // tag are the same glyphs the article rail uses, so a fact reads the same
+      // way on both pages; the screen is the one this page needed on its own.
+      var FACT_ICONS = [
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="13" rx="2"/><line x1="12" y1="16" x2="12" y2="21"/><line x1="8" y1="21" x2="16" y2="21"/></svg>',
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>',
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>'
+      ];
+      var _fTotal = (window._activeTerm && window._activeTerm.spotsTotal) || ev.spotsTotal;
+      var _fTaken = (window._activeTerm && window._activeTerm.spotsTaken) || ev.spotsTaken || 0;
+      var spotsTxt = _fTotal
+        ? (lang === 'hr' ? (_fTotal - _fTaken) + ' od ' + _fTotal + ' mjesta slobodno'
+                         : (_fTotal - _fTaken) + ' of ' + _fTotal + ' spots left')
+        : '';
+      var factParts = [
+        typeTxt,
+        lang === 'hr' ? ev.durationHr : ev.durationEn,
+        lang === 'hr' ? ev.language : ev.languageEn,
+        lang === 'hr' ? ev.categoryHr : ev.categoryEn
+      ].map(function(v) { return (v == null ? '' : String(v)).trim(); });
+      if (factParts[3] && factParts[3].toLowerCase() === factParts[0].toLowerCase()) factParts[3] = '';
+      // Each fact keeps its own icon when a neighbour drops out, so the index is
+      // carried through the filter rather than re-derived after it.
+      window._currentEdu = ev;
+      document.getElementById('eventFactsLine').innerHTML =
+        factParts.map(function(v, i) { return v ? '<span>' + FACT_ICONS[i] + v + '</span>' : ''; })
+                 .join('');
+
+      // Price section (member / non-member + early bird)
+      // Per-term pricing: if the active term has its own prices, use those instead of event-level
+      var priceHtml = '';
+      var activePriceTerm = window._activeTerm || {};
+      var memberPrice = lang === 'hr'
+        ? (activePriceTerm.memberPriceHr || ev.memberPriceHr)
+        : (activePriceTerm.memberPriceEn || ev.memberPriceEn);
+      var nonMemberPrice = lang === 'hr'
+        ? (activePriceTerm.nonMemberPriceHr || ev.nonMemberPriceHr)
+        : (activePriceTerm.nonMemberPriceEn || ev.nonMemberPriceEn);
+      var isIncluded = memberPrice.toLowerCase().includes('uključeno') || memberPrice.toLowerCase().includes('included');
+
+      // Prices as cards: members / non-members / recording afterwards.
+      // The recording *price* is public; access to the recording itself stays gated.
+      var recPrice = lang === 'hr' ? ev.recordingPriceHr : ev.recordingPriceEn;
+      var recEnrolled = false;
+      try {
+        var _rcu = JSON.parse(localStorage.getItem('usf_current_user'));
+        if (_rcu && _rcu.enrolledEvents && _rcu.enrolledEvents.indexOf(ev.id) !== -1) recEnrolled = true;
+        if (_rcu && _rcu.role === 'admin') recEnrolled = true;
+      } catch (e) {}
+
+      // Early bird — computed before the cards, because it rides inside the
+      // non-members card now rather than as a badge underneath the grid.
+      // Supports both HR/EN locale fields and admin-saved fields.
+      var earlyBirdPrice = lang === 'hr' ? ev.earlyBirdPriceHr : ev.earlyBirdPriceEn;
+      var earlyBirdDeadline = lang === 'hr' ? ev.earlyBirdDeadlineHr : ev.earlyBirdDeadlineEn;
+      // Fallback to admin-saved fields (earlyBirdPrice as number, earlyBirdDeadline as date)
+      if (!earlyBirdPrice && ev.earlyBirdPrice) {
+        earlyBirdPrice = ev.earlyBirdPrice + ' €';
+      }
+      if (!earlyBirdDeadline && ev.earlyBirdDeadline) {
+        var ebDate = new Date(ev.earlyBirdDeadline + 'T23:59:59');
+        earlyBirdDeadline = lang === 'hr' ? 'do ' + ebDate.toLocaleDateString('hr-HR') : 'until ' + ebDate.toLocaleDateString('en-US');
+      }
+      // Auto-switch: once the deadline has passed the rate is gone, whichever
+      // shape the deadline was stored in. A deadline we cannot parse is treated
+      // as still open rather than silently hiding a live discount.
+      var ebDeadlineDate = usfParseEarlyBirdDeadline(ev, lang);
+      var earlyBirdActive = !ebDeadlineDate || new Date() <= ebDeadlineDate;
+      var earlyBirdOn = !!(earlyBirdPrice && earlyBirdDeadline && earlyBirdActive);
+
+      // In a 320px rail three cards do not fit side by side and stacked they
+      // cost 240px, so each rate is one row: label left, amount right.
+      priceHtml += '<div class="rail-prices">';
+      priceHtml += '<div class="rail-price"><span class="rail-price-label">' + (lang === 'hr' ? 'Članovi' : 'Members') + '</span>' +
+        '<span class="price-row-value' + (isIncluded ? ' included' : '') + '">' + memberPrice + '</span></div>';
+      // While the early bird runs it IS the price a non-member pays, so it takes
+      // the headline slot and the full rate drops below it, struck through. The
+      // saving reads off the card without a word of explanation. Once the
+      // deadline passes the card silently reverts to the plain full rate.
+      var nonMemberBody = earlyBirdOn
+        ? '<span class="rail-price-val">' + earlyBirdPrice +
+            ' <span class="rail-price-was">' + nonMemberPrice + '</span></span>' +
+          '<span class="rail-price-sub">Early bird &middot; ' + earlyBirdDeadline + '</span>'
+        : '<span class="rail-price-val">' + nonMemberPrice + '</span>';
+      priceHtml += '<div class="rail-price"><span class="rail-price-label">' + (lang === 'hr' ? 'Nečlanovi' : 'Non-members') + '</span>' +
+        nonMemberBody + '</div>';
+      if (ev.hasRecording) {
+        var recIcon = recEnrolled
+          ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>'
+          : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+        var recSub = recEnrolled
+          ? (lang === 'hr' ? 'Dostupno nakon događaja' : 'Available after the event')
+          : (lang === 'hr' ? 'Dostupno nakon prijave' : 'Available after enrolment');
+        priceHtml += '<div class="rail-price"><span class="rail-price-label">' + (lang === 'hr' ? 'Snimka' : 'Recording') + '</span>' +
+          '<span class="price-row-value' + (Number(ev.recordingPrice) === 0 ? '' : (recPrice ? '' : ' muted')) + '">' + (Number(ev.recordingPrice) === 0 ? (lang === 'hr' ? 'Besplatno' : 'Free') : (recPrice || (lang === 'hr' ? 'Naknadno' : 'Announced later'))) + '</span>' +
+          '<span class="rail-price-sub">' + recIcon + recSub + '</span></div>';
+      }
+      priceHtml += '</div>';
+
+      document.getElementById('eventPriceContent').innerHTML = priceHtml;
+
+      // Remaining spots — no separate readout in the rail any more (shown inside the
+      // term dropdown chip); the numbers are still needed for the waitlist switch below.
+      var _st = ev._activeSpots ? ev._activeSpots.total : ev.spotsTotal;
+      var _sk = ev._activeSpots ? ev._activeSpots.taken : ev.spotsTaken;
+
+      // Speakers — appended to the facts list rather than given a heading, so
+      // they are one more line of the same kind. Runs after the facts line is
+      // written, and renderEvent rewrites that line on every term or language
+      // change, so the two never drift.
+      var speakerHost = document.getElementById('eventLeadSpeakers');
+      var speakerBox = document.getElementById('eventSpeakersBox');
+      if (speakerHost) {
+        if (ev.speakers && ev.speakers.length > 0) {
+          if (speakerBox) speakerBox.style.display = '';
+          var personIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+          var arrow = '<svg class="speaker-link-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
+          speakerHost.innerHTML = ev.speakers.map(function(sp) {
+            var nm = String(sp.name || '');
+            var initials = nm.split(/\s+/).filter(Boolean).slice(0, 2)
+              .map(function(w) { return w.charAt(0).toUpperCase(); }).join('');
+            var avatar = '<span class="speaker-avatar">' +
+              (sp.photo ? '<img src="' + sp.photo + '" alt="">'
+                        : (initials ? '<span class="speaker-initials">' + initials + '</span>' : personIcon)) +
+              '</span>';
+            var inner = avatar + '<span class="speaker-name">' + nm + '</span>';
+            return sp.profileUrl
+              ? '<a class="speaker-link" href="' + sp.profileUrl + '">' + inner + arrow + '</a>'
+              : '<span class="speaker-link">' + inner + '</span>';
+          }).join('');
+        } else {
+          speakerHost.innerHTML = '';
+          if (speakerBox) speakerBox.style.display = 'none';
+        }
+      }
+
+      // Signup vs Waitlist
+      var signupSection = document.getElementById('eventSignupSection');
+      var spotsLeft = _st ? _st - _sk : 999;
+      if (spotsLeft <= 0) {
+        signupSection.querySelector('#eventSignup').style.display = 'none';
+        var existingWaitlist = signupSection.querySelector('.btn-waitlist');
+        if (!existingWaitlist) {
+          var waitBtn = document.createElement('button');
+          waitBtn.className = 'btn-waitlist';
+          waitBtn.onclick = function() { handleSignup(true); };
+          waitBtn.innerHTML = '<span data-hr="Prijavi zainteresiranost" data-en="Register interest">' + (lang === 'hr' ? 'Prijavi zainteresiranost' : 'Register interest') + '</span>';
+          signupSection.appendChild(waitBtn);
+        }
+      } else {
+        signupSection.querySelector('#eventSignup').style.display = '';
+        var existingWaitlist = signupSection.querySelector('.btn-waitlist');
+        if (existingWaitlist) existingWaitlist.remove();
+      }
+
+      // Recording — price and access state now live in the price card above,
+      // so this slot only carries the permanent / public access badges.
+      var recordingDiv = document.getElementById('eventRecordingInfo');
+      recordingDiv.innerHTML = '';
+
+      // Permanent access badge
+      var permBadgeHtml = '';
+      if (ev.permanentAccess) {
+        permBadgeHtml = '<div class="permanent-access-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' + (lang === 'hr' ? 'Trajni pristup snimci' : 'Permanent recording access') + '</div>';
+      }
+      // Public access badge
+      var pubBadgeHtml = '';
+      if (ev.publicAccess) {
+        pubBadgeHtml = '<div class="public-access-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>' + (lang === 'hr' ? 'Otvoreno za sve — bez članarine' : 'Open to all — no membership required') + '</div>';
+      }
+      recordingDiv.innerHTML += permBadgeHtml + pubBadgeHtml;
+
+      // Watch button — access is a list the admin controls (paid or granted).
+      try {
+        var _wcu = JSON.parse(localStorage.getItem('usf_current_user') || 'null');
+        var _acc = JSON.parse(localStorage.getItem('usf_recording_access') || '[]');
+
+        /* Open on purpose: an education marked public, or a recording priced
+           at zero, is the admin saying this one is for everyone. */
+        var _open = ev.publicAccess === true ||
+                    Number(ev.recordingPrice) === 0 ||
+                    String(ev.recordingPriceHr || '').toLowerCase().indexOf('besplat') !== -1;
+
+        /* Otherwise both halves have to be true: you were on the list for this
+           education, and someone approved you — the access list is what the
+           admin writes once the payment has been seen. Payments name their
+           education in a description rather than carrying its id, so a person
+           confirming it is sounder than a string match. */
+        var _enrolled = !!(_wcu && (_wcu.enrolledEvents || []).indexOf(ev.id) !== -1);
+        var _approved = !!(_wcu && _acc.some(function(a) {
+          return a.eventId === ev.id && (a.email || '').toLowerCase() === (_wcu.email || '').toLowerCase();
+        }));
+        var _mine = _open || (_enrolled && _approved);
+        var _isAdmin = !!(_wcu && _wcu.role === 'admin');
+
+        /* If there is a recording and it is not yours yet, say which of the
+           two steps is missing rather than showing nothing at all. */
+        if (ev.hasRecording && !_mine && !_isAdmin) {
+          var _gm;
+          if (!_wcu) {
+            _gm = lang === 'en'
+              ? 'The recording is available to people enrolled in this education. Sign in to check your access.'
+              : 'Snimka je dostupna polaznicima ove edukacije. Prijavi se da provjeriš svoj pristup.';
+          } else if (!_enrolled) {
+            _gm = lang === 'en'
+              ? 'The recording is available to people enrolled in this education.'
+              : 'Snimka je dostupna polaznicima ove edukacije.';
+          } else {
+            _gm = lang === 'en'
+              ? 'Your recording access opens once we have confirmed your payment.'
+              : 'Snimka se otvara nakon što potvrdimo tvoju uplatu.';
+          }
+          var _gd = document.createElement('div');
+          _gd.className = 'recording-gated';
+          _gd.innerHTML =
+            '<svg class="gated-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' +
+            '<div class="gated-text">' + _gm + '</div>';
+          recordingDiv.appendChild(_gd);
+        }
+
+        if (ev.hasRecording && (_mine || _isAdmin)) {
+          var _wb = document.createElement('button');
+          _wb.className = 'sidebar-pdf-btn';
+          _wb.style.cssText = 'margin-top:10px;background:rgba(59,91,255,0.12);color:#8FA1FF;';
+          _wb.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>' + ((localStorage.getItem('usf_lang') || 'hr') === 'hr' ? 'Gledaj snimku' : 'Watch recording');
+          _wb.onclick = function() {
+            var ovl = document.createElement('div');
+            ovl.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px;';
+            ovl.onclick = function(e) { if (e.target === ovl) ovl.remove(); };
+            ovl.innerHTML = '<div style="max-width:860px;width:100%;background:#121212;border-radius:16px;overflow:hidden;">' +
+              '<div style="aspect-ratio:16/9;background:#1c1c1c;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.35);font-size:14px;">' +
+              '<svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg></div>' +
+              '<div style="padding:14px 20px;font-size:13px;color:rgba(255,255,255,0.6);">' + (ev.titleHr || '') + ' — ' + ((localStorage.getItem('usf_lang') || 'hr') === 'hr' ? 'snimka (demo player)' : 'recording (demo player)') + '</div></div>';
+            document.body.appendChild(ovl);
+          };
+          recordingDiv.appendChild(_wb);
+        }
+      } catch (e) {}
+
+      // Partner credit — a partner-supported education says so next to the badges
+      if (ev.partner) {
+        var _pbEl = document.getElementById('eventBadges');
+        if (_pbEl) {
+          _pbEl.innerHTML += ' <span class="hybrid-badge" style="background:rgba(255,255,255,0.06);">' +
+            '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 7.65l8.42 8.42 8.42-8.42a5.4 5.4 0 0 0 0-7.65z"/></svg>' +
+            ((localStorage.getItem('usf_lang') || 'hr') === 'hr' ? 'U suradnji s ' : 'In partnership with ') + ev.partner + '</span>';
+        }
+      }
+      // Hybrid badge (add near type badge)
+      if (ev.format === 'hybrid') {
+        var badgesEl = document.getElementById('eventBadges');
+        if (badgesEl) {
+          badgesEl.innerHTML += ' <span class="hybrid-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>' + (lang === 'hr' ? 'Uživo + Online' : 'Live + Online') + '</span>';
+        }
+      }
 
       // Description
-      document.getElementById('eventDescription').innerHTML = lang === 'hr' ? ev.descriptionHr : ev.descriptionEn;
+      var desc = lang === 'hr' ? ev.descriptionHr : ev.descriptionEn;
+      var extra = lang === 'hr' ? (ev.extraHr || '') : (ev.extraEn || '');
 
-      // Related educations
+      // Schedule (multi-day)
+      var scheduleHtml = '';
+      if (ev.schedule && ev.schedule.length > 0) {
+        scheduleHtml += '<div class="schedule-section"><h3 class="schedule-title">' + (lang === 'hr' ? 'Raspored' : 'Schedule') + '</h3><div class="schedule-timeline">';
+        ev.schedule.forEach(function(day, dayIdx) {
+          var isLast = dayIdx === ev.schedule.length - 1;
+          // No dot and no connector rail — "Dan 1" already says which day this
+          // is, and the timeline furniture was drawing the eye before the
+          // heading did. The card carries the grouping on its own.
+          scheduleHtml += '<div class="schedule-day' + (isLast ? ' last' : '') + '">';
+          scheduleHtml += '<div class="schedule-day-content">';
+          scheduleHtml += '<div class="schedule-day-header"><span class="schedule-day-name">' + (lang === 'hr' ? day.dayHr : day.dayEn) + '</span>';
+          if (day.dateHr) { scheduleHtml += '<span class="schedule-day-date">' + (lang === 'hr' ? day.dateHr : day.dateEn) + '</span>'; }
+          if (day.locationHr) {
+            scheduleHtml += '<span class="schedule-day-location">' + (lang === 'hr' ? day.locationHr : day.locationEn) + '</span>';
+          }
+          scheduleHtml += '</div>';
+          scheduleHtml += '<div class="schedule-items">';
+          day.items.forEach(function(item) {
+            var itemTitle = lang === 'hr' ? (item.descHr || item.titleHr || '') : (item.descEn || item.titleEn || '');
+            var itemTime = lang === 'hr' ? (item.timeHr || '') : (item.timeEn || item.timeHr || '');
+            var formatBadge = item.format ? '<span class="schedule-day-format fmt-' + item.format + '">' + (item.format === 'live' ? (lang==='hr'?'Uživo':'Live') : 'Online') + '</span>' : '';
+            scheduleHtml += '<div class="schedule-item"><span class="schedule-item-time">' + itemTime + '</span><span class="schedule-item-desc">' + itemTitle + formatBadge + '</span></div>';
+          });
+          scheduleHtml += '</div></div></div>';
+        });
+        scheduleHtml += '</div></div>';
+      }
+
+      document.getElementById('eventDescription').innerHTML = desc + extra + scheduleHtml;
+
+      // Related
       renderRelated(ev, lang);
     }
 
@@ -799,10 +2496,10 @@
           '</div>' +
           '<div class="event-card-body">' +
             '<div class="event-card-badges">' +
-            '<span class="event-card-type ' + typeClass + '">' + (lang === 'hr' ? ev.typeHr : ev.typeEn) + '</span>' +
+            '<span class="event-card-type ' + typeClass + '">' + getTypeName(ev.type, lang) + '</span>' +
             '</div>' +
             '<h3>' + (lang === 'hr' ? ev.titleHr : ev.titleEn) + '</h3>' +
-            '<span class="event-card-meta">' + (lang === 'hr' ? ev.dateHr : ev.dateEn) + ' · ' + (lang === 'hr' ? ev.locationHr : ev.locationEn) + '</span>' +
+            '<span class="event-card-meta">' + (lang === 'hr' ? ev.dateHr : ev.dateEn) + ', ' + (lang === 'hr' ? ev.locationHr : ev.locationEn) + '</span>' +
             '<div class="event-card-price">' + price + '</div>' +
           '</div>' +
         '</a>';
@@ -810,12 +2507,14 @@
     }
 
     // Enrollment flow
-    function handleSignup() {
+    function handleSignup(waitlist) {
       var user = null;
       try { user = JSON.parse(localStorage.getItem('usf_current_user')); } catch(e) {}
       var lang = document.documentElement.lang || 'hr';
       var modal = document.getElementById('enrollModal');
       var content = document.getElementById('modalContent');
+      // reset width from any previous payment step
+      content.classList.remove('modal-wide');
 
       if (!user) {
         // Not logged in — show login prompt
@@ -827,27 +2526,592 @@
       } else {
         // Logged in — show confirmation
         var evTitle = lang === 'hr' ? window._currentEvent.titleHr : window._currentEvent.titleEn;
-        content.innerHTML =
-          '<h3>' + (lang === 'hr' ? 'Potvrda prijave' : 'Confirm enrollment') + '</h3>' +
-          '<p>' + (lang === 'hr' ? 'Želite li se prijaviti na edukaciju "' + evTitle + '"?' : 'Would you like to sign up for "' + evTitle + '"?') + '</p>' +
-          '<button class="btn btn-primary" onclick="confirmEnrollment()">' + (lang === 'hr' ? 'Potvrdi' : 'Confirm') + '</button>' +
-          '<button class="btn btn-secondary" onclick="closeModal()">' + (lang === 'hr' ? 'Odustani' : 'Cancel') + '</button>';
+        if (waitlist) {
+          content.innerHTML =
+            '<h3>' + (lang === 'hr' ? 'Prijava zainteresiranosti' : 'Register interest') + '</h3>' +
+            '<p>' + (lang === 'hr' ? 'Želite li prijaviti zainteresiranost za edukaciju "' + evTitle + '"? Obavijestit ćemo vas kad se otvore nova mjesta ili novi termin.' : 'Would you like to register interest for "' + evTitle + '"? We will notify you when new spots open or a new term is available.') + '</p>' +
+            '<button class="btn btn-primary" onclick="confirmEnrollment(true)">' + (lang === 'hr' ? 'Prijavi me' : 'Register me') + '</button>' +
+            '<button class="btn btn-secondary" onclick="closeModal()">' + (lang === 'hr' ? 'Odustani' : 'Cancel') + '</button>';
+        } else {
+          // Same width as the payment step that follows it, so the flow doesn't jump.
+          content.classList.add('modal-wide');
+          content.innerHTML =
+            '<h3>' + (lang === 'hr' ? 'Potvrda prijave' : 'Confirm enrollment') + '</h3>' +
+            // The heading already says what this step is, so the lead is just
+            // the education being signed up for.
+            '<p class="modal-lead">' + evTitle + '</p>' +
+            // Refund terms — shown before the commitment, not after it
+            '<div class="modal-cancel-summary" id="modalCancelSummary">' +
+              '<div class="modal-cancel-summary-title">' +
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' +
+                (lang === 'hr' ? 'Pravila otkazivanja' : 'Cancellation policy') +
+              '</div>' +
+              // Credit rule first — it governs every amount below it, same order
+              // as the box on the page.
+              '<div class="modal-cancel-summary-line muted above">' + (lang === 'hr'
+                ? 'Povrat se izdaje kao kredit za buduće edukacije.'
+                : 'Refunds are issued as credit for future educations.') + '</div>' +
+              // Identical calculation to the box on the page, for the selected term —
+              // but narrowed to this visitor's own membership status.
+              buildCancellationRefundHtml(lang, null, null) +
+            '</div>' +
+            // Both actions at the right edge, Odustani left of the primary.
+            '<div class="modal-actions">' +
+              '<button class="btn btn-secondary" onclick="closeModal()">' + (lang === 'hr' ? 'Odustani' : 'Cancel') + '</button>' +
+              '<button class="btn btn-primary" onclick="confirmEnrollment()">' + (lang === 'hr' ? 'Potvrdi' : 'Confirm') + '</button>' +
+            '</div>';
+        }
       }
       modal.classList.add('show');
     }
 
-    function confirmEnrollment() {
+    function confirmEnrollment(waitlist) {
       var lang = document.documentElement.lang || 'hr';
       var content = document.getElementById('modalContent');
+      if (waitlist) {
+        content.innerHTML =
+          '<div class="modal-success-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>' +
+          '<h3>' + (lang === 'hr' ? 'Zainteresiranost zabilježena!' : 'Interest registered!') + '</h3>' +
+          '<p>' + (lang === 'hr' ? 'Obavijestit ćemo vas čim se otvore nova mjesta ili novi termin za ovu edukaciju.' : 'We will notify you as soon as new spots open or a new term is available for this education.') + '</p>' +
+          '<button class="btn btn-primary" onclick="closeModal()">' + (lang === 'hr' ? 'U redu' : 'OK') + '</button>';
+      } else {
+        // Show payment info modal
+        var ev = window._currentEvent;
+        var memberPrice = lang === 'hr' ? ev.memberPriceHr : ev.memberPriceEn;
+        var nonMemberPrice = lang === 'hr' ? ev.nonMemberPriceHr : ev.nonMemberPriceEn;
+        content.classList.add('modal-wide');
+        content.innerHTML =
+          '<div class="modal-success-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>' +
+          '<h3>' + (lang === 'hr' ? 'Uspješna prijava!' : 'Successfully enrolled!') + '</h3>' +
+          '<p>' + (lang === 'hr' ? 'Vaše mjesto je rezervirano na 72 sata. Molimo izvršite uplatu u navedenom roku.' : 'Your spot is reserved for 72 hours. Please complete payment within this period.') + '</p>' +
+
+          // Payment info section
+          '<div class="modal-section-label">' + (lang === 'hr' ? 'Podaci za uplatu' : 'Payment details') + '</div>' +
+          '<div class="modal-payment-grid">' +
+            '<div class="modal-payment-item" role="button" tabindex="0"><div class="mpi-label">' + (lang === 'hr' ? 'Primatelj' : 'Recipient') + '</div><div class="mpi-value">Udruga sportskih fizioterapeuta</div><span class="donation-copy-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><span class="donation-copy-feedback" aria-live="polite"></span></div>' +
+            '<div class="modal-payment-item" role="button" tabindex="0"><div class="mpi-label">IBAN</div><div class="mpi-value">HR4623600001103297330</div><span class="donation-copy-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><span class="donation-copy-feedback" aria-live="polite"></span></div>' +
+            '<div class="modal-payment-item" role="button" tabindex="0"><div class="mpi-label">' + (lang === 'hr' ? 'Iznos (članovi)' : 'Amount (members)') + '</div><div class="mpi-value">' + memberPrice + '</div><span class="donation-copy-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><span class="donation-copy-feedback" aria-live="polite"></span></div>' +
+            '<div class="modal-payment-item" role="button" tabindex="0"><div class="mpi-label">' + (lang === 'hr' ? 'Iznos (nečlanovi)' : 'Amount (non-members)') + '</div><div class="mpi-value">' + nonMemberPrice + '</div><span class="donation-copy-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><span class="donation-copy-feedback" aria-live="polite"></span></div>' +
+            '<div class="modal-payment-item" role="button" tabindex="0"><div class="mpi-label">' + (lang === 'hr' ? 'Poziv na broj' : 'Reference number') + '</div><div class="mpi-value">OIB-2026</div><span class="donation-copy-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><span class="donation-copy-feedback" aria-live="polite"></span></div>' +
+            '<div class="modal-payment-item" role="button" tabindex="0"><div class="mpi-label">' + (lang === 'hr' ? 'Opis plaćanja' : 'Payment description') + '</div><div class="mpi-value">' + (lang === 'hr' ? 'Donacija za USF edukaciju' : 'Donation for USF education') + '</div><span class="donation-copy-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><span class="donation-copy-feedback" aria-live="polite"></span></div>' +
+          '</div>' +
+
+          '<div class="modal-divider"></div>' +
+
+          // Payer type: individual or company
+          '<div class="modal-section-label">' + (lang === 'hr' ? 'Tip uplatitelja' : 'Payer type') + '</div>' +
+          '<div class="modal-radio-group">' +
+            '<input type="radio" name="payerType" id="payerIndividual" value="individual" checked>' +
+            '<label for="payerIndividual" onclick="document.getElementById(\'payerIndividual\').checked=true;document.getElementById(\'companyFields\').classList.remove(\'show\')">' +
+              '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>' +
+              (lang === 'hr' ? 'Fizička osoba' : 'Individual') +
+            '</label>' +
+            '<input type="radio" name="payerType" id="payerCompany" value="company">' +
+            '<label for="payerCompany" onclick="document.getElementById(\'payerCompany\').checked=true;document.getElementById(\'companyFields\').classList.add(\'show\')">' +
+              '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg>' +
+              (lang === 'hr' ? 'Firma (R1 račun)' : 'Company (R1 invoice)') +
+            '</label>' +
+          '</div>' +
+
+          // Company fields (hidden by default)
+          '<div class="modal-company-fields" id="companyFields">' +
+            '<input type="text" placeholder="' + (lang === 'hr' ? 'Naziv firme' : 'Company name') + '">' +
+            '<input type="text" placeholder="OIB">' +
+            '<input type="text" placeholder="' + (lang === 'hr' ? 'Adresa firme' : 'Company address') + '">' +
+          '</div>' +
+
+          '<div class="modal-divider"></div>' +
+
+          // Upload payment confirmation
+          '<div class="modal-section-label">' + (lang === 'hr' ? 'Potvrda uplate (opcionalno)' : 'Payment confirmation (optional)') + '</div>' +
+          '<div class="modal-upload-area" onclick="document.getElementById(\'uploadInput\').click()">' +
+            '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>' +
+            '<div class="upload-text">' + (lang === 'hr' ? 'Kliknite za prijenos potvrde o uplati' : 'Click to upload payment confirmation') + '</div>' +
+            '<div class="upload-hint">' + (lang === 'hr' ? 'PDF, JPG ili PNG — max 5 MB' : 'PDF, JPG or PNG — max 5 MB') + '</div>' +
+            '<div class="upload-filename" id="uploadFilename"></div>' +
+            '<input type="file" id="uploadInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleUploadFile(this)">' +
+          '</div>' +
+
+          // Same order as the confirmation step: secondary left, primary right.
+          '<div class="modal-actions">' +
+            '<button class="btn btn-secondary" onclick="closeModal()">' + (lang === 'hr' ? 'Zatvori' : 'Close') + '</button>' +
+            '<button class="btn btn-primary" onclick="finalizeEnrollment()">' + (lang === 'hr' ? 'Završi prijavu' : 'Finalize enrollment') + '</button>' +
+          '</div>';
+      }
+    }
+
+    function selectTerm(idx) {
+      var ev = window._currentEvent;
+      if (!ev || !ev.terms || !ev.terms[idx]) return;
+      var term = ev.terms[idx];
+      if (term.status === 'closed' || term.status === 'cancelled') return;
+      window._activeTerm = term;
+      closeTermDd();
+      var lang = document.documentElement.lang || 'hr';
+      renderEvent(ev, lang);
+      var t = document.getElementById('termDdToggle');
+      if (t) t.focus();
+    }
+
+    /* ===== Term dropdown behaviour ===== */
+    function closeTermDd() {
+      var dd = document.getElementById('termDd');
+      if (!dd) return;
+      dd.classList.remove('open');
+      var t = document.getElementById('termDdToggle');
+      if (t) t.setAttribute('aria-expanded', 'false');
+    }
+
+    function openTermDd(focusSelected) {
+      var dd = document.getElementById('termDd');
+      if (!dd) return;
+      dd.classList.add('open');
+      var t = document.getElementById('termDdToggle');
+      if (t) t.setAttribute('aria-expanded', 'true');
+      if (focusSelected) {
+        var opts = termDdOptions();
+        var sel = opts.filter(function(o) { return o.getAttribute('aria-selected') === 'true'; })[0];
+        (sel || opts[0] || {focus: function(){}}).focus();
+      }
+    }
+
+    function toggleTermDd(e) {
+      if (e) e.stopPropagation();
+      var dd = document.getElementById('termDd');
+      if (!dd) return;
+      if (dd.classList.contains('open')) closeTermDd(); else openTermDd(false);
+    }
+
+    function termDdOptions() {
+      var panel = document.getElementById('termDdPanel');
+      if (!panel) return [];
+      return Array.prototype.slice.call(panel.querySelectorAll('.term-dd-option:not(.disabled)'));
+    }
+
+    function termDdToggleKey(e) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        openTermDd(true);
+      } else if (e.key === 'Escape') {
+        closeTermDd();
+      }
+    }
+
+    function termDdOptionKey(e, idx) {
+      var opts = termDdOptions();
+      var pos = opts.indexOf(e.currentTarget);
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectTerm(idx);
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (opts[pos + 1]) opts[pos + 1].focus();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (pos > 0) opts[pos - 1].focus();
+        else { var t = document.getElementById('termDdToggle'); if (t) t.focus(); }
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        closeTermDd();
+        var tg = document.getElementById('termDdToggle');
+        if (tg) tg.focus();
+      }
+    }
+
+    document.addEventListener('click', function(e) {
+      var dd = document.getElementById('termDd');
+      if (dd && dd.classList.contains('open') && !dd.contains(e.target)) closeTermDd();
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeTermDd();
+    });
+
+    /* ===== Copy payment details to clipboard ===== */
+    function usfCopyFallback(text) {
+      try {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.top = '-1000px';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        ta.setSelectionRange(0, ta.value.length);
+        var ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        return ok;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function copyDonationValue(box) {
+      var valEl = box.querySelector('.mpi-value');
+      if (!valEl) return;
+      var text = (valEl.textContent || '').trim();
+      if (!text) return;
+      var lang = document.documentElement.lang === 'en' ? 'en' : 'hr';
+      var fb = box.querySelector('.donation-copy-feedback');
+
+      var show = function(ok) {
+        if (fb) {
+          fb.textContent = ok
+            ? (lang === 'hr' ? 'Kopirano' : 'Copied')
+            : (lang === 'hr' ? 'Greška' : 'Failed');
+          fb.style.color = ok ? 'var(--green)' : 'var(--amber)';
+        }
+        box.classList.add('copied');
+        if (box._usfCopyTimer) clearTimeout(box._usfCopyTimer);
+        box._usfCopyTimer = setTimeout(function() {
+          box.classList.remove('copied');
+        }, 1800);
+      };
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function() {
+          show(true);
+        }, function() {
+          show(usfCopyFallback(text));
+        });
+      } else {
+        show(usfCopyFallback(text));
+      }
+    }
+
+    /* the modal and page payment rows are built dynamically, so bind them by delegation */
+    document.addEventListener('click', function (e) {
+      var item = e.target && e.target.closest ? e.target.closest('.modal-payment-item') : null;
+      if (item) copyDonationValue(item);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      var item = e.target && e.target.closest ? e.target.closest('.modal-payment-item') : null;
+      if (!item) return;
+      e.preventDefault();
+      copyDonationValue(item);
+    });
+
+    function parsePriceNum(s) {
+      if (!s) return null;
+      var m = String(s).replace(/\s/g, '').match(/(\d+(?:[.,]\d+)?)/);
+      if (!m) return null;
+      var n = parseFloat(m[1].replace(',', '.'));
+      return isNaN(n) ? null : n;
+    }
+
+    function formatEur(n, lang) {
+      var s = (Math.round(n * 100) % 100 === 0)
+        ? String(Math.round(n))
+        : n.toFixed(2);
+      if (lang === 'hr') s = s.replace('.', ',');
+      return s + ' €';
+    }
+
+    function usfIsActiveMember() {
+      try {
+        var cu = JSON.parse(localStorage.getItem('usf_current_user'));
+        return !!(cu && cu.membershipStatus === 'active');
+      } catch (e) { return false; }
+    }
+
+    /* Exact calendar deadlines — derived from the term's ISO startDate, so the
+       cards say "do 31. svibnja 2026." instead of "više od 14 dana". */
+    var USF_HR_MONTHS = ['siječnja', 'veljače', 'ožujka', 'travnja', 'svibnja', 'lipnja', 'srpnja', 'kolovoza', 'rujna', 'listopada', 'studenoga', 'prosinca'];
+    var USF_EN_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+    function usfParseStartDate(s) {
+      if (!s) return null;
+      var m = String(s).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (!m) return null;
+      var d = new Date(+m[1], +m[2] - 1, +m[3]);
+      return isNaN(d.getTime()) ? null : d;
+    }
+
+    /* One standardized info document per education — USF header and footer,
+       every field the Chamber wants, generated from the data, nothing typed by
+       hand. Same paper as the certificates: white, blue rules, mono footer id. */
+    function usfEduInfoDocument(ev) {
+      var lang = (localStorage.getItem('usf_lang') || 'hr');
+      var L = function(hr, en) { return lang === 'hr' ? hr : en; };
+      var title = lang === 'hr' ? ev.titleHr : (ev.titleEn || ev.titleHr);
+      var logo = '<svg width="60" height="29" viewBox="0 0 50 24" xmlns="http://www.w3.org/2000/svg"><path fill="#3B5BFF" d="M49.7738 4.31636L42.0684 4.95287L41.8768 8.25898L49.5822 7.58349L49.356 11.8998L41.6506 12.5753L41.2208 21.0053L35.8397 21.4874L36.7292 5.43369L27.0818 6.19803C26.3994 6.26961 26.2083 6.30437 25.8923 6.40624C25.5394 6.51634 25.2728 6.68022 25.094 6.89573C24.9152 7.11179 24.8146 7.36621 24.793 7.65491C24.7679 7.8914 24.8397 8.12208 24.9257 8.31948C25.0187 8.51114 25.1723 8.68926 25.3826 8.85486C25.593 9.0138 25.8647 9.16305 26.1982 9.30275C26.5322 9.44261 26.9315 9.57448 27.3953 9.69539L28.9956 10.1269C30.0752 10.4153 30.9945 10.7683 31.7518 11.1879C32.5091 11.6076 33.1216 12.0884 33.5892 12.6281C34.0572 13.1615 34.3899 13.7528 34.5878 14.4008C34.7919 15.0488 34.8782 15.7484 34.8453 16.4998C34.7709 17.797 34.3883 18.8797 33.6988 19.7452C33.0094 20.6105 32.0565 21.1271 30.8375 21.5333C29.6258 21.9394 26.5168 22.1313 26.5111 22.1317C26.5111 22.1317 15.2865 23.0198 10.7197 23.3748C10.1194 23.473 9.48793 23.521 8.82536 23.5189C8.82346 23.519 8.8222 23.5192 8.82166 23.5192V23.5189C8.59995 23.5181 8.37475 23.5121 8.14607 23.5001C6.44395 23.4109 4.96929 23.0373 3.72206 22.3794C2.47516 21.715 1.52387 20.8182 0.868127 19.6889C0.219151 18.5535 -0.065976 17.2344 0.0127857 15.7314L0.619679 4.05953L6.00202 3.57365L5.39386 15.5496C5.36188 16.1598 5.46823 16.7129 5.71275 17.2087C5.95761 17.6982 6.31057 18.0902 6.77172 18.3849C7.23932 18.6799 7.77828 18.8434 8.38848 18.8754C9.00508 18.9077 9.55809 18.8014 10.0475 18.5566C10.537 18.3117 10.929 17.9587 11.2237 17.4975C11.5187 17.0299 11.6823 16.491 11.7143 15.8809L12.3746 3.02502L17.7324 2.55151L17.0469 16.6241C17.0111 17.3079 16.9027 17.9459 16.7223 18.5382C21.375 18.1801 26.4588 17.7876 26.6641 17.773C27.3172 17.7088 27.7198 17.7183 28.1126 17.5972C28.505 17.4761 28.8078 17.2956 29.0199 17.0558C29.2322 16.8157 29.3486 16.5338 29.3719 16.213C29.3811 15.911 29.296 15.6417 29.1152 15.407C28.941 15.1662 28.6429 14.9446 28.2224 14.7424C27.8018 14.5336 27.2288 14.3311 26.5053 14.1322L24.5624 13.6053C22.8353 13.1347 21.4905 12.429 20.5286 11.4898C19.5735 10.5445 19.0973 9.28733 19.1845 7.7462C19.2438 6.49344 19.6356 5.41565 20.3592 4.51327C21.0894 3.60513 22.0682 2.91909 23.2965 2.45544C24.479 2.01178 25.6752 1.99987 27.2921 1.87661L40.2368 0.844721L50 0L49.7738 4.31636Z"/></svg>';
+      function row(label, val) {
+        if (!val) return '';
+        return '<tr><td class="lbl">' + label + '</td><td>' + val + '</td></tr>';
+      }
+      var speakers = (ev.speakers || []).map(function(sp) { return sp.name; }).join(', ');
+      var termRows = (ev.terms || []).map(function(t) {
+        return '<tr><td class="lbl">' + (lang === 'hr' ? t.dateHr : (t.dateEn || t.dateHr)) + '</td><td>' + (lang === 'hr' ? (t.locationHr || '') : (t.locationEn || t.locationHr || '')) + '</td></tr>';
+      }).join('');
+      var schedHtml = (ev.schedule || []).map(function(day) {
+        var items = (day.items || []).map(function(it) {
+          return '<tr><td class="lbl">' + (it.timeHr || '') + '</td><td>' + ((lang === 'hr' ? (it.descHr || it.titleHr) : (it.descEn || it.titleEn)) || '') + '</td></tr>';
+        }).join('');
+        return '<h3>' + (lang === 'hr' ? day.dayHr : (day.dayEn || day.dayHr)) + (day.dateHr ? ' — ' + (lang === 'hr' ? day.dateHr : (day.dateEn || day.dateHr)) : '') + '</h3><table>' + items + '</table>';
+      }).join('');
+      var pol = usfCancelPolicy();
+      var docId = 'USF-EDU-' + String(ev.id).padStart(3, '0') + '-' + new Date().getFullYear();
+      var org = { name: 'Udruga sportskih fizioterapeuta', iban: 'HR4623600001103297330', swift: 'ZABAHR2X', email: 'info@usf.hr', oib: '86844674227' };
+      try { var _o = JSON.parse(localStorage.getItem('usf_org_payment') || 'null'); if (_o) { org.name = _o.name || org.name; org.iban = _o.iban || org.iban; org.swift = _o.swift || org.swift; } } catch (e) {}
+      return '<!DOCTYPE html><html lang="' + lang + '"><head><meta charset="utf-8"><title>' + title + ' — USF</title>' +
+        '<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet">' +
+        '<style>*{box-sizing:border-box;margin:0;padding:0;}' +
+        "body{background:#e9e9ec;font-family:'Instrument Sans',system-ui,sans-serif;color:#222;padding:24px;display:flex;justify-content:center;}" +
+        '.page{background:#fff;max-width:820px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.25);border-radius:4px;overflow:hidden;}' +
+        '.hd{display:flex;align-items:center;justify-content:space-between;padding:24px 40px;border-bottom:3px solid #3B5BFF;}' +
+        '.hd-org{font-size:11px;color:#666;text-transform:uppercase;letter-spacing:1px;text-align:right;}' +
+        '.bd{padding:32px 40px;}' +
+        ".bd h1{font-family:'Bricolage Grotesque',serif;font-size:26px;font-weight:800;margin-bottom:4px;}" +
+        '.bd .doclbl{font-size:10px;color:#3B5BFF;text-transform:uppercase;letter-spacing:3px;font-weight:700;margin-bottom:10px;}' +
+        ".bd h2{font-family:'Bricolage Grotesque',serif;font-size:15px;font-weight:700;margin:26px 0 10px;}" +
+        ".bd h3{font-size:12.5px;font-weight:700;margin:14px 0 6px;color:#333;}" +
+        'table{width:100%;border-collapse:collapse;font-size:13px;}' +
+        'td{padding:6px 10px;border-bottom:1px solid #eee;vertical-align:top;}' +
+        'td.lbl{width:190px;color:#888;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;padding-top:8px;}' +
+        '.desc{font-size:13px;line-height:1.65;color:#444;margin-top:6px;}' +
+        '.desc p{margin-bottom:8px;}' +
+        '.ft{display:flex;align-items:center;justify-content:space-between;padding:14px 40px;border-top:3px solid #3B5BFF;background:#fafafa;font-size:10px;color:#999;}' +
+        '@page{size:A4;margin:0;}@media print{body{background:#fff;padding:0;}.page{box-shadow:none;max-width:none;border-radius:0;}}' +
+        '</style></head><body><div class="page">' +
+        '<div class="hd">' + logo + '<div class="hd-org">' + org.name.replace(' ', '<br>') + '</div></div>' +
+        '<div class="bd">' +
+        '<div class="doclbl">' + L('Informacije o edukaciji', 'Education information') + '</div>' +
+        '<h1>' + title + '</h1>' +
+        '<h2>' + L('Osnovni podaci', 'Basic information') + '</h2><table>' +
+        row(L('Tip', 'Type'), lang === 'hr' ? ev.typeHr : (ev.typeEn || ev.typeHr)) +
+        row(L('Datum', 'Date'), lang === 'hr' ? ev.dateHr : (ev.dateEn || ev.dateHr)) +
+        row(L('Lokacija', 'Location'), lang === 'hr' ? ev.locationHr : (ev.locationEn || ev.locationHr)) +
+        row(L('Jezik', 'Language'), lang === 'hr' ? ev.language : (ev.languageEn || ev.language)) +
+        row(L('Tematika', 'Topic'), lang === 'hr' ? ev.categoryHr : (ev.categoryEn || ev.categoryHr)) +
+        row(L('Trajanje / satnica', 'Duration'), lang === 'hr' ? ev.durationHr : (ev.durationEn || ev.durationHr)) +
+        row(L('Predavači', 'Instructors'), speakers) +
+        '</table>' +
+        (termRows ? '<h2>' + L('Termini', 'Terms') + '</h2><table>' + termRows + '</table>' : '') +
+        '<h2>' + L('Kotizacija', 'Fees') + '</h2><table>' +
+        row(L('Članovi', 'Members'), lang === 'hr' ? ev.memberPriceHr : (ev.memberPriceEn || ev.memberPriceHr)) +
+        row(L('Nečlanovi', 'Non-members'), lang === 'hr' ? ev.nonMemberPriceHr : (ev.nonMemberPriceEn || ev.nonMemberPriceHr)) +
+        row('Early bird', (lang === 'hr' ? (ev.earlyBirdPriceHr || '') : (ev.earlyBirdPriceEn || '')) + ((lang === 'hr' ? ev.earlyBirdDeadlineHr : ev.earlyBirdDeadlineEn) ? ' (' + (lang === 'hr' ? ev.earlyBirdDeadlineHr : ev.earlyBirdDeadlineEn) + ')' : '')) +
+        row(L('Snimka', 'Recording'), lang === 'hr' ? ev.recordingPriceHr : (ev.recordingPriceEn || ev.recordingPriceHr)) +
+        '</table>' +
+        (schedHtml ? '<h2>' + L('Raspored', 'Schedule') + '</h2>' + schedHtml : '') +
+        '<h2>' + L('Opis', 'Description') + '</h2><div class="desc">' + ((lang === 'hr' ? ev.descriptionHr : (ev.descriptionEn || ev.descriptionHr)) || '') + '</div>' +
+        '<h2>' + L('Uvjeti otkazivanja', 'Cancellation policy') + '</h2><table>' +
+        row(L('Više od ' + pol.tier1Days + ' dana prije', 'More than ' + pol.tier1Days + ' days before'), pol.tier1Pct + '% ' + L('povrata', 'refund')) +
+        row(L(pol.tier2Days + ' – ' + pol.tier1Days + ' dana prije', pol.tier2Days + ' – ' + pol.tier1Days + ' days before'), pol.tier2Pct + '% ' + L('povrata', 'refund')) +
+        row(L('Manje od ' + pol.tier2Days + ' dana prije', 'Less than ' + pol.tier2Days + ' days before'), pol.tier3Pct + '% ' + L('povrata', 'refund')) +
+        row(L('Kredit za drugu edukaciju', 'Credit for another education'), pol.creditPct + '%') +
+        '</table>' +
+        '</div>' +
+        '<div class="ft"><span>' + org.name + ' &middot; OIB ' + org.oib + ' &middot; IBAN ' + org.iban + '</span><span style="font-family:monospace;">' + docId + '</span></div>' +
+        '</div></body></html>';
+    }
+    function downloadEducationInfo() {
+      var ev = window._currentEdu;
+      if (!ev) return;
+      var doc = usfEduInfoDocument(ev);
+      var lang = (localStorage.getItem('usf_lang') || 'hr');
+      var safe = String(lang === 'hr' ? ev.titleHr : (ev.titleEn || ev.titleHr)).replace(/[^a-zA-Z0-9čćžšđČĆŽŠĐ ]/g, '').replace(/\s+/g, '-').slice(0, 50);
+      var blob = new Blob([doc], { type: 'text/html;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'USF-edukacija-' + safe + '.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+    }
+        /* Cancellation policy is editable by the admin (usf_cancellation_policy);
+       this is the single fallback used by the page and the enrollment dialog. */
+    function usfCancelPolicy() {
+      var d = { tier1Days: 21, tier1Pct: 50, tier2Days: 7, tier2Pct: 25, tier3Pct: 0, creditPct: 100 };
+      try {
+        var p = JSON.parse(localStorage.getItem('usf_cancellation_policy') || 'null');
+        if (p) for (var k in d) if (p[k] !== undefined) d[k] = p[k];
+      } catch (e) {}
+      return d;
+    }
+    function usfShiftDays(d, n) {
+      var x = new Date(d.getTime());
+      x.setDate(x.getDate() + n);
+      return x;
+    }
+
+    /* The early-bird deadline arrives in three shapes: an ISO date from the
+       admin form, or a localized sentence from the inline data ("do 25. lipnja
+       2026." / "until June 25, 2026"). Only the ISO one used to be parsed, so
+       inline events never expired and kept advertising a rate that had lapsed.
+       Returns the last moment the rate is still valid, or null if unreadable —
+       null means "no deadline we can verify", and the caller keeps showing it. */
+    function usfParseEarlyBirdDeadline(ev, lang) {
+      if (!ev) return null;
+      var end = function (y, mo, da) { return new Date(y, mo, da, 23, 59, 59); };
+
+      if (ev.earlyBirdDeadline) {
+        var iso = String(ev.earlyBirdDeadline).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (iso) return end(+iso[1], +iso[2] - 1, +iso[3]);
+      }
+
+      var hr = ev.earlyBirdDeadlineHr;
+      if (hr) {
+        // "do 25. lipnja 2026." — day, genitive month name, year.
+        var mHr = String(hr).match(/(\d{1,2})\.\s*([^\s\d.]+)\s*(\d{4})/);
+        if (mHr) {
+          var iHr = USF_HR_MONTHS.indexOf(mHr[2].toLowerCase());
+          if (iHr !== -1) return end(+mHr[3], iHr, +mHr[1]);
+        }
+      }
+
+      var en = ev.earlyBirdDeadlineEn;
+      if (en) {
+        // "until June 25, 2026" — month name, day, year.
+        var mEn = String(en).match(/([A-Za-z]+)\s+(\d{1,2}),?\s*(\d{4})/);
+        if (mEn) {
+          var iEn = USF_EN_MONTHS.map(function (x) { return x.toLowerCase(); }).indexOf(mEn[1].toLowerCase());
+          if (iEn !== -1) return end(+mEn[3], iEn, +mEn[2]);
+        }
+      }
+      return null;
+    }
+
+    function usfFormatDate(d, lang) {
+      return lang === 'hr'
+        ? d.getDate() + '. ' + USF_HR_MONTHS[d.getMonth()] + ' ' + d.getFullYear() + '.'
+        : USF_EN_MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+    }
+
+    function usfFormatDateRange(a, b, lang) {
+      var sameMonth = a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
+      if (lang === 'hr') {
+        return sameMonth
+          ? a.getDate() + '. – ' + b.getDate() + '. ' + USF_HR_MONTHS[b.getMonth()] + ' ' + b.getFullYear() + '.'
+          : a.getDate() + '. ' + USF_HR_MONTHS[a.getMonth()] + ' – ' + b.getDate() + '. ' + USF_HR_MONTHS[b.getMonth()] + ' ' + b.getFullYear() + '.';
+      }
+      return sameMonth
+        ? USF_EN_MONTHS[b.getMonth()] + ' ' + a.getDate() + ' – ' + b.getDate() + ', ' + b.getFullYear()
+        : USF_EN_MONTHS[a.getMonth()] + ' ' + a.getDate() + ' – ' + USF_EN_MONTHS[b.getMonth()] + ' ' + b.getDate() + ', ' + b.getFullYear();
+    }
+
+    /* Returns the refund HTML for the currently selected term, or '' if there is
+       no event loaded. Pass prices explicitly when the caller already has them.
+       opts.personal === true narrows the output to the logged-in visitor's own
+       row (used by the enrollment modal); the page keeps showing both. */
+    function buildCancellationRefundHtml(lang, memberPrice, nonMemberPrice) {
+      var ev = window._currentEvent;
+      if (!ev) return '';
+      var t = window._activeTerm || {};
+      if (memberPrice === undefined || memberPrice === null) {
+        memberPrice = lang === 'hr' ? (t.memberPriceHr || ev.memberPriceHr) : (t.memberPriceEn || ev.memberPriceEn);
+      }
+      if (nonMemberPrice === undefined || nonMemberPrice === null) {
+        nonMemberPrice = lang === 'hr' ? (t.nonMemberPriceHr || ev.nonMemberPriceHr) : (t.nonMemberPriceEn || ev.nonMemberPriceEn);
+      }
+
+      var mNum = parsePriceNum(memberPrice);
+      var nNum = parsePriceNum(nonMemberPrice);
+
+      // Exact calendar deadlines instead of "14 days" / "7 – 14 days".
+      // 100% up to and including startDate − 15, 50% from −14 to −7, 0% from −6 on.
+      // Without an ISO startDate on the term we fall back to the relative wording.
+      var start = usfParseStartDate(t.startDate || ev.startDate);
+      var periods;
+      if (start) {
+        var _pol = usfCancelPolicy();
+        var fullBy = usfShiftDays(start, -(_pol.tier1Days + 1));
+        var halfFrom = usfShiftDays(start, -_pol.tier1Days);
+        var halfTo = usfShiftDays(start, -_pol.tier2Days);
+        var noneFrom = usfShiftDays(start, -(_pol.tier2Days - 1));
+        periods = lang === 'hr'
+          ? ['Do ' + usfFormatDate(fullBy, 'hr'),
+             usfFormatDateRange(halfFrom, halfTo, 'hr'),
+             'Od ' + usfFormatDate(noneFrom, 'hr')]
+          : ['Until ' + usfFormatDate(fullBy, 'en'),
+             usfFormatDateRange(halfFrom, halfTo, 'en'),
+             'From ' + usfFormatDate(noneFrom, 'en')];
+      } else {
+        var _pol2 = usfCancelPolicy();
+        periods = lang === 'hr'
+          ? ['Više od ' + _pol2.tier1Days + ' dana prije', _pol2.tier2Days + ' – ' + _pol2.tier1Days + ' dana prije', 'Manje od ' + _pol2.tier2Days + ' dana prije']
+          : ['More than ' + _pol2.tier1Days + ' days before', _pol2.tier2Days + ' – ' + _pol2.tier1Days + ' days before', 'Less than ' + _pol2.tier2Days + ' days before'];
+      }
+
+      var _polR = usfCancelPolicy();
+      var rates = [_polR.tier1Pct / 100, _polR.tier2Pct / 100, _polR.tier3Pct / 100];
+      // What each amount means, said in words under it. This wording was
+      // dropped once on the grounds that the colour and the percentage already
+      // carried it — but the colours are gone and the share of the fee lives in
+      // the paragraph above, so the row has to say it for itself.
+      function _pctLabel(pct) {
+        if (pct >= 100) return lang === 'hr' ? 'Puni povrat' : 'Full refund';
+        if (pct <= 0) return lang === 'hr' ? 'Bez povrata' : 'No refund';
+        return pct + '% ' + (lang === 'hr' ? 'povrata' : 'refund');
+      }
+      var refundLabels = [_pctLabel(_polR.tier1Pct), _pctLabel(_polR.tier2Pct), _pctLabel(_polR.tier3Pct)];
+
+      // This only ever runs inside the enrollment dialog, which opens for a
+      // signed-in visitor — so exactly one audience is ever shown. That is why
+      // the row carries no "ČLANOVI · Kotizacija" heading: you cannot be looking
+      // at someone else's amounts, and the fee is stated on the page you came
+      // from. A row whose fee isn't a number (covered by the membership, free
+      // online term) gets one sentence instead of three 0 € cards.
+      function refundRow(num, noteTxt) {
+        var body;
+        if (num === null) {
+          body = '<div class="cancel-note-card">' + noteTxt + '</div>';
+        } else {
+          // One row per window: when you cancel on the left, what comes back on
+          // the right — amount first, then the words that name it.
+          body = '<div class="cancellation-grid">' + rates.map(function (r, i) {
+            return '<div class="cancellation-item">' +
+              '<div class="cancel-period">' + periods[i] + '</div>' +
+              '<div class="cancel-amount-line">' +
+                '<span class="cancel-refund">' + formatEur(num * r, lang) + '</span>' +
+                '<span class="cancel-refund-sub">' + refundLabels[i] + '</span>' +
+              '</div>' +
+              '</div>';
+          }).join('') + '</div>';
+        }
+        return '<div class="cancel-row">' + body + '</div>';
+      }
+
+      // No intro sentence either: the term was chosen a click ago and the
+      // visitor knows their own membership status, so naming both back to them
+      // was two lines that told them nothing they did not already know.
+      return usfIsActiveMember()
+        ? refundRow(mNum, lang === 'hr'
+            ? 'Kao član ne plaćate kotizaciju za ovaj termin, pa nema iznosa za povrat.'
+            : 'As a member you pay no fee for this term, so there is nothing to refund.')
+        : refundRow(nNum, lang === 'hr'
+            ? 'Za ovaj termin nema kotizacije za nečlanove, pa nema iznosa za povrat.'
+            : 'There is no fee for non-members for this term, so there is nothing to refund.');
+    }
+
+    function handleUploadFile(input) {
+      var filename = input.files && input.files[0] ? input.files[0].name : '';
+      var el = document.getElementById('uploadFilename');
+      if (filename) {
+        el.textContent = filename;
+        el.style.display = 'block';
+      } else {
+        el.style.display = 'none';
+      }
+    }
+
+    function finalizeEnrollment() {
+      var lang = document.documentElement.lang || 'hr';
+      var content = document.getElementById('modalContent');
+      content.classList.remove('modal-wide');
       content.innerHTML =
         '<div class="modal-success-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>' +
-        '<h3>' + (lang === 'hr' ? 'Uspješna prijava!' : 'Successfully enrolled!') + '</h3>' +
-        '<p>' + (lang === 'hr' ? 'Uspješno ste se prijavili na edukaciju. Detalje ćete dobiti na e-mail.' : 'You have successfully enrolled. Details will be sent to your email.') + '</p>' +
+        '<h3>' + (lang === 'hr' ? 'Prijava završena!' : 'Enrollment complete!') + '</h3>' +
+        '<p>' + (lang === 'hr' ? 'Vaša prijava je zaprimljena. Status možete pratiti u dashboardu pod "Moje edukacije". Ako niste uploadali potvrdu, možete to napraviti naknadno.' : 'Your enrollment has been received. You can track the status in your dashboard under "My educations". If you haven\'t uploaded the confirmation, you can do so later.') + '</p>' +
         '<button class="btn btn-primary" onclick="closeModal()">' + (lang === 'hr' ? 'U redu' : 'OK') + '</button>';
     }
 
     function closeModal() {
       document.getElementById('enrollModal').classList.remove('show');
+      document.getElementById('modalContent').classList.remove('modal-wide');
     }
     // Close modal on overlay click
     document.getElementById('enrollModal').addEventListener('click', function(e) {
@@ -859,10 +3123,38 @@
       var params = new URLSearchParams(window.location.search);
       var id = parseInt(params.get('id'), 10);
       var ev = events.find(function(e) { return e.id === id; });
-      if (!ev) ev = events[0];
       var lang = localStorage.getItem('usf_lang') || 'hr';
+      // An unknown id used to fall back to the first education, so a wrong link
+      // silently served somebody else's page under the wrong URL.
+      // Before giving up, look in usf_events: the admin creates educations there
+      // and this file only carries the ones written by hand, so an education the
+      // admin can see should still preview here rather than reading as missing.
+      if (!ev) ev = usfEventFromAdmin(id, lang);
+      if (!ev) { renderEventNotFound(lang); return; }
       renderEvent(ev, lang);
     })();
+
+    function renderEventNotFound(lang) {
+      var hero = document.getElementById('eventHero');
+      if (hero) hero.style.display = 'none';
+      document.getElementById('eventTitle').textContent =
+        lang === 'en' ? 'Education not found' : 'Edukacija nije pronađena';
+      var layout = document.querySelector('.event-detail-layout');
+      if (layout) {
+        layout.innerHTML =
+          '<div class="event-notfound">' +
+            '<p>' + (lang === 'en'
+              ? 'This education does not exist, or it is no longer listed.'
+              : 'Ova edukacija ne postoji ili više nije na popisu.') + '</p>' +
+            '<a class="btn btn-primary" href="edukacije.html">' +
+              (lang === 'en' ? 'All educations' : 'Sve edukacije') + '</a>' +
+          '</div>';
+      }
+      ['cancellationSection', 'relatedSection'].forEach(function(elId) {
+        var el = document.getElementById(elId);
+        if (el) el.style.display = 'none';
+      });
+    }
 
     // Mobile nav close on link click
     document.querySelectorAll('.nav-links a').forEach(function(a){
@@ -873,5 +3165,111 @@
     });
   </script>
 
+
+  <script>
+  /* What this page has that is worth naming under the pointer. */
+  window.USF_CURSOR_TARGETS = [{ sel: '.speaker-link', hr: 'Otvori profil', en: 'Open profile' }];
+  </script>
+  <div class="custom-cursor" id="customCursor"><span data-hr="POGLEDAJ" data-en="VIEW">POGLEDAJ</span></div>
+  <script>
+    (function() {
+      var cursor = document.getElementById('customCursor');
+      if (!cursor) {
+        /* Nothing to draw, so give the real pointer back. */
+        document.documentElement.classList.remove('has-custom-cursor');
+        return;
+      }
+      cursor.style.opacity = '0';
+      var cursorShown = false;
+
+      var mouseX = 0, mouseY = 0;
+      var curX = 0, curY = 0;
+      var speed = 0.62;
+
+      /* The scrollbar belongs to the browser, not to the page: no rule reaches
+         it, so over there you get the real pointer and ours on top of it.
+         clientWidth and clientHeight stop at the gutter, so past them we stand
+         down and let the real one do its job. */
+      function inNativeGutter(e) {
+        var d = document.documentElement;
+        return e.clientX >= d.clientWidth || e.clientY >= d.clientHeight;
+      }
+
+      document.addEventListener('mousemove', function(e) {
+        if (inNativeGutter(e)) { cursor.style.opacity = '0'; return; }
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        if (cursorShown) cursor.style.opacity = '';
+        /* Jump to the first known position instead of easing in from the
+           top-left corner, which is where 0,0 would otherwise park it. */
+        if (!cursorShown) {
+          cursorShown = true;
+          curX = mouseX; curY = mouseY;
+          cursor.style.opacity = '';
+        }
+      });
+
+      function animateCursor() {
+        curX += (mouseX - curX) * speed;
+        curY += (mouseY - curY) * speed;
+        cursor.style.left = curX + 'px';
+        cursor.style.top = curY + 'px';
+        requestAnimationFrame(animateCursor);
+      }
+      requestAnimationFrame(animateCursor);
+
+      document.addEventListener('mouseleave', function() { cursor.style.opacity = '0'; });
+      document.addEventListener('mouseenter', function() { if (cursorShown) cursor.style.opacity = ''; });
+
+      document.addEventListener('mouseover', function(e) {
+        /* Page-specific entries come first so a page can name something
+           more precisely than the two defaults do. */
+        var targets = (window.USF_CURSOR_TARGETS || []).concat([
+          { sel: '.event-card', hr: 'Pogledaj edukaciju', en: 'View education' },
+          { sel: '.blog-card',  hr: 'Pogledaj članak',    en: 'View article' }
+        ]);
+        var btn = e.target.closest('a, button, .btn, input, select, textarea, [onclick]');
+
+        cursor.classList.remove('active-card', 'active-btn');
+
+        var named = null;
+        for (var i = 0; i < targets.length; i++) {
+          if (e.target.closest(targets[i].sel)) { named = targets[i]; break; }
+        }
+        if (named) {
+          var label = cursor.querySelector('span');
+          label.setAttribute('data-hr', named.hr);
+          label.setAttribute('data-en', named.en);
+          label.textContent = (document.documentElement.lang === 'en') ? named.en : named.hr;
+          cursor.classList.add('active-card');
+        } else if (btn) {
+          cursor.classList.add('active-btn');
+        }
+      });
+
+      // Apply saved language to cursor
+      var lang = localStorage.getItem('usf_lang');
+      if (lang && lang !== 'hr') {
+        var spans = cursor.querySelectorAll('[data-' + lang + ']');
+        spans.forEach(function(s) { s.textContent = s.getAttribute('data-' + lang); });
+      }
+    })();
+  </script>
+
+  <script>
+  (function() {
+    var revealEls = document.querySelectorAll('.scroll-reveal');
+    if (!revealEls.length) return;
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    revealEls.forEach(function(el) { observer.observe(el); });
+  })();
+  </script>
 </body>
 </html>

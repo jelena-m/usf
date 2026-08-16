@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="hr">
+<html lang="hr" class="loading">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,82 +12,152 @@
     html { overflow-x: hidden; }
     body {
       font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #080808;
+      background: #000;
       color: #ffffff;
       line-height: 1.6;
       overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
     }
-    h1, h2, h3 { font-family: 'Bricolage Grotesque', sans-serif; }
+    h1, h2, h3, h4 { font-family: 'Bricolage Grotesque', sans-serif; }
     a { text-decoration: none; color: inherit; }
     ::selection { background: #3B5BFF; color: #fff; }
+
+    .page-shell {
+      background: #080808;
+      border-radius: 20px;
+      margin: 16px;
+      overflow: clip;
+      position: relative;
+      transform: translateZ(0);
+    }
 
     :root {
       --blue: #3B5BFF;
       --blue-hover: #2A45E0;
-      --card: rgba(255,255,255,0.03);
-      --card-border: rgba(255,255,255,0.06);
-      --card-hover: rgba(255,255,255,0.06);
+      --card: rgba(255,255,255,0.07);
+      --card-border: transparent;
+      /* What the hover ADDS on top of --card, not what the card becomes.
+         3.2% over 7% composites to about 10%. */
+      --card-hover: rgba(255,255,255,0.032);
       --text-muted: rgba(255,255,255,0.35);
       --text-faint: rgba(255,255,255,0.2);
     }
 
+    /* ===== PAGE LOADER ===== */
+    html.loading { overflow: hidden; cursor: none; }
+    html.loading .custom-cursor { display: none; }
+    .page-loader {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #0e0e0e;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 99999;
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+      transition: clip-path 0.8s cubic-bezier(0.7, 0, 0.3, 1);
+    }
+    .page-loader.skip { display: none; }
+    .page-loader svg { width: 100px; height: auto; opacity: 1; }
+    .page-loader .logo-bg { fill: rgba(255,255,255,0.05); }
+    .page-loader .logo-fill { fill: #fff; }
+    .page-loader.crack { clip-path: polygon(0 42%, 100% 58%, 100% 100%, 0 100%); pointer-events: none; box-shadow: 0 -30px 80px rgba(255,255,255,0.2), 0 -6px 30px rgba(255,255,255,0.12); }
+    .page-loader.crack-full { clip-path: polygon(0 110%, 100% 110%, 100% 110%, 0 110%); }
+    .page-loader.done { display: none; }
+    .page-loader-left {
+      position: fixed; top: 0; left: 0; width: 100%; height: 50%;
+      background: #0e0e0e; z-index: 99998;
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+      transition: clip-path 0.8s cubic-bezier(0.7, 0, 0.3, 1);
+    }
+    .page-loader-left.crack { clip-path: polygon(0 -10%, 100% -10%, 100% 42%, 0 58%); box-shadow: 0 30px 80px rgba(255,255,255,0.2), 0 6px 30px rgba(255,255,255,0.12); }
+    .page-loader-left.done { display: none; }
+    @keyframes logoFadeIn { 0% { opacity: 0; transform: scale(0.85); } 100% { opacity: 1; transform: scale(1); } }
+
+
     /* ===== NAV ===== */
     .nav-wrapper {
       position: fixed;
-      top: 0; left: 0; right: 0;
+      top: 12px; left: 20px; right: 20px;
       z-index: 1000;
-      background: linear-gradient(180deg, rgba(8,8,8,0.95) 0%, rgba(8,8,8,0) 100%);
-      transition: all 0.5s ease;
+      isolation: isolate;
+      /* Nothing at the top of the page: no surface, no blur. The scrim below
+         only appears once the page is moving under the bar. */
+      background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      border-radius: 20px;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .nav-wrapper.scrolled {
-      background: rgba(8,8,8,0.97);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border-bottom: 1px solid var(--card-border);
+      /* Dark, not light: the bar has to be darker than whatever passes under
+         it, or white type on it stops being white type on anything. */
+      background: rgba(10,10,10,0.58);
+      backdrop-filter: blur(50px) saturate(1.1);
+      -webkit-backdrop-filter: blur(50px) saturate(1.1);
+      border-bottom: none;
+      left: max(20px, calc(50% - 650px));
+      right: max(20px, calc(50% - 650px));
     }
     .nav {
       max-width: 1300px;
       margin: 0 auto;
-      padding: 24px 48px;
+      padding: 20px 40px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      transition: padding 0.5s ease;
+      transition: padding 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .nav-wrapper.scrolled .nav { padding: 16px 48px; }
+    .nav-wrapper.scrolled .nav { padding: 12px 40px; }
+    .nav-left { display: flex; align-items: center; gap: 40px; }
     .nav-logo { height: 24px; }
     .nav-logo svg { height: 100%; width: auto; }
-    .nav-right { display: flex; align-items: center; gap: 36px; }
+    .nav-right { display: flex; align-items: center; gap: 20px; }
     .nav-links { display: flex; gap: 28px; list-style: none; }
-    .nav-links a { font-size: 0.85rem; font-weight: 400; color: rgba(255,255,255,0.55); transition: color 0.3s; letter-spacing: 0.2px; }
+    .nav-links a { font-size: 0.85rem; font-weight: 400; color: rgba(255,255,255,0.72); transition: color 0.3s; letter-spacing: 0.2px; }
     .nav-links a:hover { color: #fff; }
     .nav-links a.active { color: #fff; }
     .nav-auth { display: flex; align-items: center; gap: 10px; }
+    /* the two buttons are a pair — closer to each other than to the switch */
+    .nav-right .nav-auth { margin-left: -10px; }
     .nav-auth-login-btn {
       font-family: 'Instrument Sans', sans-serif;
-      font-size: 0.82rem; font-weight: 600;
-      color: #fff; background: var(--blue);
-      border: none; border-radius: 6px;
+      /* Set exactly like Doniraj beside it — the two differ in surface, not
+         in voice, so the type has to be identical or the pair reads crooked. */
+      font-size: 0.85rem; font-weight: 400; letter-spacing: 0.2px;
+      /* secondary: Doniraj is the one primary action in this bar */
+      color: #fff; background: rgba(255,255,255,0.08);
+      border: none; border-radius: 10px;
       cursor: pointer; transition: all 0.3s;
       text-decoration: none; padding: 10px 20px;
       display: inline-flex; align-items: center;
     }
-    .nav-auth-login-btn:hover { background: var(--blue-hover); }
+    .nav-auth-login-btn:hover { background: rgba(255,255,255,0.16); }
+    .nav-donate-btn {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 0.85rem; font-weight: 400;
+      color: #fff;
+      /* Donating is the one thing the site asks a visitor to do, so it is the
+         one button that looks like an action rather than a link. */
+      background: var(--blue, #3B5BFF);
+      border: none; border-radius: 10px;
+      cursor: pointer; transition: all 0.3s;
+      text-decoration: none; padding: 10px 20px;
+      display: inline-flex; align-items: center;
+      letter-spacing: 0.2px;
+    }
+    .nav-donate-btn:hover { background: var(--blue-hover, #2A45E0); }
     .nav-profile-circle {
-      width: 34px; height: 34px; border-radius: 50%;
+      width: 32px; height: 32px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-family: 'Bricolage Grotesque', sans-serif;
+      font-family: 'Instrument Sans', sans-serif;
       font-size: 0.72rem; font-weight: 700; color: #fff;
-      background: var(--blue); overflow: hidden;
+      background: #2a2a2a; overflow: hidden;
       transition: all 0.3s; text-decoration: none;
       border: 2px solid transparent;
     }
     .nav-profile-circle:hover { border-color: rgba(255,255,255,0.3); }
     .nav-profile-circle img { width: 100%; height: 100%; object-fit: cover; }
-    .lang-switch { display: flex; align-items: center; gap: 0; background: rgba(255,255,255,0.08); border-radius: 6px; padding: 3px; border: 1px solid rgba(255,255,255,0.1); }
-    .lang-switch button { background: none; border: none; color: rgba(255,255,255,0.4); padding: 6px 10px; cursor: pointer; font-family: inherit; font-size: 0.72rem; font-weight: 600; letter-spacing: 1px; transition: all 0.3s; display: flex; align-items: center; gap: 6px; border-radius: 4px; }
-    .lang-switch button.active { background: rgba(255,255,255,0.15); color: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+    .lang-switch { display: flex; align-items: center; gap: 0; background: rgba(255,255,255,0.08); border-radius: 10px; padding: 3px; border: none; }
+    .lang-switch button { background: none; border: none; color: rgba(255,255,255,0.4); padding: 6px 10px; cursor: pointer; font-family: inherit; font-size: 0.72rem; font-weight: 600; letter-spacing: 1px; transition: all 0.3s; display: flex; align-items: center; gap: 6px; border-radius: 7px; }
+    .lang-switch button.active { background: rgba(255,255,255,0.15); color: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.3); border-radius: 7px; }
     .lang-switch button:hover { color: #fff; }
     .lang-flag { width: 18px; height: 13px; border-radius: 2px; display: inline-block; overflow: hidden; flex-shrink: 0; }
     .menu-toggle { display: none; background: none; border: none; cursor: pointer; width: 28px; height: 20px; position: relative; }
@@ -99,47 +169,222 @@
     .menu-toggle.open span:nth-child(2) { opacity: 0; }
     .menu-toggle.open span:nth-child(3) { top: 9px; transform: rotate(-45deg); }
 
+    /* Custom cursor */
+    /* The native cursor is hidden only once the script is actually running,
+       so a page where it fails still has a pointer. */
+    html.has-custom-cursor, html.has-custom-cursor body, html.has-custom-cursor *, html.has-custom-cursor *::before, html.has-custom-cursor *::after { cursor: none !important; }
+
+    /* `*` stops at the edge of the browser's own shadow trees. These are the
+       parts it draws itself — a textarea's resize grip, a number field's
+       spinners, a date field's calendar button — and each one brings the
+       native pointer back with it. Listed separately because an unknown
+       selector invalidates the entire rule it sits in. */
+    html.has-custom-cursor ::-webkit-resizer { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-inner-spin-button { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-outer-spin-button { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-calendar-picker-indicator { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-search-cancel-button { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-file-upload-button { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-scrollbar { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-scrollbar-thumb { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-scrollbar-track { cursor: none !important; }
+    html.has-custom-cursor ::-webkit-scrollbar-corner { cursor: none !important; }
+    html.has-custom-cursor ::placeholder { cursor: none !important; }
+    html.has-custom-cursor ::selection { cursor: none !important; }
+
+    .custom-cursor {
+      position: fixed;
+      width: 0; height: 0;
+      pointer-events: none;
+      z-index: 99999;
+    }
+    .custom-cursor::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0;
+      width: 22px; height: 22px;
+      background-color: #fff;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 2 L19.6 10.5 L3.4 20.7 Z' fill='%23000' stroke='%23000' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat left top / contain;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 2 L19.6 10.5 L3.4 20.7 Z' fill='%23000' stroke='%23000' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat left top / contain;
+      filter: drop-shadow(0 1px 4px rgba(0,0,0,0.45));
+      transition: width 0.18s ease, height 0.18s ease, background-color 0.18s ease;
+    }
+    /* Once the label is there, the label is the thing being read — the
+       pointer gets out of its way: smaller, and the house blue instead of
+       white, which is what the reference does beside its own label. */
+    .custom-cursor.active-card::before {
+      width: 11px; height: 11px;
+      /* Half the resting size — the shrink is what the recording reads as,
+         and beside a white chip the pointer becomes the point the label
+         hangs from rather than a second thing to look at. Stays white: the
+         reference darkens against a pale page, and on a dark card a dark
+         arrow disappears. */
+      background-color: #fff;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 2 L19.6 10.5 L3.4 20.7 Z' fill='%23000' stroke='%23000' stroke-width='3.4' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat left top / contain;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 2 L19.6 10.5 L3.4 20.7 Z' fill='%23000' stroke='%23000' stroke-width='3.4' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat left top / contain;
+    }
+    /* The label hangs below and right of the tip so it never sits on top of
+       what you are about to click. Monospace uppercase is the house label
+       face — the same one the card categories use. */
+    .custom-cursor span {
+      position: absolute;
+      left: 12px; top: 11px;
+      background: #fff;
+      color: #080808;
+      font-family: monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: normal;
+      text-transform: uppercase;
+      white-space: nowrap;
+      padding: 6px 16px;
+      border-radius: 10px;
+      opacity: 0;
+      transform: scale(0.92);
+      transform-origin: top left;
+      transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.2, 0.8, 0.3, 1);
+    }
+    .custom-cursor.active-card span {
+      opacity: 1;
+      transform: scale(1);
+    }
+    html.loading .custom-cursor { display: none; }
+
     /* ===== PAGE CONTENT ===== */
     .page-hero {
-      padding: 140px 48px 60px;
-      max-width: 1300px; margin: 0 auto;
+      position: relative;
+      height: 100vh;
+      min-height: 700px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: visible;
     }
-    .section-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 3.5px; color: var(--blue); margin-bottom: 16px; }
-    .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; color: rgba(255,255,255,0.45); transition: color 0.3s; margin-bottom: 40px; }
-    .back-link:hover { color: #fff; }
-    .back-link svg { width: 16px; height: 16px; }
-    .page-hero h1 { font-size: clamp(2.6rem, 5vw, 4rem); font-weight: 400; letter-spacing: -1px; line-height: 1; }
+    .hero-bg-fixed {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 100vh;
+      min-height: 700px;
+      overflow: hidden;
+      z-index: -1;
+      transition: opacity 0.4s ease;
+    }
+    .hero-mosaic {
+      position: absolute;
+      inset: -15%;
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      grid-template-rows: repeat(5, 1fr);
+      gap: 10px;
+      transform: rotate(-12deg) scale(1.4);
+      opacity: 0.85;
+    }
+    .mosaic-tile {
+      border-radius: 12px;
+      background-color: #1a1a2e;
+      background-size: cover;
+      background-position: center;
+      animation: mosaicFloat 8s ease-in-out infinite;
+    }
+    .mosaic-tile:nth-child(odd) { animation-delay: -3s; }
+    .mosaic-tile:nth-child(3n) { animation-delay: -5s; }
+    .mosaic-tile:nth-child(4n+1) { animation-delay: -7s; }
+    @keyframes mosaicFloat {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-14px) scale(1.03); }
+    }
+.hero-overlay {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at center, rgba(8,8,8,0.45) 0%, rgba(8,8,8,0.82) 70%);
+      z-index: 1;
+    }
+    .hero-content {
+      position: relative; z-index: 2;
+      max-width: 1100px; padding: 0 40px;
+    }
+    .page-hero h1 { font-size: clamp(3rem, 7vw, 5.2rem); font-weight: 400; letter-spacing: -1px; line-height: 1.05; }
     .membership-note { margin-top: 20px; font-size: 0.88rem; color: rgba(255,255,255,0.5); line-height: 1.5; }
+    .page-content-wrap {
+      position: relative; z-index: 1; background: #000;
+      min-height: 100vh;
+    }
 
     /* ===== FILTERS BAR ===== */
     .filters-bar {
-      max-width: 1300px; margin: 0 auto; padding: 0 48px 24px;
+      max-width: 1300px; margin: 0 auto; padding: 80px 48px 24px;
       display: flex; align-items: center; justify-content: space-between; gap: 12px;
     }
     .admin-search-input, .admin-filter-select, .admin-filter-date {
-      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 8px; color: #fff; font-size: 14px; padding: 10px 14px; height: 42px;
-      font-family: 'Instrument Sans', sans-serif; outline: none; transition: border-color 0.2s, background 0.2s;
+      /* On black, 4% is invisible; this is the same weight the app's fields
+         have against its lighter shell. 10 is the control radius. */
+      background: rgba(255,255,255,0.10); border: none;
+      border-radius: 10px; color: #fff; font-size: 14px; padding: 10px 14px; height: 42px;
+      font-family: 'Instrument Sans', sans-serif; outline: none; transition: background 0.2s;
     }
     .admin-search-input { min-width: 180px; max-width: 240px; }
-    .admin-search-input::placeholder { color: rgba(255,255,255,0.3); }
+    .admin-search-input::placeholder { color: rgba(255,255,255,0.4); }
+
+    /* ===== SEARCHABLE DROPDOWN =====
+       The same control the app uses (.usf-combo): a text field you can type
+       into, a list that narrows as you type, and the native select kept
+       underneath as the record of the value so every existing onchange
+       handler keeps firing. */
+    .usf-combo { position: relative; }
+    /* Search left, filters right — that was an auto margin on the first
+       select, and the select is hidden now, so it moves to the control that
+       stands in for it. The original rule stays for the case where the
+       script never runs. */
+    .filters-bar .usf-combo-host:first-of-type { margin-left: auto; }
+    .usf-combo input {
+      width: 100%; box-sizing: border-box;
+      background: rgba(255,255,255,0.10);
+      border: none; border-radius: 10px;
+      color: #fff; font-size: 14px;
+      font-family: 'Instrument Sans', sans-serif;
+      padding: 10px 14px; padding-right: 32px;
+      outline: none; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .usf-combo input:focus { background: rgba(255,255,255,0.14); }
+    .usf-combo input::placeholder { color: rgba(255,255,255,0.4); }
+    .usf-combo-caret {
+      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; padding: 4px;
+      display: flex; align-items: center;
+    }
+    .usf-combo-list {
+      display: none; position: absolute; left: 0; right: 0; top: calc(100% + 6px);
+      background: #1a1a1a; border-radius: 10px; padding: 6px; z-index: 200;
+      max-height: 260px; overflow-y: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+    }
+    .usf-combo.open .usf-combo-list { display: block; }
+    .usf-combo.drop-up .usf-combo-list { top: auto; bottom: calc(100% + 6px); }
+    .usf-combo-opt {
+      display: block; width: 100%; text-align: left; background: none; border: none;
+      color: rgba(255,255,255,0.6); font-family: inherit; font-size: 13px;
+      padding: 9px 12px; border-radius: 7px; cursor: pointer;
+    }
+    .usf-combo-opt:hover { background: rgba(255,255,255,0.06); color: #fff; }
+    .usf-combo-empty { padding: 10px 12px; font-size: 12.5px; color: rgba(255,255,255,0.35); }
+
     .admin-search-input:focus, .admin-filter-select:focus, .admin-filter-date:focus {
-      border-color: var(--blue); background-color: rgba(59,91,255,0.06);
+      background-color: rgba(255,255,255,0.14);
     }
     .admin-filter-select {
       cursor: pointer; padding-right: 36px;
       appearance: none; -webkit-appearance: none; -moz-appearance: none;
-      background: rgba(255,255,255,0.04) url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(255,255,255,0.5)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 14px center;
+      background: rgba(255,255,255,0.10) url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(255,255,255,0.5)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 14px center;
     }
     .admin-filter-select option { background: #1a1a1a; color: #fff; }
     .admin-filter-date { width: 100%; color-scheme: dark; min-width: 0; }
     .admin-filter-date::-webkit-calendar-picker-indicator { filter: invert(0.8) brightness(1.2); cursor: pointer; }
-    .admin-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; font-family: 'Instrument Sans', sans-serif; }
+    .admin-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; font-family: 'Instrument Sans', sans-serif; }
     .admin-btn svg { width: 14px; height: 14px; }
     .admin-btn-primary { background: var(--blue); color: #fff; }
     .admin-btn-primary:hover { background: var(--blue-hover); }
-    .admin-btn-secondary { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.06); }
-    .admin-btn-secondary:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .admin-btn-secondary { background: rgba(255,255,255,0.12); color: #fff; border: none; font-weight: 400; }
+    .admin-btn-secondary:hover { background: rgba(255,255,255,0.2); color: #fff; }
 
     /* ===== FILTER MODAL ===== */
     .modal-overlay {
@@ -148,8 +393,8 @@
     }
     .modal-overlay.active { display: flex; }
     .modal {
-      background: #141414; border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 16px; padding: 28px 32px; width: 90%; max-width: 480px;
+      background: #141414; border: none;
+      border-radius: 20px; padding: 28px 32px; width: 90%; max-width: 480px;
       position: relative; max-height: 90vh; overflow-y: auto;
       box-shadow: 0 24px 64px rgba(0,0,0,0.5);
     }
@@ -162,57 +407,85 @@
 
     /* ===== PAGINATION ===== */
     .admin-pagination {
-      max-width: 1300px; margin: 0 auto; padding: 0 48px 80px;
+      max-width: 1300px; margin: 0 auto; padding: 0 48px 140px;
       display: flex; align-items: center; justify-content: center; gap: 4px;
     }
     .admin-pagination button {
-      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04); border: none;
       color: rgba(255,255,255,0.5); border-radius: 6px; padding: 6px 10px;
       font-size: 13px; cursor: pointer; min-width: 32px;
-      transition: background 0.15s, border-color 0.15s; font-family: inherit;
+      transition: background 0.15s; font-family: inherit;
     }
     .admin-pagination button:hover { background: rgba(255,255,255,0.08); color: #fff; }
-    .admin-pagination button.active { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.2); color: #fff; }
+    .admin-pagination button.active { background: rgba(255,255,255,0.12); color: #fff; }
     .admin-pagination button:disabled { opacity: 0.3; cursor: default; }
 
     /* ===== EDUCATION GRID ===== */
     .event-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px;
       max-width: 1300px; margin: 0 auto; padding: 0 48px 32px;
     }
-    .event-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 6px; overflow: hidden; transition: background 0.3s; position: relative; display: flex; flex-direction: column; }
-    .event-card:hover { background: var(--card-hover); }
-    .event-card-img-wrap { position: relative; }
-    .event-card-img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; }
-    .event-card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
-    .event-card-badges { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-    .event-card-type { display: inline-block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; padding: 4px 10px; border-radius: 4px; }
-    .type-radionica { background: rgba(59,91,255,0.15); color: #7B9CFF; }
-    .type-seminar { background: rgba(168,85,247,0.15); color: #C4A5F7; }
-    .type-tecaj { background: rgba(20,184,166,0.15); color: #5EEAD4; }
-    .type-konferencija { background: rgba(245,158,11,0.15); color: #FCD34D; }
-    .type-online { background: rgba(236,72,153,0.15); color: #F9A8D4; }
-    .event-card h3 { font-size: 1.1rem; font-weight: 500; margin-bottom: 4px; color: #fff; }
+    .event-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 20px; overflow: hidden; transition: background 0.3s; position: relative; display: flex; flex-direction: column; }
+    /* the sweep replaces the tint */
+    .event-card-img-wrap { position: relative; margin: 20px 20px 0; border-radius: 12px; overflow: hidden; }
+    .event-card-img { width: 100%; aspect-ratio: 5/2; object-fit: cover; display: block; filter: saturate(0.4); transition: filter 0.4s ease; }
+    .event-card:hover .event-card-img { filter: saturate(1); }
+    .event-card-body { padding: 14px 20px 20px; flex: 1; display: flex; flex-direction: column; }
+    .event-card-badges { display: flex; align-items: center; gap: 16px; margin-bottom: 10px; }
+    .event-card-type { display: inline-block; font-size: 11px; font-weight: 400; text-transform: uppercase; letter-spacing: normal; font-family: monospace; color: rgba(255,255,255,0.45); }
+    .type-radionica, .type-seminar, .type-tecaj, .type-konferencija, .type-webinar, .type-prezentacija { background: none; }
+    .type-online { background: none; }
+    .event-card-format-badge { display: inline-block; font-size: 11px; font-weight: 400; text-transform: uppercase; letter-spacing: normal; padding: 0; border-radius: 0; background: none; color: rgba(255,255,255,0.45); font-family: monospace; }
+    .event-card-prof-badge { display: inline-block; font-size: 11px; font-weight: 400; text-transform: uppercase; letter-spacing: normal; padding: 0; border-radius: 0; background: none; color: rgba(255,255,255,0.45); font-family: monospace; }
+    .event-card h3 { font-size: 1.1rem; font-weight: 500; margin-bottom: 6px; color: #fff; line-height: 1.3; }
     .event-card .event-meta { font-size: 0.82rem; color: rgba(255,255,255,0.5); margin-bottom: 8px; }
-    .event-card .event-price { font-size: 1.05rem; font-weight: 400; color: #fff; margin-top: auto; padding-top: 10px; display: block; }
-    .empty-state { text-align: center; padding: 48px 20px; color: rgba(255,255,255,0.4); font-size: 0.95rem; }
+    .card-bottom-row { margin-top: auto; padding-top: 10px; display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+    .card-scarcity { font-size: 0.72rem; color: #fbbf24; white-space: nowrap; }
+    .card-scarcity.full { color: #ef4444; }
+    .event-card.is-full .event-card-img-wrap { opacity: 0.45; }
+    .event-card.is-full h3 { color: rgba(255,255,255,0.55); }
+    /* "Uključeno u članarinu" reads white like every other price — blue made it
+       look like a link. Same as the detail page. */
+    .event-card .event-price { font-size: 0.875rem; font-weight: 400; color: #fff; display: block; }
+    .empty-state { text-align: center; padding: 80px 20px; color: rgba(255,255,255,0.4); font-size: 0.95rem; }
 
     /* ===== FOOTER ===== */
     .footer {
-      border-top: 1px solid var(--card-border);
-      padding: 56px 48px 28px; max-width: 1300px; margin: 0 auto;
+      background: #121212;
     }
-    .footer-grid { display: grid; grid-template-columns: 1fr 1fr auto; gap: 64px; margin-bottom: 48px; }
+    .footer-inner {
+      padding: 100px 48px 28px; max-width: 1300px; margin: 0 auto;
+    }
+    .footer-logo { display: inline-block; margin-bottom: 8px; }
+    .footer-logo svg { height: 24px; width: auto; }
+    /* Four equal columns and one gap value: the spacing between them is then
+       the same everywhere, without inline margins nudging individual ones. */
+    /* One gap value and a first column that takes up the slack: the space
+       between the columns is then literally the same number everywhere,
+       instead of leftover width being shared out around content of very
+       different widths. */
+    .footer-grid { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 72px; margin-bottom: 48px; }
+    .footer-grid > .footer-col { flex: 0 0 auto; }
+    .footer-grid > .footer-col:first-child { flex: 1 1 300px; min-width: 260px; }
+    .footer-grid > .footer-col:last-child { flex: 0 0 260px; }
+    .footer-col-pay ul li { margin-bottom: 8px; white-space: nowrap; }
     .footer-col h4 { font-size: 0.75rem; font-weight: 400; text-transform: uppercase; letter-spacing: 2.5px; color: var(--text-muted); margin-bottom: 16px; }
+    /* set like "Pretplati se na newsletter" in the column beside it */
+    .footer-col-pay h4 { font-size: 0.88rem; text-transform: none; letter-spacing: 0; margin-bottom: 14px; }
     .footer-col p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
     .footer-col ul { list-style: none; }
     .footer-col-nav ul { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
     .footer-col ul li { margin-bottom: 11px; font-size: 0.88rem; color: var(--text-muted); }
+    /* An IBAN and a SWIFT are one block of details, not four separate points. */
+    .footer-col-pay ul li { margin-bottom: 4px; line-height: 1.5; }
     .footer-col ul li a { font-size: 0.88rem; color: var(--text-muted); transition: color 0.3s; }
     .footer-col ul li a:hover { color: var(--blue); }
+    .footer-socials { display: flex; gap: 16px; margin-top: 20px; }
+    .footer-socials a { color: var(--text-muted); transition: color 0.3s; }
+    .footer-socials a:hover { color: #fff; }
     .footer-bottom {
       display: flex; justify-content: space-between; align-items: center;
-      padding-top: 20px; border-top: 1px solid var(--card-border);
+      padding-top: 20px;
       font-size: 0.78rem; color: var(--text-faint);
     }
     .footer-bottom a { color: var(--text-faint); transition: color 0.3s; }
@@ -223,59 +496,136 @@
       .event-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
     }
     @media (max-width: 768px) {
-      .nav { padding: 16px 20px; }
+      .page-shell { margin: 8px; border-radius: 14px; }
+      .nav-wrapper { top: 8px; left: 12px; right: 12px; border-radius: 16px; }
+      .nav-wrapper.scrolled { left: 12px; right: 12px; }
+      .nav { padding: 14px 16px; }
       .nav-wrapper.scrolled .nav { padding: 16px 20px; }
-      .nav-right .nav-links {
+      .nav-left .nav-links {
         display: none !important;
         position: fixed;
         top: 0; left: 0; width: 100vw; height: 100vh;
-        background: rgba(8,8,8,0.98);
+        background: rgba(18,18,18,0.98);
         flex-direction: column;
         align-items: center;
         justify-content: center;
         gap: 32px;
         z-index: 9999;
       }
-      .nav-right .nav-links.show { display: flex !important; }
-      .nav-right .nav-links li { list-style: none; }
-      .nav-right .nav-links li a { font-size: 1.4rem; color: rgba(255,255,255,0.8); padding: 12px 24px; display: block; }
+      .nav-left .nav-links.show { display: flex !important; }
+      .nav-left .nav-links li { list-style: none; }
+      .nav-left .nav-links li a { font-size: 1.4rem; color: rgba(255,255,255,0.55); padding: 12px 24px; display: block; }
+      .nav-left .nav-links li a.active { color: #fff; }
       .menu-toggle { display: block; z-index: 10000; position: relative; }
-      .page-hero { padding: 100px 16px 40px; }
-      .page-hero h1 { font-size: 2rem; }
+      .page-hero { min-height: 500px; height: 80vh; }
+      .page-hero h1 { font-size: 2.5rem; }
       .filters-bar { padding: 0 16px 16px; }
       .event-grid { padding: 0 16px 24px; grid-template-columns: 1fr; }
       .admin-pagination { padding: 0 16px 60px; }
-      .footer { padding: 40px 16px 20px; }
-      .footer-grid { grid-template-columns: 1fr; }
+      .footer-inner { padding: 40px 16px 20px; }
+      .footer-grid { display: block; }
       .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
     }
+
+    /* ===== SCROLL REVEAL ===== */
+    .scroll-reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .scroll-reveal.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    /* ===== HOVER FILL (round 49, from the home page) =====
+       The loader splits the page along a diagonal on
+       cubic-bezier(0.7, 0, 0.3, 1). The hover panel takes the same easing and
+       that edge mirrored — twelve degrees running up to the right — so the
+       two read as a pair. The panel is oversized and skewed, and
+       overflow: hidden crops it back to the card, corner radius included.
+       80px of overshoot covers the corner travel of a 12deg skew on the
+       widest card here (half of width x tan(12deg), about 41px). */
+    .event-card, .blog-card {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+    }
+    .event-card::after, .blog-card::after {
+      content: '';
+      position: absolute;
+      left: -4%; right: -4%; top: -80px; bottom: -80px;
+      z-index: -1;
+      background: var(--card-hover);
+      transform: translateY(130%) skewY(-12deg);
+      transition: transform 0.55s cubic-bezier(0.7, 0, 0.3, 1);
+    }
+    .event-card:hover::after, .blog-card:hover::after {
+      transform: translateY(0) skewY(-12deg);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .event-card::after, .blog-card::after { transition: none; }
+    }
   </style>
+  <script>
+  /* Set here rather than at the end of <body>: the rule that hides the native
+     pointer cannot apply to paints that happen before the script runs, and
+     that gap is where the two cursors are visible at once. If the cursor
+     itself fails to start, the script at the bottom takes this back off. */
+  document.documentElement.classList.add('has-custom-cursor');
+  </script>
 </head>
 <body>
+
+  <div class="page-loader-left" id="pageLoaderLeft"></div>
+  <div class="page-loader" id="pageLoader">
+    <svg width="140" height="67" viewBox="0 0 50 24" xmlns="http://www.w3.org/2000/svg">
+      <path class="logo-bg" d="M49.7738 4.31636L42.0684 4.95287L41.8768 8.25898L49.5822 7.58349L49.356 11.8998L41.6506 12.5753L41.2208 21.0053L35.8397 21.4874L36.7292 5.43369L27.0818 6.19803C26.3994 6.26961 26.2083 6.30437 25.8923 6.40624C25.5394 6.51634 25.2728 6.68022 25.094 6.89573C24.9152 7.11179 24.8146 7.36621 24.793 7.65491C24.7679 7.8914 24.8397 8.12208 24.9257 8.31948C25.0187 8.51114 25.1723 8.68926 25.3826 8.85486C25.593 9.0138 25.8647 9.16305 26.1982 9.30275C26.5322 9.44261 26.9315 9.57448 27.3953 9.69539L28.9956 10.1269C30.0752 10.4153 30.9945 10.7683 31.7518 11.1879C32.5091 11.6076 33.1216 12.0884 33.5892 12.6281C34.0572 13.1615 34.3899 13.7528 34.5878 14.4008C34.7919 15.0488 34.8782 15.7484 34.8453 16.4998C34.7709 17.797 34.3883 18.8797 33.6988 19.7452C33.0094 20.6105 32.0565 21.1271 30.8375 21.5333C29.6258 21.9394 26.5168 22.1313 26.5111 22.1317C26.5111 22.1317 15.2865 23.0198 10.7197 23.3748C10.1194 23.473 9.48793 23.521 8.82536 23.5189C8.82346 23.519 8.8222 23.5192 8.82166 23.5192V23.5189C8.59995 23.5181 8.37475 23.5121 8.14607 23.5001C6.44395 23.4109 4.96929 23.0373 3.72206 22.3794C2.47516 21.715 1.52387 20.8182 0.868127 19.6889C0.219151 18.5535-0.065976 17.2344 0.0127857 15.7314L0.619679 4.05953L6.00202 3.57365L5.39386 15.5496C5.36188 16.1598 5.46823 16.7129 5.71275 17.2087C5.95761 17.6982 6.31057 18.0902 6.77172 18.3849C7.23932 18.6799 7.77828 18.8434 8.38848 18.8754C9.00508 18.9077 9.55809 18.8014 10.0475 18.5566C10.537 18.3117 10.929 17.9587 11.2237 17.4975C11.5187 17.0299 11.6823 16.491 11.7143 15.8809L12.3746 3.02502L17.7324 2.55151L17.0469 16.6241C17.0111 17.3079 16.9027 17.9459 16.7223 18.5382C21.375 18.1801 26.4588 17.7876 26.6641 17.773C27.3172 17.7088 27.7198 17.7183 28.1126 17.5972C28.505 17.4761 28.8078 17.2956 29.0199 17.0558C29.2322 16.8157 29.3486 16.5338 29.3719 16.213C29.3811 15.911 29.296 15.6417 29.1152 15.407C28.941 15.1662 28.6429 14.9446 28.2224 14.7424C27.8018 14.5336 27.2288 14.3311 26.5053 14.1322L24.5624 13.6053C22.8353 13.1347 21.4905 12.429 20.5286 11.4898C19.5735 10.5445 19.0973 9.28733 19.1845 7.7462C19.2438 6.49344 19.6356 5.41565 20.3592 4.51327C21.0894 3.60513 22.0682 2.91909 23.2965 2.45544C24.479 2.01178 25.6752 1.99987 27.2921 1.87661L40.2368 0.844721L50 0L49.7738 4.31636Z"/>
+      <path class="logo-fill" d="M49.7738 4.31636L42.0684 4.95287L41.8768 8.25898L49.5822 7.58349L49.356 11.8998L41.6506 12.5753L41.2208 21.0053L35.8397 21.4874L36.7292 5.43369L27.0818 6.19803C26.3994 6.26961 26.2083 6.30437 25.8923 6.40624C25.5394 6.51634 25.2728 6.68022 25.094 6.89573C24.9152 7.11179 24.8146 7.36621 24.793 7.65491C24.7679 7.8914 24.8397 8.12208 24.9257 8.31948C25.0187 8.51114 25.1723 8.68926 25.3826 8.85486C25.593 9.0138 25.8647 9.16305 26.1982 9.30275C26.5322 9.44261 26.9315 9.57448 27.3953 9.69539L28.9956 10.1269C30.0752 10.4153 30.9945 10.7683 31.7518 11.1879C32.5091 11.6076 33.1216 12.0884 33.5892 12.6281C34.0572 13.1615 34.3899 13.7528 34.5878 14.4008C34.7919 15.0488 34.8782 15.7484 34.8453 16.4998C34.7709 17.797 34.3883 18.8797 33.6988 19.7452C33.0094 20.6105 32.0565 21.1271 30.8375 21.5333C29.6258 21.9394 26.5168 22.1313 26.5111 22.1317C26.5111 22.1317 15.2865 23.0198 10.7197 23.3748C10.1194 23.473 9.48793 23.521 8.82536 23.5189C8.82346 23.519 8.8222 23.5192 8.82166 23.5192V23.5189C8.59995 23.5181 8.37475 23.5121 8.14607 23.5001C6.44395 23.4109 4.96929 23.0373 3.72206 22.3794C2.47516 21.715 1.52387 20.8182 0.868127 19.6889C0.219151 18.5535-0.065976 17.2344 0.0127857 15.7314L0.619679 4.05953L6.00202 3.57365L5.39386 15.5496C5.36188 16.1598 5.46823 16.7129 5.71275 17.2087C5.95761 17.6982 6.31057 18.0902 6.77172 18.3849C7.23932 18.6799 7.77828 18.8434 8.38848 18.8754C9.00508 18.9077 9.55809 18.8014 10.0475 18.5566C10.537 18.3117 10.929 17.9587 11.2237 17.4975C11.5187 17.0299 11.6823 16.491 11.7143 15.8809L12.3746 3.02502L17.7324 2.55151L17.0469 16.6241C17.0111 17.3079 16.9027 17.9459 16.7223 18.5382C21.375 18.1801 26.4588 17.7876 26.6641 17.773C27.3172 17.7088 27.7198 17.7183 28.1126 17.5972C28.505 17.4761 28.8078 17.2956 29.0199 17.0558C29.2322 16.8157 29.3486 16.5338 29.3719 16.213C29.3811 15.911 29.296 15.6417 29.1152 15.407C28.941 15.1662 28.6429 14.9446 28.2224 14.7424C27.8018 14.5336 27.2288 14.3311 26.5053 14.1322L24.5624 13.6053C22.8353 13.1347 21.4905 12.429 20.5286 11.4898C19.5735 10.5445 19.0973 9.28733 19.1845 7.7462C19.2438 6.49344 19.6356 5.41565 20.3592 4.51327C21.0894 3.60513 22.0682 2.91909 23.2965 2.45544C24.479 2.01178 25.6752 1.99987 27.2921 1.87661L40.2368 0.844721L50 0L49.7738 4.31636Z"/>
+    </svg>
+  </div>
+  <script>
+    (function() {
+      var loader = document.getElementById('pageLoader');
+      var navEntries = performance.getEntriesByType('navigation');
+      var navType = navEntries.length > 0 ? navEntries[0].type : '';
+      var hasSeenLoader = sessionStorage.getItem('usf_loader_shown');
+      if (navType === 'back_forward' || (navType === 'navigate' && hasSeenLoader)) {
+        loader.classList.add('skip');
+        var ll = document.getElementById('pageLoaderLeft');
+        if (ll) ll.classList.add('done');
+        document.documentElement.classList.remove('loading');
+      } else {
+        sessionStorage.setItem('usf_loader_shown', '1');
+      }
+    })();
+  </script>
+
 
   <!-- NAV -->
   <div class="nav-wrapper" id="navbar">
   <nav class="nav">
+    <div class="nav-left">
     <a href="index.html" class="nav-logo">
       <svg width="50" height="24" viewBox="0 0 50 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M49.7738 4.31636L42.0684 4.95287L41.8768 8.25898L49.5822 7.58349L49.356 11.8998L41.6506 12.5753L41.2208 21.0053L35.8397 21.4874L36.7292 5.43369L27.0818 6.19803C26.3994 6.26961 26.2083 6.30437 25.8923 6.40624C25.5394 6.51634 25.2728 6.68022 25.094 6.89573C24.9152 7.11179 24.8146 7.36621 24.793 7.65491C24.7679 7.8914 24.8397 8.12208 24.9257 8.31948C25.0187 8.51114 25.1723 8.68926 25.3826 8.85486C25.593 9.0138 25.8647 9.16305 26.1982 9.30275C26.5322 9.44261 26.9315 9.57448 27.3953 9.69539L28.9956 10.1269C30.0752 10.4153 30.9945 10.7683 31.7518 11.1879C32.5091 11.6076 33.1216 12.0884 33.5892 12.6281C34.0572 13.1615 34.3899 13.7528 34.5878 14.4008C34.7919 15.0488 34.8782 15.7484 34.8453 16.4998C34.7709 17.797 34.3883 18.8797 33.6988 19.7452C33.0094 20.6105 32.0565 21.1271 30.8375 21.5333C29.6258 21.9394 26.5168 22.1313 26.5111 22.1317C26.5111 22.1317 15.2865 23.0198 10.7197 23.3748C10.1194 23.473 9.48793 23.521 8.82536 23.5189C8.82346 23.519 8.8222 23.5192 8.82166 23.5192V23.5189C8.59995 23.5181 8.37475 23.5121 8.14607 23.5001C6.44395 23.4109 4.96929 23.0373 3.72206 22.3794C2.47516 21.715 1.52387 20.8182 0.868127 19.6889C0.219151 18.5535 -0.065976 17.2344 0.0127857 15.7314L0.619679 4.05953L6.00202 3.57365L5.39386 15.5496C5.36188 16.1598 5.46823 16.7129 5.71275 17.2087C5.95761 17.6982 6.31057 18.0902 6.77172 18.3849C7.23932 18.6799 7.77828 18.8434 8.38848 18.8754C9.00508 18.9077 9.55809 18.8014 10.0475 18.5566C10.537 18.3117 10.929 17.9587 11.2237 17.4975C11.5187 17.0299 11.6823 16.491 11.7143 15.8809L12.3746 3.02502L17.7324 2.55151L17.0469 16.6241C17.0111 17.3079 16.9027 17.9459 16.7223 18.5382C21.375 18.1801 26.4588 17.7876 26.6641 17.773C27.3172 17.7088 27.7198 17.7183 28.1126 17.5972C28.505 17.4761 28.8078 17.2956 29.0199 17.0558C29.2322 16.8157 29.3486 16.5338 29.3719 16.213C29.3811 15.911 29.296 15.6417 29.1152 15.407C28.941 15.1662 28.6429 14.9446 28.2224 14.7424C27.8018 14.5336 27.2288 14.3311 26.5053 14.1322L24.5624 13.6053C22.8353 13.1347 21.4905 12.429 20.5286 11.4898C19.5735 10.5445 19.0973 9.28733 19.1845 7.7462C19.2438 6.49344 19.6356 5.41565 20.3592 4.51327C21.0894 3.60513 22.0682 2.91909 23.2965 2.45544C24.479 2.01178 25.6752 1.99987 27.2921 1.87661L40.2368 0.844721L50 0L49.7738 4.31636Z" fill="white"/></svg>
     </a>
-    <div class="nav-right">
       <ul class="nav-links">
-        <li><a href="index.html#about"><span data-hr="O nama" data-en="About">O nama</span></a></li>
-        <li><a href="index.html#ekspertiza"><span data-hr="Ekspertiza" data-en="Expertise">Ekspertiza</span></a></li>
-        <li><a href="index.html#fizioterapija"><span data-hr="Fizioterapija" data-en="Physiotherapy">Fizioterapija</span></a></li>
-        <li><a href="edukacije.html"><span data-hr="Edukacije" data-en="Education">Edukacije</span></a></li>
-        <li><a href="blog.html"><span data-hr="Blog" data-en="Blog">Blog</span></a></li>
-        <li><a href="index.html#clanstvo"><span data-hr="Članstvo" data-en="Membership">Članstvo</span></a></li>
-        <li><a href="index.html#kontakt"><span data-hr="Kontakt" data-en="Contact">Kontakt</span></a></li>
+        <li><a href="edukacije.html" class="active"><span data-hr="Edukacije" data-en="Education">Edukacije</span></a></li>
+        <li><a href="blog.html"><span data-hr="Članci" data-en="Articles">Članci</span></a></li>
+        <li><a href="clanstvo.html"><span data-hr="Članstvo" data-en="Membership">Članstvo</span></a></li>
+        <li><a href="o-nama.html"><span data-hr="O nama" data-en="About">O nama</span></a></li>
+        <li><a href="kontakt.html"><span data-hr="Kontakt" data-en="Contact">Kontakt</span></a></li>
       </ul>
       <button class="menu-toggle" onclick="var nl=document.querySelector('.nav-links');nl.classList.toggle('show');this.classList.toggle('open')" aria-label="Menu">
         <span></span><span></span><span></span>
       </button>
+    </div>
+    <div class="nav-right">
       <div class="lang-switch">
         <button class="active" data-lang="hr" onclick="switchLang('hr')"><svg class="lang-flag" viewBox="0 0 640 480"><rect width="640" height="160" fill="#FF0000"/><rect y="160" width="640" height="160" fill="#FFFFFF"/><rect y="320" width="640" height="160" fill="#171796"/><rect x="240" y="80" width="160" height="200" rx="0" ry="80" fill="#FF0000" stroke="#fff" stroke-width="4"/><g fill="#fff"><rect x="256" y="96" width="32" height="32"/><rect x="320" y="96" width="32" height="32"/><rect x="384" y="96" width="32" height="32"/><rect x="288" y="128" width="32" height="32"/><rect x="352" y="128" width="32" height="32"/><rect x="256" y="160" width="32" height="32"/><rect x="320" y="160" width="32" height="32"/><rect x="384" y="160" width="32" height="32"/><rect x="288" y="192" width="32" height="32"/><rect x="352" y="192" width="32" height="32"/><rect x="256" y="224" width="32" height="32"/><rect x="320" y="224" width="32" height="32"/><rect x="384" y="224" width="32" height="32"/></g></svg></button>
         <button data-lang="en" onclick="switchLang('en')"><svg class="lang-flag" viewBox="0 0 640 480"><rect width="640" height="480" fill="#012169"/><path d="M0 0l640 480M640 0L0 480" stroke="#fff" stroke-width="60"/><path d="M0 0l640 480M640 0L0 480" stroke="#C8102E" stroke-width="40"/><path d="M320 0v480M0 240h640" stroke="#fff" stroke-width="100"/><path d="M320 0v480M0 240h640" stroke="#C8102E" stroke-width="60"/></svg></button>
       </div>
+
+      <a href="donacije.html" class="nav-donate-btn"><span data-hr="Doniraj" data-en="Donate">Doniraj</span></a>
       <div class="nav-auth" id="navAuth">
         <a href="login.html" class="nav-auth-login-btn"><span data-hr="Pridruži se" data-en="Join now">Pridruži se</span></a>
       </div>
@@ -283,19 +633,63 @@
   </nav>
   </div>
 
+  <div class="page-shell">
   <!-- PAGE HERO -->
-  <div class="page-hero">
-    <a href="index.html#edukacije" class="back-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg> <span data-hr="Povratak" data-en="Back">Povratak</span></a>
-    <div class="section-label"><span data-hr="Edukacije" data-en="Education">Edukacije</span></div>
-    <h1><span data-hr="Nadolazeće edukacije" data-en="Upcoming education programs">Nadolazeće edukacije</span></h1>
+  <div class="hero-bg-fixed">
+    <div class="hero-mosaic">
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+      <div class="mosaic-tile"></div>
+    </div>
+    <div class="hero-overlay"></div>
   </div>
 
+  <section class="page-hero">
+    <div class="hero-content">
+      <h1><span data-hr="Nadolazeće edukacije" data-en="Upcoming education programs">Nadolazeće edukacije</span></h1>
+    </div>
+  </section>
+  </div><!-- end page-shell (hero only) -->
+
+  <div class="page-content-wrap">
   <!-- SEARCH + FILTERS -->
   <div class="filters-bar">
-    <input type="text" class="admin-search-input" id="eduSearch" oninput="currentPage=1;renderGrid()" placeholder="Pretraži edukacije..." data-placeholder-hr="Pretraži edukacije..." data-placeholder-en="Search education...">
-    <button class="admin-btn admin-btn-secondary" onclick="openFilterModal()" style="white-space:nowrap;display:inline-flex;align-items:center;gap:6px;">
+    <input type="text" class="admin-search-input" id="eduSearch" oninput="currentPage=1;renderGrid()" placeholder="Pretraži" data-placeholder-hr="Pretraži" data-placeholder-en="Search">
+    <button class="admin-btn admin-btn-secondary" id="filterBtn" onclick="openFilterModal()" style="white-space:nowrap;display:inline-flex;align-items:center;gap:6px;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
-      <span data-hr="Filteri" data-en="Filters">Filteri</span>
+      <span id="filterLabel" data-hr="Filteri" data-en="Filters">Filteri</span>
     </button>
   </div>
 
@@ -303,7 +697,57 @@
   <div class="event-grid" id="eventGrid"></div>
   <div class="admin-pagination" id="paginationEl"></div>
 
-  <!-- FILTER MODAL -->
+  <!-- FOOTER -->
+  <footer class="footer">
+
+    <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <a href="index.html" class="footer-logo" style="margin-bottom:16px;display:inline-block;">
+          <svg width="50" height="24" viewBox="0 0 50 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M49.7738 4.31636L42.0684 4.95287L41.8768 8.25898L49.5822 7.58349L49.356 11.8998L41.6506 12.5753L41.2208 21.0053L35.8397 21.4874L36.7292 5.43369L27.0818 6.19803C26.3994 6.26961 26.2083 6.30437 25.8923 6.40624C25.5394 6.51634 25.2728 6.68022 25.094 6.89573C24.9152 7.11179 24.8146 7.36621 24.793 7.65491C24.7679 7.8914 24.8397 8.12208 24.9257 8.31948C25.0187 8.51114 25.1723 8.68926 25.3826 8.85486C25.593 9.0138 25.8647 9.16305 26.1982 9.30275C26.5322 9.44261 26.9315 9.57448 27.3953 9.69539L28.9956 10.1269C30.0752 10.4153 30.9945 10.7683 31.7518 11.1879C32.5091 11.6076 33.1216 12.0884 33.5892 12.6281C34.0572 13.1615 34.3899 13.7528 34.5878 14.4008C34.7919 15.0488 34.8782 15.7484 34.8453 16.4998C34.7709 17.797 34.3883 18.8797 33.6988 19.7452C33.0094 20.6105 32.0565 21.1271 30.8375 21.5333C29.6258 21.9394 26.5168 22.1313 26.5111 22.1317C26.5111 22.1317 15.2865 23.0198 10.7197 23.3748C10.1194 23.473 9.48793 23.521 8.82536 23.5189C8.82346 23.519 8.8222 23.5192 8.82166 23.5192V23.5189C8.59995 23.5181 8.37475 23.5121 8.14607 23.5001C6.44395 23.4109 4.96929 23.0373 3.72206 22.3794C2.47516 21.715 1.52387 20.8182 0.868127 19.6889C0.219151 18.5535-0.065976 17.2344 0.0127857 15.7314L0.619679 4.05953L6.00202 3.57365L5.39386 15.5496C5.36188 16.1598 5.46823 16.7129 5.71275 17.2087C5.95761 17.6982 6.31057 18.0902 6.77172 18.3849C7.23932 18.6799 7.77828 18.8434 8.38848 18.8754C9.00508 18.9077 9.55809 18.8014 10.0475 18.5566C10.537 18.3117 10.929 17.9587 11.2237 17.4975C11.5187 17.0299 11.6823 16.491 11.7143 15.8809L12.3746 3.02502L17.7324 2.55151L17.0469 16.6241C17.0111 17.3079 16.9027 17.9459 16.7223 18.5382C21.375 18.1801 26.4588 17.7876 26.6641 17.773C27.3172 17.7088 27.7198 17.7183 28.1126 17.5972C28.505 17.4761 28.8078 17.2956 29.0199 17.0558C29.2322 16.8157 29.3486 16.5338 29.3719 16.213C29.3811 15.911 29.296 15.6417 29.1152 15.407C28.941 15.1662 28.6429 14.9446 28.2224 14.7424C27.8018 14.5336 27.2288 14.3311 26.5053 14.1322L24.5624 13.6053C22.8353 13.1347 21.4905 12.429 20.5286 11.4898C19.5735 10.5445 19.0973 9.28733 19.1845 7.7462C19.2438 6.49344 19.6356 5.41565 20.3592 4.51327C21.0894 3.60513 22.0682 2.91909 23.2965 2.45544C24.479 2.01178 25.6752 1.99987 27.2921 1.87661L40.2368 0.844721L50 0L49.7738 4.31636Z" fill="rgba(255,255,255,0.35)"/></svg>
+        </a>
+        <p><span data-hr="Prva hrvatska udruga posvećena isključivo sportskoj fizioterapiji osnovana 2026. Okupljamo stručnjake, educiramo zajednicu i podižemo standarde profesije." data-en="Croatia's first association dedicated exclusively to sports physiotherapy, founded in 2026. We gather experts, educate the community, and raise professional standards.">Prva hrvatska udruga posvećena isključivo sportskoj fizioterapiji osnovana 2026. Okupljamo stručnjake, educiramo zajednicu i podižemo standarde profesije.</span></p>
+        <div class="footer-socials">
+          <a href="https://instagram.com/usf.hr" target="_blank" rel="noopener" aria-label="Instagram"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+          <a href="https://facebook.com/usf" target="_blank" rel="noopener" aria-label="Facebook"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+          <a href="https://linkedin.com/company/usf.hr" target="_blank" rel="noopener" aria-label="LinkedIn"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+          <a href="https://youtube.com/@usf.hr" target="_blank" rel="noopener" aria-label="YouTube"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+        </div>
+      </div>
+      <!-- Col 2: Payment details (donations) -->
+      <div class="footer-col footer-col-pay">
+        <h4><span data-hr="Podaci za uplatu" data-en="Payment details">Podaci za uplatu</span></h4>
+        <ul>
+          <li id="usfPayName">Udruga sportskih fizioterapeuta</li>
+          <li id="usfPayAddress">Lojenov prilaz 4, Zagreb</li>
+          <li>IBAN: <span id="usfPayIban">HR4623600001103297330</span></li>
+          <li>SWIFT: <span id="usfPaySwift">ZABAHR2X</span></li>
+                  </ul>
+        <script>try{var _op=JSON.parse(localStorage.getItem('usf_org_payment')||'null');if(_op){if(_op.name)document.getElementById('usfPayName').textContent=_op.name;if(_op.iban)document.getElementById('usfPayIban').textContent=_op.iban;if(_op.swift)document.getElementById('usfPaySwift').textContent=_op.swift;var _a=document.getElementById('usfPayAddress');if(_a&&_op.address)_a.textContent=_op.address;}}catch(e){}</script>
+      </div>
+
+      <div class="footer-col footer-col-nav">
+        <ul style="grid-template-columns:1fr;"><li><a href="edukacije.html"><span data-hr="Edukacije" data-en="Education">Edukacije</span></a></li><li><a href="blog.html"><span data-hr="Članci" data-en="Articles">Članci</span></a></li><li><a href="clanstvo.html"><span data-hr="Članstvo" data-en="Membership">Članstvo</span></a></li><li><a href="o-nama.html"><span data-hr="O nama" data-en="About">O nama</span></a></li><li><a href="donacije.html"><span data-hr="Donacije" data-en="Donate">Donacije</span></a></li><li><a href="kontakt.html"><span data-hr="Kontakt" data-en="Contact">Kontakt</span></a></li></ul>
+      </div>
+      <div class="footer-col">
+        <p style="font-size:0.88rem;font-weight:400;color:var(--text-muted);margin-bottom:14px;"><span data-hr="Pretplati se na newsletter" data-en="Subscribe to our newsletter">Pretplati se na newsletter</span></p>
+        <form onsubmit="event.preventDefault();alert(document.documentElement.lang==='en'?'Thank you for subscribing!':'Hvala na pretplati!');" style="display:flex;flex-direction:column;gap:8px;">
+          <input type="text" placeholder="Ime" data-hr-placeholder="Ime" data-en-placeholder="Name" style="background:rgba(255,255,255,0.06);border:none;border-radius:10px;padding:10px 16px;color:#fff;font-size:0.82rem;font-family:inherit;outline:none;" required>
+          <input type="email" placeholder="Email" data-hr-placeholder="Email" data-en-placeholder="Email" style="background:rgba(255,255,255,0.06);border:none;border-radius:10px;padding:10px 16px;color:#fff;font-size:0.82rem;font-family:inherit;outline:none;" required>
+          <p style="font-size:0.72rem;color:var(--text-faint);line-height:1.5;margin-top:4px;"><span data-hr="Pretplatom pristajete na našu " data-en="By subscribing you agree to our ">Pretplatom pristajete na našu </span><a href="legal.html" style="color:var(--text-faint);text-decoration:underline;transition:color 0.3s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text-faint)'"><span data-hr="politiku privatnosti" data-en="Privacy Policy">politiku privatnosti</span></a>.</p>
+          <button type="submit" style="background:rgba(255,255,255,0.08);color:var(--text-muted);border:none;border-radius:10px;padding:10px 20px;font-size:0.85rem;font-weight:400;font-family:inherit;cursor:none;transition:all 0.3s;white-space:nowrap;width:100%;margin-top:4px;" onmouseover="this.style.background='rgba(255,255,255,0.15)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.08)';this.style.color='var(--text-muted)'"><span data-hr="Pretplati se" data-en="Subscribe">Pretplati se</span></button>
+        </form>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span><span data-hr="© 2026 Udruga sportskih fizioterapeuta" data-en="© 2026 Association of Sports Physiotherapists">© 2026 Udruga sportskih fizioterapeuta</span> <span style="display:inline-block;width:24px;"></span> <a href="legal.html" style="color:var(--text-faint);transition:color 0.3s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text-faint)'"><span data-hr="Pravne informacije" data-en="Legal">Pravne informacije</span></a></span>
+      <span>Website by <a href="https://pegula.studio" target="_blank" style="color:var(--text-faint);transition:color 0.3s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text-faint)'">pegula.studio</a></span>
+    </div>
+    </div>
+  </footer>
+  </div><!-- /page-content-wrap -->
+
+  <!-- FILTER MODAL (outside page-content-wrap so z-index works above hero) -->
   <div class="modal-overlay" id="filterModal" onclick="if(event.target===this)closeFilterModal()">
     <div class="modal" style="max-width:480px;">
       <button class="modal-close" onclick="closeFilterModal()">&times;</button>
@@ -313,10 +757,6 @@
           <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:6px;" data-hr="Tip" data-en="Type">Tip</label>
           <select id="filterType" class="admin-filter-select" style="width:100%;" onchange="currentPage=1;renderGrid()">
             <option value="all" data-hr="Svi tipovi" data-en="All types">Svi tipovi</option>
-            <option value="radionica" data-hr="Radionica" data-en="Workshop">Radionica</option>
-            <option value="seminar" data-hr="Seminar" data-en="Seminar">Seminar</option>
-            <option value="tecaj" data-hr="Tečaj" data-en="Course">Tečaj</option>
-            <option value="konferencija" data-hr="Konferencija" data-en="Conference">Konferencija</option>
           </select>
         </div>
         <div>
@@ -325,17 +765,22 @@
             <option value="all" data-hr="Svi formati" data-en="All formats">Svi formati</option>
             <option value="live" data-hr="Uživo" data-en="In-person">Uživo</option>
             <option value="online" data-hr="Online" data-en="Online">Online</option>
+            <option value="hybrid" data-hr="Hibridno" data-en="Hybrid">Hibridno</option>
           </select>
         </div>
         <div>
-          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:6px;" data-hr="Grad" data-en="City">Grad</label>
+          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:6px;" data-hr="Lokacija" data-en="Location">Lokacija</label>
           <select id="filterCity" class="admin-filter-select" style="width:100%;" onchange="currentPage=1;renderGrid()">
-            <option value="all" data-hr="Svi gradovi" data-en="All cities">Svi gradovi</option>
-            <option value="Zagreb">Zagreb</option>
-            <option value="Split">Split</option>
-            <option value="Rijeka">Rijeka</option>
-            <option value="Osijek">Osijek</option>
-            <option value="Online">Online</option>
+            <option value="all" data-hr="Sve lokacije" data-en="All locations">Sve lokacije</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:6px;" data-hr="Profesija" data-en="Profession">Profesija</label>
+          <select id="filterProfession" class="admin-filter-select" style="width:100%;" onchange="currentPage=1;renderGrid()">
+            <option value="all" data-hr="Sve profesije" data-en="All professions">Sve profesije</option>
+            <option value="fizioterapeut" data-hr="Fizioterapeut" data-en="Physiotherapist">Fizioterapeut</option>
+            <option value="ostalo" data-hr="Ostale struke" data-en="Other professions">Ostale struke</option>
+            <option value="student" data-hr="Student" data-en="Student">Student</option>
           </select>
         </div>
         <div>
@@ -355,25 +800,31 @@
           </div>
         </div>
       </div>
-      <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:10px;">
+      <div style="margin-top:32px;display:flex;justify-content:flex-end;gap:10px;">
         <button class="admin-btn admin-btn-secondary" onclick="resetFilters()"><span data-hr="Resetiraj" data-en="Reset">Resetiraj</span></button>
         <button class="admin-btn admin-btn-primary" onclick="closeFilterModal()"><span data-hr="Primijeni" data-en="Apply">Primijeni</span></button>
       </div>
     </div>
   </div>
 
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div class="footer-grid">
-      <div class="footer-col"><h4>USF</h4><p><span data-hr="Prva hrvatska udruga posvećena isključivo sportskoj fizioterapiji osnovana 2026. Okupljamo stručnjake, educiramo zajednicu i podižemo standarde profesije." data-en="Croatia's first association dedicated exclusively to sports physiotherapy, founded in 2026. We gather experts, educate the community, and raise professional standards.">Prva hrvatska udruga posvećena isključivo sportskoj fizioterapiji osnovana 2026. Okupljamo stručnjake, educiramo zajednicu i podižemo standarde profesije.</span></p></div>
-      <div class="footer-col footer-col-nav"><h4><span data-hr="Navigacija" data-en="Navigation">Navigacija</span></h4><ul><li><a href="index.html#about"><span data-hr="O nama" data-en="About">O nama</span></a></li><li><a href="index.html#ekspertiza"><span data-hr="Ekspertiza" data-en="Expertise">Ekspertiza</span></a></li><li><a href="index.html#fizioterapija"><span data-hr="Fizioterapija" data-en="Physiotherapy">Fizioterapija</span></a></li><li><a href="index.html#edukacije"><span data-hr="Edukacije" data-en="Education">Edukacije</span></a></li><li><a href="blog.html"><span data-hr="Blog" data-en="Blog">Blog</span></a></li><li><a href="index.html#clanstvo"><span data-hr="Članstvo" data-en="Membership">Članstvo</span></a></li><li><a href="index.html#kontakt"><span data-hr="Kontakt" data-en="Contact">Kontakt</span></a></li></ul></div>
-      <div class="footer-col"><h4><span data-hr="Kontakt" data-en="Contact">Kontakt</span></h4><ul><li>info@usf.hr</li><li>+385 99 123 4567</li><li><span data-hr="Zagreb, Hrvatska" data-en="Zagreb, Croatia">Zagreb, Hrvatska</span></li></ul></div>
-    </div>
-    <div class="footer-bottom">
-      <span><span data-hr="&copy; 2026 Udruga sportskih fizioterapeuta" data-en="&copy; 2026 Association of Sports Physiotherapists">&copy; 2026 Udruga sportskih fizioterapeuta</span></span>
-      <span><span data-hr="Dizajn:" data-en="Design:">Dizajn:</span> <a href="https://www.jelenamandic.com/" target="_blank">Jelena Mandić</a></span>
-    </div>
-  </footer>
+  <script>
+    setTimeout(function() {
+      var loader = document.getElementById('pageLoader');
+      var loaderLeft = document.getElementById('pageLoaderLeft');
+      if (loader && !loader.classList.contains('skip')) {
+        loader.classList.add('crack');
+        if (loaderLeft) loaderLeft.classList.add('crack');
+        document.documentElement.classList.remove('loading');
+        setTimeout(function(){
+          loader.classList.add('crack-full');
+          setTimeout(function(){
+            loader.classList.add('done');
+            if (loaderLeft) loaderLeft.classList.add('done');
+          }, 400);
+        }, 500);
+      }
+    }, 800);
+  </script>
 
   <script>
     // Nav scroll
@@ -388,8 +839,7 @@
           var user = JSON.parse(raw);
           var auth = document.getElementById('navAuth');
           if (auth && user) {
-            var ini = ((user.firstName||'')[0]||'') + ((user.lastName||'')[0]||'');
-            auth.innerHTML = '<a href="dashboard.html" class="nav-profile-circle">' + ini.toUpperCase() + '</a>';
+            auth.innerHTML = '<a href="dashboard.html" class="nav-profile-circle" title="Moj profil" style="display:flex;align-items:flex-end;justify-content:center;"><svg width="34" height="34" viewBox="0 0 24 24" fill="#fff" style="margin-bottom:-8px;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></a>';
           }
         } catch(e) {}
       }
@@ -398,23 +848,104 @@
     // Education events data
     var currentLang = 'hr';
     var currentPage = 1;
-    var perPage = 6;
+    var perPage = 12;
     // Restore page from hash on refresh
     (function() { var m = window.location.hash.match(/page=(\d+)/); if (m) currentPage = parseInt(m[1]) || 1; })();
 
+    /* === CONFIGURABLE EDUCATION TYPES === */
+    var educationTypes = {
+      radionica:     { hr: 'Radionica',              en: 'Workshop',              bg: 'rgba(59,91,255,0.15)',    color: '#7B9CFF' },
+      seminar:       { hr: 'Seminar',                en: 'Seminar',               bg: 'rgba(168,85,247,0.15)',   color: '#C4A5F7' },
+      tecaj:         { hr: 'Tečaj',                  en: 'Course',                bg: 'rgba(20,184,166,0.15)',   color: '#5EEAD4' },
+      konferencija:  { hr: 'Konferencija',            en: 'Conference',            bg: 'rgba(245,158,11,0.15)',   color: '#FCD34D' },
+      webinar:       { hr: 'Webinar',                en: 'Webinar',               bg: 'rgba(236,72,153,0.15)',   color: '#F9A8D4' },
+      prezentacija:  { hr: 'Prezentacija uređaja',   en: 'Device Presentation',   bg: 'rgba(6,182,212,0.15)',    color: '#67E8F9' }
+    };
+
+    function getTypeName(type, lang) {
+      var t = educationTypes[type];
+      return t ? (lang === 'hr' ? t.hr : t.en) : type;
+    }
+
+    function populateTypeFilter() {
+      // Location filter: countries as groups, cities inside — scales from one
+      // country to many without changing shape. Online is its own entry.
+      (function() {
+        var csel = document.getElementById('filterCity');
+        if (!csel) return;
+        var byCountry = {};
+        var hasOnline = false;
+        (typeof events !== 'undefined' ? events : []).forEach(function(ev) {
+          var locs = [];
+          if (ev.locationHr) locs.push(ev.locationHr);
+          (ev.terms || []).forEach(function(t) { if (t.locationHr) locs.push(t.locationHr); });
+          locs.forEach(function(l) {
+            if (String(l).toLowerCase().indexOf('online') !== -1) { hasOnline = true; return; }
+            var city = String(l).split(',')[0].trim();
+            if (!city) return;
+            var country = ev.country || 'Hrvatska';
+            if (!byCountry[country]) byCountry[country] = {};
+            byCountry[country][city] = true;
+          });
+        });
+        Object.keys(byCountry).sort().forEach(function(country) {
+          var og = document.createElement('optgroup');
+          og.label = country;
+          Object.keys(byCountry[country]).sort().forEach(function(city) {
+            var o = document.createElement('option');
+            o.value = city; o.textContent = city;
+            og.appendChild(o);
+          });
+          csel.appendChild(og);
+        });
+        if (hasOnline) {
+          var oo = document.createElement('option');
+          oo.value = 'Online'; oo.textContent = 'Online';
+          csel.appendChild(oo);
+        }
+      })();
+      var sel = document.getElementById('filterType');
+      if (!sel) return;
+      var lang = document.documentElement.lang === 'en' ? 'en' : 'hr';
+      while (sel.options.length > 1) sel.remove(1);
+      Object.keys(educationTypes).forEach(function(key) {
+        var opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = lang === 'hr' ? educationTypes[key].hr : educationTypes[key].en;
+        opt.setAttribute('data-hr', educationTypes[key].hr);
+        opt.setAttribute('data-en', educationTypes[key].en);
+        sel.appendChild(opt);
+      });
+    }
+
     var events = [
-      { id: 1, titleHr: 'Prevencija sportskih ozljeda', titleEn: 'Sports Injury Prevention', type: 'radionica', typeHr: 'Radionica', typeEn: 'Workshop', format: 'live', date: '2026-06-15', dateHr: '15.–16. lipnja 2026.', dateEn: 'June 15–16, 2026', locationHr: 'Zagreb, Hotel Esplanade', locationEn: 'Zagreb, Hotel Esplanade', price: 0, included: true, priceHr: 'Uključeno u članarinu', priceEn: 'Included in membership', image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop' },
-      { id: 2, titleHr: 'Povratak sportu nakon ACL rekonstrukcije', titleEn: 'Return to Sport After ACL Reconstruction', type: 'seminar', typeHr: 'Seminar', typeEn: 'Seminar', format: 'live', date: '2026-07-10', dateHr: '10. srpnja 2026.', dateEn: 'July 10, 2026', locationHr: 'Split, Medicinski fakultet', locationEn: 'Split, Medical Faculty', price: 50, included: false, priceHr: '50 €', priceEn: '50 €', image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&h=400&fit=crop' },
-      { id: 3, titleHr: 'Manualna terapija u sportu', titleEn: 'Manual Therapy in Sports', type: 'tecaj', typeHr: 'Tečaj', typeEn: 'Course', format: 'live', date: '2026-08-05', dateHr: '5.–7. kolovoza 2026.', dateEn: 'August 5–7, 2026', locationHr: 'Rijeka, KBC', locationEn: 'Rijeka, Clinical Hospital', price: 150, included: false, priceHr: '150 €', priceEn: '150 €', image: 'https://images.unsplash.com/photo-1519824145371-296894a0daa9?w=600&h=400&fit=crop' },
-      { id: 4, titleHr: 'USF Godišnja konferencija 2026', titleEn: 'USF Annual Conference 2026', type: 'konferencija', typeHr: 'Konferencija', typeEn: 'Conference', format: 'live', date: '2026-09-15', dateHr: '15.–16. rujna 2026.', dateEn: 'September 15–16, 2026', locationHr: 'Zagreb, Kongresni centar', locationEn: 'Zagreb, Congress Center', price: 0, included: true, priceHr: 'Uključeno u članarinu', priceEn: 'Included in membership', image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop' },
-      { id: 5, titleHr: 'Regeneracija sportaša', titleEn: 'Athlete Recovery', type: 'radionica', typeHr: 'Radionica', typeEn: 'Workshop', format: 'live', date: '2026-10-20', dateHr: '20. listopada 2026.', dateEn: 'October 20, 2026', locationHr: 'Osijek, Sportska dvorana', locationEn: 'Osijek, Sports Hall', price: 0, included: true, priceHr: 'Uključeno u članarinu', priceEn: 'Included in membership', image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&h=400&fit=crop' },
-      { id: 6, titleHr: 'Biomehanika u sportu', titleEn: 'Biomechanics in Sports', type: 'seminar', typeHr: 'Seminar', typeEn: 'Seminar', format: 'online', date: '2026-11-12', dateHr: '12. studenoga 2026.', dateEn: 'November 12, 2026', locationHr: 'Online (Zoom)', locationEn: 'Online (Zoom)', price: 75, included: false, priceHr: '75 €', priceEn: '75 €', image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&h=400&fit=crop' },
-      { id: 7, titleHr: 'Taping tehnike u sportu', titleEn: 'Sports Taping Techniques', type: 'radionica', typeHr: 'Radionica', typeEn: 'Workshop', format: 'live', date: '2026-12-03', dateHr: '3. prosinca 2026.', dateEn: 'December 3, 2026', locationHr: 'Zagreb, Kineziološki fakultet', locationEn: 'Zagreb, Faculty of Kinesiology', price: 0, included: true, priceHr: 'Uključeno u članarinu', priceEn: 'Included in membership', image: 'https://images.unsplash.com/photo-1597764690523-15bea4c581c9?w=600&h=400&fit=crop' },
-      { id: 8, titleHr: 'Ultrazvuk u dijagnostici sportskih ozljeda', titleEn: 'Ultrasound in Sports Injury Diagnostics', type: 'seminar', typeHr: 'Seminar', typeEn: 'Seminar', format: 'live', date: '2027-01-18', dateHr: '18. siječnja 2027.', dateEn: 'January 18, 2027', locationHr: 'Split, KBC Split', locationEn: 'Split, Clinical Hospital', price: 90, included: false, priceHr: '90 €', priceEn: '90 €', image: 'https://images.unsplash.com/photo-1559757175-5700dde675bc?w=600&h=400&fit=crop' },
-      { id: 9, titleHr: 'Funkcionalni trening za rehabilitaciju', titleEn: 'Functional Training for Rehabilitation', type: 'tecaj', typeHr: 'Tečaj', typeEn: 'Course', format: 'live', date: '2027-02-10', dateHr: '10.–12. veljače 2027.', dateEn: 'February 10–12, 2027', locationHr: 'Rijeka, Sportski centar Kantrida', locationEn: 'Rijeka, Kantrida Sports Center', price: 200, included: false, priceHr: '200 €', priceEn: '200 €', image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&h=400&fit=crop' },
-      { id: 10, titleHr: 'Prehrana sportaša — uloga fizioterapeuta', titleEn: 'Athlete Nutrition — The Physiotherapist\'s Role', type: 'seminar', typeHr: 'Seminar', typeEn: 'Seminar', format: 'online', date: '2027-03-05', dateHr: '5. ožujka 2027.', dateEn: 'March 5, 2027', locationHr: 'Online (Zoom)', locationEn: 'Online (Zoom)', price: 40, included: false, priceHr: '40 €', priceEn: '40 €', image: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&h=400&fit=crop' },
-      { id: 11, titleHr: 'Psihologija ozljede i oporavka', titleEn: 'Psychology of Injury and Recovery', type: 'radionica', typeHr: 'Radionica', typeEn: 'Workshop', format: 'live', date: '2027-03-22', dateHr: '22. ožujka 2027.', dateEn: 'March 22, 2027', locationHr: 'Zagreb, Hotel Westin', locationEn: 'Zagreb, Hotel Westin', price: 0, included: true, priceHr: 'Uključeno u članarinu', priceEn: 'Included in membership', image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&h=400&fit=crop' },
-      { id: 12, titleHr: 'Dry needling u sportskoj fizioterapiji', titleEn: 'Dry Needling in Sports Physiotherapy', type: 'tecaj', typeHr: 'Tečaj', typeEn: 'Course', format: 'live', date: '2027-04-15', dateHr: '15.–16. travnja 2027.', dateEn: 'April 15–16, 2027', locationHr: 'Osijek, Medicinski fakultet', locationEn: 'Osijek, Medical Faculty', price: 180, included: false, priceHr: '180 €', priceEn: '180 €', image: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=600&h=400&fit=crop' }
+      { id: 1, titleHr: 'Prevencija sportskih ozljeda', titleEn: 'Sports Injury Prevention', type: 'radionica', typeHr: 'Radionica', typeEn: 'Workshop', format: 'live', date: '2026-06-15', dateHr: '15.–16. lipnja 2026.', dateEn: 'June 15–16, 2026', locationHr: 'Zagreb, Hotel Esplanade', locationEn: 'Zagreb, Hotel Esplanade', price: 0, included: true, priceHr: 'Uključeno u članarinu', priceEn: 'Included in membership', spotsTotal: 24, spotsTaken: 19, professions: ['fizioterapeut','kineziolog','student'], image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop' },
+      { id: 2, titleHr: 'Povratak sportu nakon ACL rekonstrukcije', titleEn: 'Return to Sport After ACL Reconstruction', type: 'seminar', typeHr: 'Seminar', typeEn: 'Seminar', format: 'live', date: '2026-07-10', dateHr: '10. srpnja 2026.', dateEn: 'July 10, 2026', locationHr: 'Split, Medicinski fakultet', locationEn: 'Split, Medical Faculty', price: 50, included: false, priceHr: '50 €', priceEn: '50 €', spotsTotal: 30, spotsTaken: 12, professions: ['fizioterapeut','kineziolog','student'], image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&h=400&fit=crop' },
+      { id: 3, titleHr: 'Manualna terapija u sportu', titleEn: 'Manual Therapy in Sports', type: 'tecaj', typeHr: 'Tečaj', typeEn: 'Course', format: 'live', date: '2026-08-05', dateHr: '5.–7. kolovoza 2026.', dateEn: 'August 5–7, 2026', locationHr: 'Rijeka, KBC', locationEn: 'Rijeka, Clinical Hospital', price: 150, included: false, priceHr: '150 €', priceEn: '150 €', spotsTotal: 20, spotsTaken: 18, professions: ['fizioterapeut'], image: 'https://images.unsplash.com/photo-1519824145371-296894a0daa9?w=600&h=400&fit=crop' },
+      { id: 4, titleHr: 'USF Godišnja konferencija 2026', titleEn: 'USF Annual Conference 2026', type: 'konferencija', typeHr: 'Konferencija', typeEn: 'Conference', format: 'live', date: '2026-09-15', dateHr: '15.–16. rujna 2026.', dateEn: 'September 15–16, 2026', locationHr: 'Zagreb, Kongresni centar', locationEn: 'Zagreb, Congress Center', price: 0, included: true, priceHr: 'Uključeno u članarinu', priceEn: 'Included in membership', spotsTotal: 200, spotsTaken: 87, professions: ['fizioterapeut','kineziolog','student'], image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop' },
+      { id: 5, titleHr: 'Regeneracija sportaša', titleEn: 'Athlete Recovery', type: 'radionica', typeHr: 'Radionica', typeEn: 'Workshop', format: 'live', date: '2026-10-20', dateHr: '20. listopada 2026.', dateEn: 'October 20, 2026', locationHr: 'Osijek, Sportska dvorana', locationEn: 'Osijek, Sports Hall', price: 0, included: true, priceHr: 'Uključeno u članarinu', priceEn: 'Included in membership', spotsTotal: 30, spotsTaken: 8, professions: ['fizioterapeut','kineziolog','student'], image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&h=400&fit=crop' },
+      { id: 6, titleHr: 'Biomehanika u sportu', titleEn: 'Biomechanics in Sports', type: 'seminar', typeHr: 'Seminar', typeEn: 'Seminar', format: 'online', date: '2026-11-12', dateHr: '12. studenoga 2026.', dateEn: 'November 12, 2026', locationHr: 'Online (Zoom)', locationEn: 'Online (Zoom)', price: 75, included: false, priceHr: '75 €', priceEn: '75 €', spotsTotal: 50, spotsTaken: 22, professions: ['fizioterapeut','kineziolog','student'], image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&h=400&fit=crop' },
+      { id: 7, titleHr: 'Taping tehnike u sportu', titleEn: 'Sports Taping Techniques', type: 'radionica', typeHr: 'Radionica', typeEn: 'Workshop', format: 'live', date: '2026-12-03', dateHr: '3. prosinca 2026.', dateEn: 'December 3, 2026', locationHr: 'Zagreb, Kineziološki fakultet', locationEn: 'Zagreb, Faculty of Kinesiology', price: 0, included: true, priceHr: 'Uključeno u članarinu', priceEn: 'Included in membership', spotsTotal: 25, spotsTaken: 25, professions: ['fizioterapeut','kineziolog'], image: 'https://images.unsplash.com/photo-1597764690523-15bea4c581c9?w=600&h=400&fit=crop' },
+      { id: 8, titleHr: 'Ultrazvuk u dijagnostici sportskih ozljeda', titleEn: 'Ultrasound in Sports Injury Diagnostics', type: 'seminar', typeHr: 'Seminar', typeEn: 'Seminar', format: 'live', date: '2027-01-18', dateHr: '18. siječnja 2027.', dateEn: 'January 18, 2027', locationHr: 'Split, KBC Split', locationEn: 'Split, Clinical Hospital', price: 90, included: false, priceHr: '90 €', priceEn: '90 €', spotsTotal: 20, spotsTaken: 5, professions: ['fizioterapeut'], image: 'https://images.unsplash.com/photo-1559757175-5700dde675bc?w=600&h=400&fit=crop' },
+      { id: 9, titleHr: 'Funkcionalni trening za rehabilitaciju', titleEn: 'Functional Training for Rehabilitation', type: 'tecaj', typeHr: 'Tečaj', typeEn: 'Course', format: 'live', date: '2027-02-10', dateHr: '10.–12. veljače 2027.', dateEn: 'February 10–12, 2027', locationHr: 'Rijeka, Sportski centar Kantrida', locationEn: 'Rijeka, Kantrida Sports Center', price: 200, included: false, priceHr: '200 €', priceEn: '200 €', spotsTotal: 24, spotsTaken: 10, professions: ['fizioterapeut','kineziolog','student'], image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&h=400&fit=crop' },
+      { id: 10, titleHr: 'Prehrana sportaša — uloga fizioterapeuta', titleEn: 'Athlete Nutrition — The Physiotherapist\'s Role', type: 'seminar', typeHr: 'Seminar', typeEn: 'Seminar', format: 'online', date: '2027-03-05', dateHr: '5. ožujka 2027.', dateEn: 'March 5, 2027', locationHr: 'Online (Zoom)', locationEn: 'Online (Zoom)', price: 40, included: false, priceHr: '40 €', priceEn: '40 €', spotsTotal: 0, spotsTaken: 0, professions: ['fizioterapeut','kineziolog','student'], image: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&h=400&fit=crop' },
+      { id: 11, titleHr: 'Psihologija ozljede i oporavka', titleEn: 'Psychology of Injury and Recovery', type: 'radionica', typeHr: 'Radionica', typeEn: 'Workshop', format: 'live', date: '2027-03-22', dateHr: '22. ožujka 2027.', dateEn: 'March 22, 2027', locationHr: 'Zagreb, Hotel Westin', locationEn: 'Zagreb, Hotel Westin', price: 0, included: true, priceHr: 'Uključeno u članarinu', priceEn: 'Included in membership', spotsTotal: 40, spotsTaken: 15, professions: ['fizioterapeut','kineziolog','student'], image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&h=400&fit=crop' },
+      { id: 12, titleHr: 'Dry needling u sportskoj fizioterapiji', titleEn: 'Dry Needling in Sports Physiotherapy', type: 'tecaj', typeHr: 'Tečaj', typeEn: 'Course', format: 'live', date: '2027-04-15', dateHr: '15.–16. travnja 2027.', dateEn: 'April 15–16, 2027', locationHr: 'Osijek, Medicinski fakultet', locationEn: 'Osijek, Medical Faculty', price: 180, included: false, priceHr: '180 €', priceEn: '180 €', spotsTotal: 16, spotsTaken: 16, professions: ['fizioterapeut'], image: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=600&h=400&fit=crop' },
+      { id: 13, titleHr: 'Kineziologija u rehabilitaciji', titleEn: 'Kinesiology in Rehabilitation', type: 'tecaj', typeHr: 'Tečaj', typeEn: 'Course', format: 'live', date: '2026-11-20', dateHr: '20. studenoga 2026.', dateEn: 'November 20, 2026', locationHr: 'Zagreb, Kineziološki fakultet', locationEn: 'Zagreb, Faculty of Kinesiology', price: 120, included: false, priceHr: '120 €', priceEn: '120 €', spotsTotal: 30, spotsTaken: 20, professions: ['fizioterapeut','kineziolog'], image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=400&fit=crop' },
+      { id: 14, titleHr: 'Elektromiografija u sportu', titleEn: 'Electromyography in Sports', type: 'seminar', typeHr: 'Seminar', typeEn: 'Seminar', format: 'live', date: '2026-12-05', dateHr: '5. prosinca 2026.', dateEn: 'December 5, 2026', locationHr: 'Split, Klinički bolnički centar', locationEn: 'Split, Clinical Hospital Center', price: 85, included: false, priceHr: '85 €', priceEn: '85 €', spotsTotal: 25, spotsTaken: 7, professions: ['fizioterapeut'], image: 'https://images.unsplash.com/photo-1526256262350-7da7584cf5eb?w=600&h=400&fit=crop' },
+      { id: 15, titleHr: 'Osteopatija za sportaše', titleEn: 'Osteopathy for Athletes', type: 'radionica', typeHr: 'Radionica', typeEn: 'Workshop', format: 'live', date: '2027-01-15', dateHr: '15. siječnja 2027.', dateEn: 'January 15, 2027', locationHr: 'Rijeka, Sportski centar', locationEn: 'Rijeka, Sports Center', price: 0, included: true, priceHr: 'Uključeno u članarinu', priceEn: 'Included in membership', spotsTotal: 30, spotsTaken: 12, professions: ['fizioterapeut','kineziolog','student'], image: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=600&h=400&fit=crop' },
+      { id: 16, titleHr: 'Rehabilitacija ramenog zgloba', titleEn: 'Shoulder Joint Rehabilitation', type: 'tecaj', typeHr: 'Tečaj', typeEn: 'Course', format: 'live', date: '2027-01-28', dateHr: '28.–29. siječnja 2027.', dateEn: 'January 28–29, 2027', locationHr: 'Zagreb, Sportska dvorana Martinkovac', locationEn: 'Zagreb, Martinkovac Sports Hall', price: 175, included: false, priceHr: '175 €', priceEn: '175 €', spotsTotal: 20, spotsTaken: 14, professions: ['fizioterapeut'], image: 'https://images.unsplash.com/photo-1597452485669-2c7bb5fef90d?w=600&h=400&fit=crop' },
+      { id: 17, titleHr: 'Sportska masaža: napredne tehnike', titleEn: 'Sports Massage: Advanced Techniques', type: 'radionica', typeHr: 'Radionica', typeEn: 'Workshop', format: 'live', date: '2027-02-10', dateHr: '10. veljače 2027.', dateEn: 'February 10, 2027', locationHr: 'Osijek, Hotel Waldinger', locationEn: 'Osijek, Hotel Waldinger', price: 0, included: true, priceHr: 'Uključeno u članarinu', priceEn: 'Included in membership', spotsTotal: 20, spotsTaken: 9, professions: ['fizioterapeut','kineziolog'], image: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=600&h=400&fit=crop' },
+      { id: 18, titleHr: 'Analiza pokreta pomoću AI tehnologije', titleEn: 'Movement Analysis Using AI Technology', type: 'seminar', typeHr: 'Seminar', typeEn: 'Seminar', format: 'online', date: '2027-02-25', dateHr: '25. veljače 2027.', dateEn: 'February 25, 2027', locationHr: 'Online (Zoom)', locationEn: 'Online (Zoom)', price: 60, included: false, priceHr: '60 €', priceEn: '60 €', spotsTotal: 50, spotsTaken: 18, professions: ['fizioterapeut','kineziolog','student'], image: 'https://images.unsplash.com/photo-1535914254981-b5012eebbd15?w=600&h=400&fit=crop' },
+      { id: 19, titleHr: 'Prevencija ozljeda u timskim sportovima', titleEn: 'Injury Prevention in Team Sports', type: 'konferencija', typeHr: 'Konferencija', typeEn: 'Conference', format: 'live', date: '2027-03-15', dateHr: '15.–16. ožujka 2027.', dateEn: 'March 15–16, 2027', locationHr: 'Zagreb, Kongresni centar', locationEn: 'Zagreb, Congress Center', price: 0, included: true, priceHr: 'Uključeno u članarinu', priceEn: 'Included in membership', spotsTotal: 150, spotsTaken: 42, professions: ['fizioterapeut','kineziolog','student'], image: 'https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=600&h=400&fit=crop' },
+      { id: 20, titleHr: 'Posturalna analiza i korekcija', titleEn: 'Postural Analysis and Correction', type: 'tecaj', typeHr: 'Tečaj', typeEn: 'Course', format: 'live', date: '2027-04-02', dateHr: '2.–3. travnja 2027.', dateEn: 'April 2–3, 2027', locationHr: 'Split, Poliklinika Medico', locationEn: 'Split, Medico Polyclinic', price: 140, included: false, priceHr: '140 €', priceEn: '140 €', spotsTotal: 20, spotsTaken: 6, professions: ['fizioterapeut','kineziolog'], image: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=600&h=400&fit=crop' },
+      { id: 21, titleHr: 'Hidrotherapy u sportskoj rehabilitaciji', titleEn: 'Hydrotherapy in Sports Rehabilitation', type: 'radionica', typeHr: 'Radionica', typeEn: 'Workshop', format: 'live', date: '2027-04-18', dateHr: '18. travnja 2027.', dateEn: 'April 18, 2027', locationHr: 'Rijeka, Bazeni Kantrida', locationEn: 'Rijeka, Kantrida Pools', price: 0, included: true, priceHr: 'Uključeno u članarinu', priceEn: 'Included in membership', spotsTotal: 20, spotsTaken: 3, professions: ['fizioterapeut','kineziolog','student'], image: 'https://images.unsplash.com/photo-1530549387789-4c1017266635?w=600&h=400&fit=crop' },
+      { id: 22, titleHr: 'Krioterapija i termoterapija', titleEn: 'Cryotherapy and Thermotherapy', type: 'seminar', typeHr: 'Seminar', typeEn: 'Seminar', format: 'online', date: '2027-05-08', dateHr: '8. svibnja 2027.', dateEn: 'May 8, 2027', locationHr: 'Online (Zoom)', locationEn: 'Online (Zoom)', price: 45, included: false, priceHr: '45 €', priceEn: '45 €', spotsTotal: 0, spotsTaken: 0, professions: ['fizioterapeut','kineziolog','student'], image: 'https://images.unsplash.com/photo-1758001969632-c67b15c89f1f?w=600&h=400&fit=crop' },
+      { id: 23, titleHr: 'Rehabilitacija nakon sportske operacije', titleEn: 'Rehabilitation After Sports Surgery', type: 'tecaj', typeHr: 'Tečaj', typeEn: 'Course', format: 'live', date: '2027-05-22', dateHr: '22.–24. svibnja 2027.', dateEn: 'May 22–24, 2027', locationHr: 'Zagreb, KBC Rebro', locationEn: 'Zagreb, KBC Rebro', price: 250, included: false, priceHr: '250 €', priceEn: '250 €', spotsTotal: 18, spotsTaken: 11, professions: ['fizioterapeut'], image: 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=600&h=400&fit=crop' },
+      { id: 24, titleHr: 'Mentalno zdravlje sportaša', titleEn: 'Mental Health of Athletes', type: 'konferencija', typeHr: 'Konferencija', typeEn: 'Conference', format: 'live', date: '2027-06-10', dateHr: '10. lipnja 2027.', dateEn: 'June 10, 2027', locationHr: 'Osijek, Filozofski fakultet', locationEn: 'Osijek, Faculty of Philosophy', price: 0, included: true, priceHr: 'Uključeno u članarinu', priceEn: 'Included in membership', spotsTotal: 100, spotsTaken: 28, professions: ['fizioterapeut','kineziolog','student'], image: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=600&h=400&fit=crop' },
+      { id: 25, titleHr: 'Osnove sportske prehrane', titleEn: 'Sports Nutrition Basics', type: 'webinar', format: 'online', date: '2026-07-20', dateHr: '20. srpnja 2026.', dateEn: 'July 20, 2026', locationHr: 'Online (Zoom)', locationEn: 'Online (Zoom)', price: 0, included: true, priceHr: 'Besplatno', priceEn: 'Free', spotsTotal: 0, spotsTaken: 0, professions: ['fizioterapeut','kineziolog','student'], image: 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=600&h=400&fit=crop', permanentAccess: true, publicAccess: true },
+      { id: 26, titleHr: 'Napredna elektroterapija — nove tehnologije', titleEn: 'Advanced Electrotherapy — New Technologies', type: 'webinar', format: 'online', date: '2026-08-15', dateHr: '15. kolovoza 2026.', dateEn: 'August 15, 2026', locationHr: 'Online (Zoom)', locationEn: 'Online (Zoom)', price: 30, included: false, priceHr: '30 €', priceEn: '30 €', spotsTotal: 0, spotsTaken: 0, professions: ['fizioterapeut','kineziolog','student'], image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=600&h=400&fit=crop', permanentAccess: true, publicAccess: false },
+      { id: 27, titleHr: 'BTL Shockwave — prezentacija i demonstracija', titleEn: 'BTL Shockwave — Presentation and Demo', type: 'prezentacija', format: 'hybrid', date: '2026-09-05', dateHr: '5. rujna 2026.', dateEn: 'September 5, 2026', locationHr: 'Zagreb, Hotel Westin + Online', locationEn: 'Zagreb, Hotel Westin + Online', price: 0, included: true, priceHr: 'Besplatno', priceEn: 'Free', spotsTotal: 40, spotsTaken: 12, professions: ['fizioterapeut','kineziolog','student'], image: 'https://images.unsplash.com/photo-1772122028843-9139d23af4fb?w=600&h=400&fit=crop' }
     ];
 
     function openFilterModal() { document.getElementById('filterModal').classList.add('active'); }
@@ -423,6 +954,7 @@
       document.getElementById('filterType').value = 'all';
       document.getElementById('filterFormat').value = 'all';
       document.getElementById('filterCity').value = 'all';
+      document.getElementById('filterProfession').value = 'all';
       document.getElementById('filterPriceFrom').value = '';
       document.getElementById('filterPriceTo').value = '';
       document.getElementById('filterDateFrom').value = '';
@@ -440,10 +972,26 @@
       var filterType = document.getElementById('filterType').value;
       var filterFormat = document.getElementById('filterFormat').value;
       var filterCity = document.getElementById('filterCity').value;
+      var filterProfession = document.getElementById('filterProfession').value;
       var priceFrom = document.getElementById('filterPriceFrom').value;
       var priceTo = document.getElementById('filterPriceTo').value;
       var dateFrom = document.getElementById('filterDateFrom').value;
       var dateTo = document.getElementById('filterDateTo').value;
+
+      // Update filter button label with count
+      var activeCount = 0;
+      if (filterType !== 'all') activeCount++;
+      if (filterFormat !== 'all') activeCount++;
+      if (filterCity !== 'all') activeCount++;
+      if (filterProfession !== 'all') activeCount++;
+      if (priceFrom !== '' || priceTo !== '') activeCount++;
+      if (dateFrom !== '' || dateTo !== '') activeCount++;
+      var filterBtn = document.getElementById('filterBtn');
+      var filterLabel = document.getElementById('filterLabel');
+      if (filterLabel) {
+        var base = currentLang === 'hr' ? 'Filteri' : 'Filters';
+        filterLabel.textContent = activeCount > 0 ? base + ' (' + activeCount + ')' : base;
+      }
 
       var filtered = events.filter(function(ev) {
         // Search
@@ -456,12 +1004,18 @@
         if (filterType !== 'all' && ev.type !== filterType) return false;
         // Format
         if (filterFormat === 'online' && ev.format !== 'online') return false;
-        if (filterFormat === 'live' && ev.format === 'online') return false;
+        if (filterFormat === 'live' && ev.format !== 'live') return false;
+        if (filterFormat === 'hybrid' && ev.format !== 'hybrid') return false;
         // City
         if (filterCity !== 'all') {
           var loc = ev.locationHr;
           if (filterCity === 'Online') { if (loc.toLowerCase().indexOf('online') === -1) return false; }
           else { if (loc.indexOf(filterCity) === -1) return false; }
+        }
+        // Profession
+        if (filterProfession !== 'all' && ev.professions) {
+          var _profs = ev.professions.map(function(x) { return x === 'kineziolog' ? 'ostalo' : x; });
+          if (_profs.indexOf(filterProfession) === -1) return false;
         }
         // Price
         var p = ev.included ? 0 : (ev.price || 0);
@@ -481,26 +1035,45 @@
       var pageItems = filtered.slice(startIdx, startIdx + perPage);
 
       if (totalItems === 0) {
-        grid.innerHTML = '<div class="empty-state">' + (lang === 'hr' ? 'Nema edukacija za odabrane filtere.' : 'No education matches the selected filters.') + '</div>';
+        grid.innerHTML = '<div class="empty-state">' + (lang === 'hr' ? 'Nema edukacija za odabrane filtere' : 'No education matches the selected filters') + '</div>';
       } else {
         grid.innerHTML = pageItems.map(function(ev) {
           var typeClass = 'type-' + ev.type;
           var title = lang === 'hr' ? ev.titleHr : ev.titleEn;
           var date = lang === 'hr' ? ev.dateHr : ev.dateEn;
           var loc = lang === 'hr' ? ev.locationHr : ev.locationEn;
-          var typeName = lang === 'hr' ? ev.typeHr : ev.typeEn;
+          var typeName = getTypeName(ev.type, lang);
           var price = lang === 'hr' ? ev.priceHr : ev.priceEn;
-          return '<a href="edukacija.html?id=' + ev.id + '" class="event-card">' +
+          var _left = ev.spotsTotal > 0 ? (ev.spotsTotal - ev.spotsTaken) : null;
+          var _isFull = _left !== null && _left <= 0;
+          var _isLow = _left !== null && _left > 0 && _left <= 5;
+          return '<a href="edukacija.html?id=' + ev.id + '" class="event-card' + (_isFull ? ' is-full' : '') + '">' +
             '<div class="event-card-img-wrap">' +
               '<img class="event-card-img" src="' + ev.image + '" alt="' + title + '" loading="lazy">' +
             '</div>' +
             '<div class="event-card-body">' +
               '<div class="event-card-badges">' +
               '<span class="event-card-type ' + typeClass + '">' + typeName + '</span>' +
+              (ev.format === 'online' ? '<span class="event-card-format-badge">' + (lang === 'hr' ? 'Online' : 'Online') + '</span>' : '') +
+              (ev.format === 'hybrid' ? '<span class="event-card-format-badge">' + (lang === 'hr' ? 'Hibridno' : 'Hybrid') + '</span>' : '') +
+              (ev.permanentAccess ? '<span class="event-card-format-badge">' + (lang === 'hr' ? 'Trajni pristup' : 'Permanent access') + '</span>' : '') +
+              (ev.professions && ev.professions.length === 1 && ev.professions[0] === 'fizioterapeut' ? '<span class="event-card-prof-badge">' + (lang === 'hr' ? 'Samo fizioterapeuti' : 'Physiotherapists only') + '</span>' : '') +
               '</div>' +
               '<h3>' + title + '</h3>' +
-              '<div class="event-meta">' + date + ' &middot; ' + loc + '</div>' +
-              '<div class="event-price">' + price + '</div>' +
+              '<div class="event-meta">' + date + ', ' + loc + '</div>' +
+              '<div class="card-bottom-row">' +
+                '<span class="event-price' + (ev.included ? ' included' : '') + '">' + price + '</span>' +
+                (_isFull ? '<span class="card-scarcity full">' + (lang === 'hr' ? 'Popunjeno' : 'Full') + '</span>' :
+                  (_isLow ? '<span class="card-scarcity">' + (lang === 'hr' ? ('Još ' + _left + (_left === 1 ? ' mjesto' : ' mjesta')) : (_left + (_left === 1 ? ' spot left' : ' spots left'))) + '</span>' : '')) +
+              '</div>' +
+              (function() {
+                var ebp = ev.earlyBirdPrice || (lang === 'hr' ? ev.earlyBirdPriceHr : ev.earlyBirdPriceEn);
+                var ebd = ev.earlyBirdDeadline || null;
+                if (!ebp) return '';
+                if (ebd) { var ebDate = new Date(ebd + 'T23:59:59'); if (new Date() > ebDate) return ''; }
+                var ebLabel = typeof ebp === 'number' ? ebp + ' €' : ebp;
+                return '<div style="font-size:11px;color:#22C55E;margin-top:4px;">Early bird: ' + ebLabel + '</div>';
+              })() +
             '</div>' +
           '</a>';
         }).join('');
@@ -537,6 +1110,7 @@
       document.querySelectorAll('.lang-switch button').forEach(function(btn) {
         btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
       });
+      populateTypeFilter();
       renderGrid();
     }
 
@@ -546,9 +1120,371 @@
       if (saved && saved !== 'hr') {
         switchLang(saved);
       } else {
+        populateTypeFilter();
         renderGrid();
       }
     })();
+  </script>
+
+
+  <script>
+  /* ===== SEARCHABLE DROPDOWN =====
+     Ported from dashboard.html so the two behave the same. Every native
+     <select> on the page is replaced by a text field with a narrowing list;
+     the select itself stays in the DOM, hidden, holding the value — so the
+     onchange handlers already written against it keep working untouched.
+     A select that must stay native carries data-usf-noenh. */
+  (function() {
+    function esc(str) {
+      if (str === null || str === undefined) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    function lang() { return document.documentElement.lang === 'en' ? 'en' : 'hr'; }
+    function wrapOf(el) { return el && el.closest ? el.closest('.usf-combo') : null; }
+
+    window.usfPickPaint = function(wrap, filter) {
+      var list = wrap.querySelector('.usf-combo-list');
+      var opts = [];
+      try { opts = JSON.parse(list.getAttribute('data-options') || '[]'); } catch (e) {}
+      var q = (filter || '').trim().toLowerCase();
+      var hits = q ? opts.filter(function(o) {
+        return String(o.label).toLowerCase().indexOf(q) !== -1;
+      }) : opts;
+      list.innerHTML = hits.length
+        ? hits.map(function(o) {
+            return '<button type="button" class="usf-combo-opt" onclick="usfPickChoose(this, ' +
+              JSON.stringify(String(o.v)).replace(/"/g, '&quot;') + ', ' +
+              JSON.stringify(String(o.label)).replace(/"/g, '&quot;') + ')">' +
+              esc(o.label) + '</button>';
+          }).join('')
+        : '<div class="usf-combo-empty">' + (lang() === 'hr' ? 'Nema rezultata' : 'No matches') + '</div>';
+    };
+
+    /* A list you have to scroll the page to read opened the wrong way. */
+    function place(wrap) {
+      var list = wrap.querySelector('.usf-combo-list');
+      var input = wrap.querySelector('input');
+      if (!list || !input) return;
+      var r = input.getBoundingClientRect();
+      var below = window.innerHeight - r.bottom;
+      var need = Math.min(list.scrollHeight + 12, 268);
+      wrap.classList.toggle('drop-up', below < need && r.top > below);
+    }
+
+    window.usfPickOpen = function(input) {
+      var wrap = wrapOf(input);
+      if (!wrap) return;
+      document.querySelectorAll('.usf-combo.open').forEach(function(w) {
+        if (w !== wrap) w.classList.remove('open');
+      });
+      /* Opening shows everything: you came to see the options, not to be
+         filtered by whatever is already in the box. */
+      input.select();
+      usfPickPaint(wrap, '');
+      wrap.classList.add('open');
+      place(wrap);
+    };
+    window.usfPickToggle = function(btn) {
+      var wrap = wrapOf(btn);
+      if (!wrap) return;
+      if (wrap.classList.contains('open')) { wrap.classList.remove('open'); return; }
+      var input = wrap.querySelector('input');
+      usfPickOpen(input);
+      input.focus();
+    };
+    window.usfPickFilter = function(input) {
+      var wrap = wrapOf(input);
+      if (!wrap) return;
+      usfPickPaint(wrap, input.value);
+      wrap.classList.add('open');
+      place(wrap);
+    };
+    window.usfPickChoose = function(btn, value, label) {
+      var wrap = wrapOf(btn);
+      if (!wrap) return;
+      wrap.setAttribute('data-value', value);
+      wrap.querySelector('input').value = label;
+      wrap.classList.remove('open');
+      var sel = wrap._usfSelect;
+      if (sel) {
+        sel.value = value;
+        sel.dispatchEvent(new Event('input', { bubbles: true }));
+        sel.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    };
+    window.usfComboKey = function(e, input) {
+      var wrap = wrapOf(input);
+      if (!wrap) return;
+      if (e.key === 'Escape' || e.key === 'Enter') {
+        wrap.classList.remove('open');
+        if (e.key === 'Enter') e.preventDefault();
+      }
+    };
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest || !e.target.closest('.usf-combo')) {
+        document.querySelectorAll('.usf-combo.open').forEach(function(w) { w.classList.remove('open'); });
+      }
+    });
+
+    /* A disabled option ("Odaberi zanimanje") is a prompt, not something you
+       can pick — it stays out of the list and becomes the placeholder. */
+    function optionsOf(sel) {
+      return [].filter.call(sel.options, function(o) { return !o.disabled; })
+        .map(function(o) { return { v: o.value, label: o.textContent }; });
+    }
+    function hintOf(sel) {
+      var prompt = [].filter.call(sel.options, function(o) { return o.disabled; })[0];
+      if (prompt) return prompt.textContent;
+      return lang() === 'hr' ? 'Traži...' : 'Search...';
+    }
+    function labelOf(sel) {
+      var o = sel.options[sel.selectedIndex];
+      return (o && !o.disabled) ? o.textContent : '';
+    }
+
+    var n = 0;
+    function enhance(sel) {
+      if (sel.getAttribute('data-usf-enh')) return;
+      if (sel.multiple || sel.disabled || sel.getAttribute('data-usf-noenh')) return;
+      sel.setAttribute('data-usf-enh', '1');
+      /* A required control the browser cannot focus blocks submit with only a
+         console message to show for it. The form's own handler checks this
+         field, so the attribute goes. */
+      if (sel.required) { sel.required = false; sel.setAttribute('data-was-required', '1'); }
+      var id = 'usfsel-' + (++n);
+      var opts = optionsOf(sel);
+      var host = document.createElement('div');
+      host.className = 'usf-combo-host';
+      host.style.cssText = sel.style.cssText || '';
+      if (!host.style.width) host.style.minWidth = Math.max(sel.offsetWidth || 0, 160) + 'px';
+      host.innerHTML =
+        '<div class="usf-combo" data-combo="' + id + '" data-value="' + esc(sel.value) + '">' +
+          '<input value="' + esc(labelOf(sel)) + '" autocomplete="off" ' +
+            'placeholder="' + esc(hintOf(sel)) + '" ' +
+            'onfocus="usfPickOpen(this)" oninput="usfPickFilter(this)" onkeydown="usfComboKey(event, this)">' +
+          '<button type="button" class="usf-combo-caret" onclick="usfPickToggle(this)" tabindex="-1">' +
+            '<svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+          '</button>' +
+          '<div class="usf-combo-list"></div>' +
+        '</div>';
+      sel.parentNode.insertBefore(host, sel);
+      sel.style.display = 'none';
+      var wrap = host.querySelector('.usf-combo');
+      wrap.querySelector('.usf-combo-list').setAttribute('data-options', JSON.stringify(opts));
+      wrap._usfSelect = sel;
+      sel._usfWrap = wrap;
+    }
+
+    /* The option lists here are not fixed: one page rebuilds them from the
+       data, and switching language rewrites every label. So the upgrade also
+       re-reads them, rather than snapshotting once and going stale. */
+    function refresh(sel) {
+      var wrap = sel._usfWrap;
+      if (!wrap) return;
+      var list = wrap.querySelector('.usf-combo-list');
+      var sig = JSON.stringify(optionsOf(sel));
+      var same = list.getAttribute('data-options') === sig &&
+                 wrap.getAttribute('data-value') === String(sel.value);
+      if (same) return;
+      list.setAttribute('data-options', sig);
+      wrap.setAttribute('data-value', sel.value);
+      var input = wrap.querySelector('input');
+      input.placeholder = hintOf(sel);
+      if (document.activeElement !== input) input.value = labelOf(sel);
+      if (wrap.classList.contains('open')) usfPickPaint(wrap, '');
+    }
+
+    var pending = null;
+    function sweep() {
+      pending = null;
+      document.querySelectorAll('select').forEach(function(sel) {
+        if (sel.getAttribute('data-usf-enh')) refresh(sel); else enhance(sel);
+      });
+    }
+    function schedule() { if (pending) return; pending = setTimeout(sweep, 60); }
+    if (typeof MutationObserver !== 'undefined') {
+      new MutationObserver(schedule).observe(document.documentElement, { childList: true, subtree: true });
+    }
+    document.addEventListener('DOMContentLoaded', schedule);
+    schedule();
+  })();
+  </script>
+
+  <div class="custom-cursor" id="customCursor"><span data-hr="POGLEDAJ" data-en="VIEW">POGLEDAJ</span></div>
+  <script>
+    (function() {
+      var cursor = document.getElementById('customCursor');
+      if (!cursor) {
+        /* Nothing to draw, so give the real pointer back. */
+        document.documentElement.classList.remove('has-custom-cursor');
+        return;
+      }
+      cursor.style.opacity = '0';
+      var cursorShown = false;
+
+      var mouseX = 0, mouseY = 0;
+      var curX = 0, curY = 0;
+      var speed = 0.62;
+
+      /* The scrollbar belongs to the browser, not to the page: no rule reaches
+         it, so over there you get the real pointer and ours on top of it.
+         clientWidth and clientHeight stop at the gutter, so past them we stand
+         down and let the real one do its job. */
+      function inNativeGutter(e) {
+        var d = document.documentElement;
+        return e.clientX >= d.clientWidth || e.clientY >= d.clientHeight;
+      }
+
+      document.addEventListener('mousemove', function(e) {
+        if (inNativeGutter(e)) { cursor.style.opacity = '0'; return; }
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        if (cursorShown) cursor.style.opacity = '';
+        /* Jump to the first known position instead of easing in from the
+           top-left corner, which is where 0,0 would otherwise park it. */
+        if (!cursorShown) {
+          cursorShown = true;
+          curX = mouseX; curY = mouseY;
+          cursor.style.opacity = '';
+        }
+      });
+
+      function animateCursor() {
+        curX += (mouseX - curX) * speed;
+        curY += (mouseY - curY) * speed;
+        cursor.style.left = curX + 'px';
+        cursor.style.top = curY + 'px';
+        requestAnimationFrame(animateCursor);
+      }
+      requestAnimationFrame(animateCursor);
+
+      document.addEventListener('mouseleave', function() { cursor.style.opacity = '0'; });
+      document.addEventListener('mouseenter', function() { if (cursorShown) cursor.style.opacity = ''; });
+
+      document.addEventListener('mouseover', function(e) {
+        /* Page-specific entries come first so a page can name something
+           more precisely than the two defaults do. */
+        var targets = (window.USF_CURSOR_TARGETS || []).concat([
+          { sel: '.event-card', hr: 'Pogledaj edukaciju', en: 'View education' },
+          { sel: '.blog-card',  hr: 'Pogledaj članak',    en: 'View article' }
+        ]);
+        var btn = e.target.closest('a, button, .btn, input, select, textarea, [onclick]');
+
+        cursor.classList.remove('active-card', 'active-btn');
+
+        var named = null;
+        for (var i = 0; i < targets.length; i++) {
+          if (e.target.closest(targets[i].sel)) { named = targets[i]; break; }
+        }
+        if (named) {
+          var label = cursor.querySelector('span');
+          label.setAttribute('data-hr', named.hr);
+          label.setAttribute('data-en', named.en);
+          label.textContent = (document.documentElement.lang === 'en') ? named.en : named.hr;
+          cursor.classList.add('active-card');
+        } else if (btn) {
+          cursor.classList.add('active-btn');
+        }
+      });
+
+      // Apply saved language to cursor
+      var lang = localStorage.getItem('usf_lang');
+      if (lang && lang !== 'hr') {
+        var spans = cursor.querySelectorAll('[data-' + lang + ']');
+        spans.forEach(function(s) { s.textContent = s.getAttribute('data-' + lang); });
+      }
+    })();
+  </script>
+  <script>
+    window.addEventListener('scroll', function() { var el = document.querySelector('.hero-bg-fixed'); if (window.scrollY > window.innerHeight * 0.95) { el.style.opacity = '0'; } else { el.style.opacity = '1'; } }, { passive: true });
+  </script>
+
+  <script>
+  // Mosaic image randomizer
+  (function() {
+    var mosaicImages = [
+      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1576678927484-cc907957088c?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1623874514711-0f321325f318?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1550345332-09e3ac987658?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1548690312-e3b507d8c110?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1549476464-37392f717541?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1728486145245-d4cb0c9c3470?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1722925541142-5db2668ca492?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1689877020200-403d8542d95d?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1674834727206-4bc272bfd8da?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1645005512968-0c1fe99f0093?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1706353399656-210cca727a33?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1649751361457-01d3a696c7e6?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1586401100295-7a8096fd231a?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1645005512942-a17817fb7c11?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1645005513713-9e2b92a687d3?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1519824145371-296894a0daa9?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1648638810954-281a6439675b?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1540205895360-4ad4cffb3aa8?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1645005513709-77336f075dc8?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1648638810948-f3bf2cccdde9?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1522898467493-49726bf28798?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1699523229199-fce5aa6b0ec3?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1645005513751-e22717a66ae6?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1562771379-eafdca7a02f8?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1710736460914-4a7f22d736c4?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1600026453194-11ae289732b8?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1649888381057-d5d03c105f82?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1540360659264-3b079dde8890?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1593431763017-c689a61b729a?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1644054870786-0d9bd2613973?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1640262653851-103cbaf802d5?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1600677396650-3d071466086a?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1597586594276-456f8c50b82d?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1612032882906-2fa6f7b5f30f?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1649888639789-b611bc359d9b?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1579722820903-01d3e776f85e?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1609726866022-1ce719b4727b?w=400&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1759476532151-3462b9358dd0?w=400&h=400&fit=crop'
+    ];
+    // Fisher-Yates shuffle
+    function shuffle(arr) {
+      var a = arr.slice();
+      for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = a[i]; a[i] = a[j]; a[j] = t;
+      }
+      return a;
+    }
+    var tiles = document.querySelectorAll('.hero-mosaic .mosaic-tile');
+    var shuffled = shuffle(mosaicImages);
+    for (var i = 0; i < tiles.length; i++) {
+      var imgUrl = shuffled[i];
+      tiles[i].style.backgroundImage = "url('" + imgUrl + "')";
+      var testImg = new Image();
+      testImg.onerror = (function(t) { return function() { t.style.background = 'linear-gradient(135deg, #1a1a2e, #16213e)'; }; })(tiles[i]);
+      testImg.src = imgUrl;
+    }
+  })();
+  </script>
+  <script>
+  (function() {
+    var revealEls = document.querySelectorAll('.scroll-reveal');
+    if (!revealEls.length) return;
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    revealEls.forEach(function(el) { observer.observe(el); });
+  })();
   </script>
 </body>
 </html>
