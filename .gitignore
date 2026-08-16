@@ -2,3 +2,6 @@
 _backup/
 _to_delete/
 .DS_Store
+
+# Interni radni dokument — ne ide u javni repozitorij
+USFHANDOFF.md

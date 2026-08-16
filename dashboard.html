@@ -3938,6 +3938,7 @@
       <div class="panel" id="panel-admin-instructors">
         <div id="admin-instructorsListView">
           <h2 class="panel-title"><span data-hr="Predavači" data-en="Instructors">Predavači</span></h2>
+          <div id="admin-instructorAnalyticsCards" class="admin-analytics-row"></div>
           <div id="admin-instructorsContent"></div>
         </div>
         <div id="admin-instructorPageView" style="display:none;"></div>
@@ -5162,7 +5163,9 @@
           if (p[1]) showEventDetail(parseInt(p[1], 10));
         } else if (p[0] === 'predavaci') {
           switchPanel('admin-instructors');
-          if (p[1]) adminShowInstructorPage(p[1] === 'novi' ? null : parseInt(p[1], 10));
+          if (p[1] === 'ocjene') adminShowInstructorRatings();
+          else if (p[1] === 'bez-edukacija') adminShowInstructorsNoEdu();
+          else if (p[1]) adminShowInstructorPage(p[1] === 'novi' ? null : parseInt(p[1], 10));
         } else {
           switchPanel(p[0]);
         }
@@ -18421,6 +18424,181 @@
       return adminGetEvents().filter(function(e) { return e.instructor === name; });
     }
 
+    /* ===== INSTRUCTOR ANALYTICS =====
+       Three cards, because three questions are actually asked on this screen:
+       how many speakers there are, how they were rated, and which published
+       ones teach nothing. Educations held, participants and revenue were tried
+       here and removed — they are the Edukacije panel's questions, and the
+       education count already sits on every row of the list below.
+       Counted over the *filtered* list, so the numbers answer the question the
+       search box just asked. */
+    function adminInstructorStats(list) {
+      var events = adminGetEvents();
+      var today = new Date(); today.setHours(0, 0, 0, 0);
+
+      var byName = {};
+      list.forEach(function(p) {
+        if (byName[p.name]) return;
+        byName[p.name] = { id: p.id, name: p.name, active: !!p.active, events: 0,
+                           held: 0, upcoming: 0, ratingSum: 0, ratingN: 0, rating: null };
+      });
+      events.forEach(function(e) {
+        var s = byName[e.instructor];
+        if (!s) return;
+        s.events++;
+        // A cancelled run was never held and earned nothing; it still counts as
+        // one of the instructor's educations, which is what the list column
+        // shows.
+        if (e.status === 'cancelled') return;
+        if (e.date && new Date(e.date) < today) s.held++; else s.upcoming++;
+        if (e.avgRating) {
+          var w = e.ratingCount || 1;
+          s.ratingSum += e.avgRating * w; s.ratingN += w;
+        }
+      });
+      Object.keys(byName).forEach(function(k) {
+        var s = byName[k];
+        if (s.ratingN) s.rating = Math.round((s.ratingSum / s.ratingN) * 10) / 10;
+      });
+      return byName;
+    }
+
+    function usfStarRow(v) {
+      var h = '';
+      for (var i = 1; i <= 5; i++) h += (i <= Math.round(v) ? '<span class="admin-star">&#9733;</span>' : '<span class="admin-star-empty">&#9733;</span>');
+      return h;
+    }
+
+    function adminRenderInstructorAnalytics(list) {
+      var host = document.getElementById('admin-instructorAnalyticsCards');
+      if (!host) return;
+      var lang = currentLang || 'hr';
+      var stats = adminInstructorStats(list);
+      var published = 0, hidden = 0;
+      list.forEach(function(p) { if (p.active) published++; else hidden++; });
+
+      var rSum = 0, rN = 0, noEdu = 0;
+      Object.keys(stats).forEach(function(k) {
+        var s = stats[k];
+        rSum += s.ratingSum; rN += s.ratingN;
+        if (!s.events && s.active) noEdu++;
+      });
+      var avg = rN ? Math.round((rSum / rN) * 10) / 10 : null;
+
+      function card(label, value, note) {
+        return '<div class="admin-analytics-card"><div class="analytics-label">' + label + '</div>' +
+               '<div class="analytics-value">' + value + '</div>' +
+               (note ? '<div style="font-size:11px;color:var(--text-muted);margin-top:4px;">' + note + '</div>' : '') +
+               '</div>';
+      }
+      // A number you cannot open is a number you have to go and find.
+      function openCard(label, value, note, call) {
+        return '<div class="admin-analytics-card" style="cursor:pointer;" onclick="' + call + '" onmouseover="this.style.background=\'rgba(255,255,255,0.06)\'" onmouseout="this.style.background=\'\'">' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">' +
+            '<div class="analytics-label" style="margin:0;">' + label + '</div>' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted);flex-shrink:0;"><path d="M5 12h14M12 5l7 7-7 7"/></svg>' +
+          '</div>' +
+          '<div class="analytics-value">' + value + '</div>' +
+          (note ? '<div style="font-size:11px;color:var(--text-muted);margin-top:4px;">' + note + '</div>' : '') +
+        '</div>';
+      }
+
+      var h = '';
+      h += card(lang === 'hr' ? 'Ukupno predavača' : 'Total instructors', list.length,
+                published + (lang === 'hr' ? ' objavljenih · ' : ' published · ') + hidden + (lang === 'hr' ? ' skrivenih' : ' hidden'));
+      h += openCard(lang === 'hr' ? 'Prosječna ocjena' : 'Average rating',
+                    avg === null ? '–' : (usfStarRow(avg) + ' ' + avg.toFixed(1)),
+                    avg === null ? '' : (rN + ' ' + (lang === 'hr' ? usfPluralHr(rN, 'ocjena', 'ocjene', 'ocjena') : (rN === 1 ? 'rating' : 'ratings'))),
+                    'adminShowInstructorRatings()');
+      h += openCard(lang === 'hr' ? 'Bez edukacija' : 'No educations', noEdu, '',
+                    'adminShowInstructorsNoEdu()');
+      host.innerHTML = h;
+    }
+
+    /* The two lists behind the cards. Both draw into the panel's own page view,
+       so back, the breadcrumb and a pasted link all behave like every other
+       admin sub-page. */
+    function adminInstructorSubPage(crumb, title, intro, body) {
+      var lang = currentLang || 'hr';
+      document.getElementById('admin-instructorsListView').style.display = 'none';
+      var pv = document.getElementById('admin-instructorPageView');
+      pv.style.display = 'block';
+      var h = usfBreadcrumb([
+        { label: lang === 'hr' ? 'Predavači' : 'Instructors', go: "switchPanel('admin-instructors')" },
+        { label: crumb }
+      ]);
+      h += '<h2 class="panel-title" style="margin:0 0 ' + (intro ? '10px' : '22px') + ';">' + title + '</h2>';
+      if (intro) h += '<p style="font-size:13px;color:var(--text-muted);margin:0 0 22px;">' + intro + '</p>';
+      pv.innerHTML = h + body;
+      adminScrollTop();
+      applyLang(pv);
+    }
+
+    function adminInsSubHeader(cols, grid) {
+      var lang = currentLang || 'hr';
+      var h = '<div style="display:grid;grid-template-columns:' + grid + ';gap:14px;padding:0 16px 10px;align-items:center;">';
+      cols.forEach(function(c) {
+        h += '<span style="font-size:10px;letter-spacing:1px;color:rgba(255,255,255,0.3);font-family:monospace;text-transform:uppercase;">' + (lang === 'en' ? c.en : c.hr) + '</span>';
+      });
+      return h + '</div>';
+    }
+
+    function adminInsSubRow(id, grid, cells) {
+      return '<div style="display:grid;grid-template-columns:' + grid + ';gap:14px;padding:12px 16px;margin-bottom:6px;background:rgba(255,255,255,0.05);border-radius:10px;align-items:center;cursor:pointer;transition:background 0.15s;" onclick="adminShowInstructorPage(' + id + ')" onmouseover="this.style.background=\'rgba(255,255,255,0.08)\'" onmouseout="this.style.background=\'rgba(255,255,255,0.05)\'">' +
+        cells.join('') + '</div>';
+    }
+
+    function adminShowInstructorRatings() {
+      var lang = currentLang || 'hr';
+      usfGo('/predavaci/ocjene');
+      var stats = adminInstructorStats(adminGetInstructors());
+      var rated = Object.keys(stats).map(function(k) { return stats[k]; })
+        .filter(function(s) { return s.rating !== null; })
+        // a tie on the average goes to the one more people rated
+        .sort(function(a, b) { return (b.rating - a.rating) || (b.ratingN - a.ratingN); });
+      var grid = 'minmax(0,1.8fr) 130px 110px 110px';
+      var body = adminInsSubHeader([{hr:'Predavač',en:'Instructor'},{hr:'Ocjena',en:'Rating'},{hr:'Broj ocjena',en:'Ratings'},{hr:'Edukacije',en:'Educations'}], grid);
+      if (!rated.length) {
+        body += '<div style="text-align:center;padding:28px;color:var(--text-muted);font-size:13px;">' + (lang === 'hr' ? 'Još nema ocjena.' : 'No ratings yet.') + '</div>';
+      }
+      rated.forEach(function(s) {
+        body += adminInsSubRow(s.id, grid, [
+          '<div style="font-size:0.92rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(s.name) + '</div>',
+          '<div style="font-size:0.86rem;color:var(--text-secondary);">' + usfStarRow(s.rating) + ' ' + s.rating.toFixed(1) + '</div>',
+          '<div style="font-size:0.86rem;color:var(--text-muted);">' + s.ratingN + '</div>',
+          '<div style="font-size:0.86rem;color:var(--text-secondary);">' + s.held + '</div>'
+        ]);
+      });
+      adminInstructorSubPage(lang === 'hr' ? 'Ocjene' : 'Ratings',
+        lang === 'hr' ? 'Ocjene po predavačima' : 'Ratings by instructor',
+        lang === 'hr' ? 'Prosjek svih ocjena edukacija koje je predavač održao.' : 'The average of every rating left on the educations this instructor held.',
+        body);
+    }
+
+    function adminShowInstructorsNoEdu() {
+      var lang = currentLang || 'hr';
+      usfGo('/predavaci/bez-edukacija');
+      var all = adminGetInstructors();
+      var stats = adminInstructorStats(all);
+      var idle = all.filter(function(p) { var s = stats[p.name]; return p.active && s && !s.events; });
+      var grid = 'minmax(0,1.6fr) minmax(0,1.6fr) 130px';
+      var body = adminInsSubHeader([{hr:'Ime',en:'Name'},{hr:'Uloga',en:'Role'},{hr:'Status',en:'Status'}], grid);
+      if (!idle.length) {
+        body += '<div style="text-align:center;padding:28px;color:var(--text-muted);font-size:13px;">' + (lang === 'hr' ? 'Svaki objavljeni predavač vodi barem jednu edukaciju.' : 'Every published instructor teaches at least one education.') + '</div>';
+      }
+      idle.forEach(function(p) {
+        body += adminInsSubRow(p.id, grid, [
+          '<div style="font-size:0.92rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(p.name) + '</div>',
+          '<div style="font-size:0.84rem;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml((lang === 'en' && p.roleEn ? p.roleEn : p.role) || '—') + '</div>',
+          '<div style="font-family:monospace;font-size:10px;text-transform:uppercase;font-weight:600;letter-spacing:1px;color:var(--green);">' + (lang === 'hr' ? 'Objavljen' : 'Published') + '</div>'
+        ]);
+      });
+      adminInstructorSubPage(lang === 'hr' ? 'Bez edukacija' : 'No educations',
+        lang === 'hr' ? 'Predavači bez edukacija' : 'Instructors with no educations',
+        lang === 'hr' ? 'Objavljeni na javnoj stranici, ali trenutno ne vode nijednu edukaciju.' : 'Published on the public site, but not currently teaching anything.',
+        body);
+    }
+
     function adminRenderInstructors() {
       var host = document.getElementById('admin-instructorsContent');
       if (!host) return;
@@ -18440,6 +18618,7 @@
         return (String(p.name || '') + ' ' + String(p.role || '') + ' ' + String(p.roleEn || '') + ' ' + String(p.email || ''))
           .toLowerCase().indexOf(q) !== -1;
       });
+      adminRenderInstructorAnalytics(list);
       // the checkbox column exists so people can be removed in one go; without
       // it the only way out was opening each profile and using its menu
       var grid = '36px minmax(0,1.6fr) minmax(0,1.6fr) 110px 110px';
