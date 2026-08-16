@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="#ffffff">
-  <!-- Bone shape -->
-  <path d="M70 55 C60 45 60 35 70 30 C80 25 85 35 85 40 L85 45 C87 50 90 50 92 45 L92 40 C92 35 97 25 107 30 C117 35 117 45 107 55 L95 70"/>
-  <rect x="82" y="60" width="20" height="70" rx="8"/>
-  <path d="M70 145 C60 155 60 165 70 170 C80 175 85 165 85 160 L85 155 C87 150 90 150 92 155 L92 160 C92 165 97 175 107 170 C117 165 117 155 107 145 L95 130"/>
-  <!-- Joint circle -->
-  <circle cx="92" cy="100" r="15" fill="none" stroke="#ffffff" stroke-width="4"/>
-  <circle cx="92" cy="100" r="6"/>
-</svg>

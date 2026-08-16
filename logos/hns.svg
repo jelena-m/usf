@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="#fff">
-  <path d="M100 10C50.3 10 10 50.3 10 100s40.3 90 90 90 90-40.3 90-90S149.7 10 100 10zm0 170c-44.1 0-80-35.9-80-80s35.9-80 80-80 80 35.9 80 80-35.9 80-80 80z"/>
-  <path d="M70 60h60v10H105v20h25v10h-25v20h25v10H70v-10h25V100H70V90h25V70H70z"/>
-  <rect x="60" y="130" width="80" height="4" rx="2"/>
-  <text x="100" y="155" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="bold">HRVATSKI NOGOMETNI</text>
-  <text x="100" y="170" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="bold">SAVEZ</text>
-</svg>

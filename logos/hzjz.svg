@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="#fff">
-  <circle cx="100" cy="90" r="55" fill="none" stroke="#fff" stroke-width="5"/>
-  <path d="M100 45 L100 55 M100 125 L100 135 M55 90 L65 90 M135 90 L145 90" stroke="#fff" stroke-width="4"/>
-  <path d="M85 75 L115 75 L115 105 L85 105 Z" fill="none" stroke="#fff" stroke-width="4"/>
-  <path d="M95 75 L95 105 M85 90 L115 90" stroke="#fff" stroke-width="4"/>
-  <text x="100" y="170" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="bold" fill="#fff">HZJZ</text>
-</svg>

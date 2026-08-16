@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="#fff">
-  <circle cx="100" cy="100" r="70" fill="none" stroke="#fff" stroke-width="5"/>
-  <circle cx="100" cy="100" r="30" fill="none" stroke="#fff" stroke-width="3"/>
-  <path d="M100 30 L100 70 M100 130 L100 170 M30 100 L70 100 M130 100 L170 100" stroke="#fff" stroke-width="3"/>
-  <path d="M72 55 L85 70 M128 55 L115 70 M72 145 L85 130 M128 145 L115 130" stroke="#fff" stroke-width="2.5"/>
-  <text x="100" y="107" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="bold" fill="#fff">HKS</text>
-</svg>

@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="#fff">
-  <path d="M100 15 L170 50 L170 130 L100 185 L30 130 L30 50 Z" fill="none" stroke="#fff" stroke-width="6"/>
-  <path d="M100 35 L155 60 L155 120 L100 165 L45 120 L45 60 Z" fill="none" stroke="#fff" stroke-width="2.5"/>
-  <text x="100" y="95" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="bold" fill="#fff">HNK</text>
-  <text x="100" y="118" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="bold" fill="#fff">HAJDUK</text>
-</svg>

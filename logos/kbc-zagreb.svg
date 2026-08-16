@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 200" fill="#fff">
-  <rect x="20" y="40" width="200" height="120" rx="8" fill="none" stroke="#fff" stroke-width="5"/>
-  <path d="M70 70 L70 130" stroke="#fff" stroke-width="4"/>
-  <path d="M70 70 L90 70 L90 95 L70 95" fill="none" stroke="#fff" stroke-width="4"/>
-  <path d="M70 95 L92 95 L92 130 L70 130" fill="none" stroke="#fff" stroke-width="4"/>
-  <path d="M110 70 L110 130 M110 70 L130 70 Q140 70 140 82 Q140 95 130 95 L110 95" fill="none" stroke="#fff" stroke-width="4"/>
-  <path d="M155 70 Q175 70 175 82 L175 90 Q175 100 155 100 L155 70 M155 100 Q175 100 175 118 L175 130 Q175 130 155 130" fill="none" stroke="#fff" stroke-width="4"/>
-  <text x="120" y="175" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="bold" fill="#fff">KLINIČKI BOLNIČKI CENTAR</text>
-</svg>
