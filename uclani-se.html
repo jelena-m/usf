@@ -4,11 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <title>Učlani se — USF</title>
+  <!-- ROUND 105: every string has data-hr / data-en --><!-- ROUND 107: footer je doslovna kopija s naslovnice --><!-- ROUND 111: hero naslov kao na naslovnici --><!-- ROUND 124: Pravne informacije u svom redu --><!-- ROUND 125: zrak ispod heroa --><!-- ROUND 136: newsletter se pamti --><!-- ROUND 177: hamburger kao u aplikaciji --><title>Učlani se — USF</title>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;700;800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
+    /* ROUND 107: boje koje footer s naslovnice traži — ova ih stranica dosad
+       nije imala jer nije imala ni taj footer. */
+    :root {
+      --blue: #3B5BFF;
+      --blue-hover: #2A45E0;
+      --text-muted: rgba(255,255,255,0.35);
+      --text-faint: rgba(255,255,255,0.2);
+    }
     body { font-family: 'Instrument Sans', sans-serif; background: #080808; color: #fff; line-height: 1.2; }
     h1, h2, h3, h4 { font-family: 'Bricolage Grotesque', sans-serif; }
     a { text-decoration: none; color: inherit; }
@@ -53,7 +61,8 @@
       text-align: center;
     }
     .page-hero .section-label { font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; color: #3B5BFF; margin-bottom: 16px; }
-    .page-hero h1 { font-size: clamp(2.6rem, 5vw, 4rem); font-weight: 400; letter-spacing: -1px; line-height: 1; margin-bottom: 12px; }
+    /* ROUND 111: iste mjere kao naslov na naslovnici. */
+    .page-hero h1 { font-size: clamp(3.2rem, 7.5vw, 5.8rem); font-weight: 400; letter-spacing: -1px; line-height: 1.05; margin-bottom: 12px; }
     .page-hero p, .section-sub { font-size: 22px; color: rgba(255,255,255,0.5); max-width: 560px; margin: 0 auto; font-weight: 400; line-height: 1.2; }
 
     .content { max-width: 1400px; margin: 0 auto; padding: 0 40px 0px; }
@@ -138,6 +147,9 @@
       padding-bottom: 120px;
       position: relative;
       background: #3B5BFF;
+      /* the glow below is a 500px circle; on a narrow phone it reached past
+         both edges and the right half made the whole page scroll sideways */
+      overflow: hidden;
     }
     .join-cta::before {
       content: '';
@@ -165,12 +177,151 @@
     }
     .btn-ghost:hover { border-color: #fff; background: rgba(255,255,255,0.05); }
 
-    .footer { border-top: 1px solid rgba(255,255,255,0.06); padding: 40px; max-width: 1400px; margin: 0 auto; }
-    .footer-bottom { display: flex; justify-content: space-between; font-size: 0.8rem; color: rgba(255,255,255,0.25); }
+    .footer-col ul li a:hover { color: var(--blue); }
+    /* ===== FOOTER ===== */
+    .footer {
+      background: #121212;
+    }
+    .footer-inner {
+      padding: 100px 48px 28px; max-width: 1300px; margin: 0 auto;
+    }
+    .footer-logo { display: inline-block; margin-bottom: 8px; }
+    .footer-logo svg { height: 24px; width: auto; }
+    /* Four equal columns and one gap value: the spacing between them is then
+       the same everywhere, without inline margins nudging individual ones. */
+    /* One gap value and a first column that takes up the slack: the space
+       between the columns is then literally the same number everywhere,
+       instead of leftover width being shared out around content of very
+       different widths. */
+    .footer-grid { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 72px; margin-bottom: 48px; }
+    .footer-grid > .footer-col { flex: 0 0 auto; }
+    .footer-grid > .footer-col:first-child { flex: 1 1 300px; min-width: 260px; }
+    .footer-grid > .footer-col:last-child { flex: 0 0 260px; }
+    .footer-col-pay ul li { margin-bottom: 8px; white-space: nowrap; }
+    .footer-socials { display: flex; gap: 16px; margin-top: 20px; }
+    .footer-socials a { color: var(--text-muted); transition: color 0.3s; }
+    .footer-socials a:hover { color: #fff; }
+    .footer-col h4 { font-size: 0.75rem; font-weight: 400; text-transform: uppercase; letter-spacing: 2.5px; color: var(--text-muted); margin-bottom: 16px; }
+    /* set like "Pretplati se na newsletter" in the column beside it */
+    .footer-col-pay h4 { font-size: 0.88rem; text-transform: none; letter-spacing: 0; margin-bottom: 14px; }
+    .footer-col p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+    .footer-col ul { list-style: none; }
+    .footer-col-nav ul { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+    .footer-col ul li { margin-bottom: 11px; font-size: 0.88rem; color: var(--text-muted); }
+    /* An IBAN and a SWIFT are one block of details, not four separate points. */
+    .footer-col-pay ul li { margin-bottom: 4px; line-height: 1.5; }
+    .footer-col ul li a { font-size: 0.88rem; color: var(--text-muted); transition: color 0.3s; }
+    /* :hover is declared with the card block below */
+    .footer-bottom {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 20px;
+      font-size: 0.78rem; color: var(--text-faint);
+    }
+    .footer-bottom a { color: var(--text-faint); transition: color 0.3s; }
+    .footer-bottom a:hover { color: var(--blue); }
+    /* ROUND 107: tijelo ove stranice ima prored 1.2, a stranice s kojih
+       footer dolazi 1.6 — bez ovoga bi isti footer ovdje bio zbijen. */
+    .footer { line-height: 1.6; }
 
     @media (max-width: 1024px) {
       .steps-grid { grid-template-columns: repeat(2, 1fr); }
     }
+    /* Doniraj is a button in the bar on a wide screen and an entry in the
+       menu on a narrow one, so the entry waits here until the small-screen
+       rules call it up. */
+    .nav-links .nav-link-donate { display: none; }
+
+    /* While the menu is open the page behind must not move, so closing it
+       puts you back exactly where you were. The lock has to sit on <html>:
+       overflow on <body> only reaches the window when <html> is visible, and
+       here <html> is overflow-x: clip, so the rule stopped at the body box and
+       the page went on scrolling behind the menu. */
+    html.usf-nav-open, html.usf-nav-open body { overflow: hidden; }
+
+    /* And a swipe inside the menu never spills onto the page behind it. */
+    .nav-links { overscroll-behavior: contain; }
+
+    /* ===== ROUND 104 — the public pages on a phone, measured ============ */
+    /* --- an iPad held upright (769–1024px): the desktop bar, but tighter,
+           and nothing in it wraps onto a second line */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .nav { padding: 16px 24px; }
+      .nav-wrapper.scrolled .nav { padding: 12px 24px; }
+      .nav-left { gap: 24px; }
+      .nav-links { gap: 18px; }
+      .nav-right { gap: 12px; }
+      .nav-links a, .nav-auth-login-btn, .nav-donate-btn, .nav-cta { white-space: nowrap; }
+      .nav-auth-login-btn, .nav-donate-btn { padding: 9px 14px; }
+    }
+
+    @media (max-width: 768px) {
+      /* --- 1. a field under 16px makes an iPhone zoom in on it */
+      input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]), select, textarea { font-size: 16px !important; }
+
+      /* --- 2. the bar: 44px of hit area around the logo, the hamburger, the
+             flags, the button and the avatar — drawn exactly as before.
+             (The hamburger's lines are positioned inside it, so padding
+             would move them; an invisible box around it does not.) */
+      .nav-logo, .menu-toggle, .lang-switch button, .nav-auth-login-btn, .nav-profile-circle { position: relative; }
+      .nav-logo::after, .menu-toggle::after, .lang-switch button::after, .nav-auth-login-btn::after, .nav-profile-circle::after {
+        content: ''; position: absolute; inset: -10px -6px;
+      }
+      .menu-toggle::after { inset: -12px -8px; }
+      .lang-switch button::after { inset: -10px 0; }
+      .nav-auth-login-btn::after { inset: -7px 0; }
+      /* the avatar clips its overflow (the icon is cropped to the circle),
+         so its hit area grows through a transparent border instead: the
+         visible circle stays 32px, the box becomes 44px */
+      .nav-profile-circle::after { content: none; }
+      .nav-profile-circle { width: 44px; height: 44px; border-width: 6px; background-clip: padding-box; }
+      .nav-profile-circle:hover { border-color: transparent; }
+
+      /* --- the footer: the same for its logo and social icons */
+      .footer-logo, .footer-socials a { position: relative; }
+      .footer-logo::after { content: ''; position: absolute; inset: -6px 0; }
+      .footer-socials a::after { content: ''; position: absolute; inset: -8px; }
+      /* the links in the list: a little more air between the rows, and the
+         hit area of each covers that air */
+      .footer-col-nav ul li { margin-bottom: 22px; }
+      .footer-col ul li a { display: inline-block; padding: 11px 0; margin: -11px 0; }
+      /* the fine print */
+      .footer-col form p a { display: inline-block; padding: 12px 0; margin: -12px 0; }
+      .footer-inner .footer-bottom { gap: 20px; }
+      .footer-bottom a { display: inline-block; padding: 10px 6px; margin: -10px -6px; }
+      /* the newsletter form: 44px, like every field in the app */
+      .footer-col form input, .footer-col form button { min-height: 44px; }
+
+      /* --- 3. the controls the pages share */
+      .admin-pagination { flex-wrap: wrap; row-gap: 6px; }
+      .admin-pagination button { min-width: 40px; min-height: 40px; }
+      .admin-btn { min-height: 44px; }
+      .admin-search-input { min-height: 44px; flex: 1 1 auto; max-width: none; min-width: 0; }
+      .admin-filter-select, .admin-filter-date { min-height: 44px; }
+      .usf-combo input { min-height: 44px; }
+      .usf-combo-caret { padding: 19px 17px; right: 0; }
+      .usf-combo-opt { min-height: 40px; display: flex; align-items: center; }
+      .modal-close { min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; top: 6px; right: 8px; }
+      .btn, .view-all a { min-height: 44px; }
+    }
+
+    @media (max-width: 768px) {
+      .doc-btn, .btn-fill, .btn-ghost { min-height: 44px; }
+      .footer-inner { padding: 40px 16px 20px; }
+      /* Four blocks stacked with nothing between them read as one long
+         column of unrelated lines. */
+      .footer-grid { display: block; }
+      .footer-grid > .footer-col { margin-bottom: 44px; }
+      .footer-grid > .footer-col:last-child { margin-bottom: 0; }
+      .footer-grid > .footer-col + .footer-col {
+        padding-top: 40px; border-top: 1px solid rgba(255,255,255,0.07);
+      }
+      .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+      /* ROUND 124: Pravne informacije u svom redu, centrirano. Razmak od
+         24 px je sluzio razdvajanju u istom redu — u stupcu nema sto. */
+      .footer-bottom .footer-sep { display: none; }
+      .footer-bottom .footer-legal { display: block; margin: -2px -6px -10px; }
+    }
+
     @media (max-width: 768px) {
       .nav { padding: 16px 20px; }
       .nav-links {
@@ -185,28 +336,73 @@
         z-index: 9999;
       }
       .nav-links.show { display: flex !important; }
+      /* The flags and Prijava stay in the bar; the hamburger sits at the end. */
+      .nav-links { background: #121212; overflow-y: auto; padding: 72px 20px 40px; gap: 26px; justify-content: center; }
+      .nav { gap: 10px; }
+      .nav-logo { order: 1; margin-right: auto; }
+      .nav > .lang-switch { order: 2; display: flex; }
+      .nav > .nav-auth { order: 3; display: flex; }
+      .menu-toggle { order: 4; }
+
+      /* Doniraj is a page in the menu here too. */
+      .nav-links .nav-link-donate { display: list-item; }
+
+      .nav-auth-login-btn { padding: 9px 14px; font-size: 0.8rem; white-space: nowrap; }
+      .lang-switch { padding: 2px; }
+      .lang-switch button { padding: 5px 9px; }
       .nav-links li { list-style: none; }
       .nav-links li a { font-size: 1.4rem; color: rgba(255,255,255,0.55); padding: 12px 24px; display: block; }
       .nav-links li a.active { color: #fff; }
       .menu-toggle { display: block; z-index: 10000; position: relative; }
       .page-hero { padding: 100px 16px 40px; }
-      .page-hero h1 { font-size: 48px; }
+      /* ROUND 125: ispod heroa je bilo 20 px do prvog sadrzaja */
+      .page-hero { margin-bottom: 52px; }
+      .page-hero h1 { font-size: clamp(56px, 16vw, 80px); line-height: 1.02; }
       .docs-heading { font-size: 48px; }
       .content { padding: 0 16px 60px; }
       .steps-grid { grid-template-columns: 1fr; }
       .join-cta { padding: 100px 16px; }
       .join-cta h2 { font-size: 48px; }
       .btn-ghost { margin-left: 0; margin-top: 12px; }
-      .footer { padding: 30px 16px; }
-      .footer-bottom { flex-direction: column; gap: 8px; }
+
       .nav-cta { padding: 8px 16px; font-size: 0.8rem; }
     }
+    @media (max-width: 400px) {
+      .nav { padding: 14px 12px; gap: 8px; }
+      .nav-auth-login-btn { padding: 8px 11px; font-size: 0.75rem; }
+      .lang-switch button { padding: 5px 7px; }
+    }
+
     @media (max-width: 480px) {
       .step-card { padding: 20px 16px; }
       .doc-item { flex-direction: column; align-items: flex-start; gap: 12px; }
       .fee-amount { font-size: 2.2rem; }
       .btn-fill, .btn-ghost { padding: 10px 16px; font-size: 0.9rem; }
     }
+  </style>
+<!-- ROUND 148: Pocetna u izborniku -->
+  <style>
+    /* Doniraj i Pridruzi se su par: blizu, ali se ne dodiruju */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .nav-right .nav-auth { margin-left: -6px; }
+    }
+    @media (min-width: 769px) and (max-width: 900px) {
+      .nav { padding: 16px 16px; }
+      .nav-wrapper.scrolled .nav { padding: 12px 16px; }
+      .nav-left { gap: 16px; }
+      .nav-links { gap: 12px; }
+      .nav-links a { font-size: 0.8rem; }
+      .nav-auth-login-btn, .nav-donate-btn, .nav-cta { padding: 8px 12px; font-size: 0.8rem; }
+    }
+  
+    /* ROUND 177: hamburger iste velicine i debljine kao u aplikaciji —
+       22 px, tri crte duge 18 px, debele 1,85 px, razmak 5,5 px */
+    .menu-toggle { width: 22px !important; height: 22px !important; }
+    .menu-toggle span { width: 18.3px !important; height: 1.85px !important; left: 1.85px !important; border-radius: 1px; }
+    .menu-toggle span:nth-child(1) { top: 4.6px !important; }
+    .menu-toggle span:nth-child(2) { top: 10.1px !important; }
+    .menu-toggle span:nth-child(3) { top: 15.6px !important; }
+    .menu-toggle.open span:nth-child(1), .menu-toggle.open span:nth-child(3) { top: 10.1px !important; }
   </style>
 </head>
 <body>
@@ -215,14 +411,16 @@
     <a href="index.html" class="nav-logo">
       <svg width="50" height="24" viewBox="0 0 50 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M49.7738 4.31636L42.0684 4.95287L41.8768 8.25898L49.5822 7.58349L49.356 11.8998L41.6506 12.5753L41.2208 21.0053L35.8397 21.4874L36.7292 5.43369L27.0818 6.19803C26.3994 6.26961 26.2083 6.30437 25.8923 6.40624C25.5394 6.51634 25.2728 6.68022 25.094 6.89573C24.9152 7.11179 24.8146 7.36621 24.793 7.65491C24.7679 7.8914 24.8397 8.12208 24.9257 8.31948C25.0187 8.51114 25.1723 8.68926 25.3826 8.85486C25.593 9.0138 25.8647 9.16305 26.1982 9.30275C26.5322 9.44261 26.9315 9.57448 27.3953 9.69539L28.9956 10.1269C30.0752 10.4153 30.9945 10.7683 31.7518 11.1879C32.5091 11.6076 33.1216 12.0884 33.5892 12.6281C34.0572 13.1615 34.3899 13.7528 34.5878 14.4008C34.7919 15.0488 34.8782 15.7484 34.8453 16.4998C34.7709 17.797 34.3883 18.8797 33.6988 19.7452C33.0094 20.6105 32.0565 21.1271 30.8375 21.5333C29.6258 21.9394 26.5168 22.1313 26.5111 22.1317C26.5111 22.1317 15.2865 23.0198 10.7197 23.3748C10.1194 23.473 9.48793 23.521 8.82536 23.5189C8.82346 23.519 8.8222 23.5192 8.82166 23.5192V23.5189C8.59995 23.5181 8.37475 23.5121 8.14607 23.5001C6.44395 23.4109 4.96929 23.0373 3.72206 22.3794C2.47516 21.715 1.52387 20.8182 0.868127 19.6889C0.219151 18.5535 -0.065976 17.2344 0.0127857 15.7314L0.619679 4.05953L6.00202 3.57365L5.39386 15.5496C5.36188 16.1598 5.46823 16.7129 5.71275 17.2087C5.95761 17.6982 6.31057 18.0902 6.77172 18.3849C7.23932 18.6799 7.77828 18.8434 8.38848 18.8754C9.00508 18.9077 9.55809 18.8014 10.0475 18.5566C10.537 18.3117 10.929 17.9587 11.2237 17.4975C11.5187 17.0299 11.6823 16.491 11.7143 15.8809L12.3746 3.02502L17.7324 2.55151L17.0469 16.6241C17.0111 17.3079 16.9027 17.9459 16.7223 18.5382C21.375 18.1801 26.4588 17.7876 26.6641 17.773C27.3172 17.7088 27.7198 17.7183 28.1126 17.5972C28.505 17.4761 28.8078 17.2956 29.0199 17.0558C29.2322 16.8157 29.3486 16.5338 29.3719 16.213C29.3811 15.911 29.296 15.6417 29.1152 15.407C28.941 15.1662 28.6429 14.9446 28.2224 14.7424C27.8018 14.5336 27.2288 14.3311 26.5053 14.1322L24.5624 13.6053C22.8353 13.1347 21.4905 12.429 20.5286 11.4898C19.5735 10.5445 19.0973 9.28733 19.1845 7.7462C19.2438 6.49344 19.6356 5.41565 20.3592 4.51327C21.0894 3.60513 22.0682 2.91909 23.2965 2.45544C24.479 2.01178 25.6752 1.99987 27.2921 1.87661L40.2368 0.844721L50 0L49.7738 4.31636Z" fill="white"/></svg>
     </a>
-    <ul class="nav-links">
-      <li><a href="index.html#about">O nama</a></li>
-      <li><a href="index.html#fizioterapija">Fizioterapija</a></li>
-      <li><a href="index.html#edukacije">Edukacije</a></li>
-      <li><a href="blog.html">Članci</a></li>
-      <li><a href="index.html#kontakt">Kontakt</a></li>
+    <ul class="nav-links"><!-- ROUND 105: the same five pages as every other page -->
+      <li><a href="index.html"><span data-hr="Početna" data-en="Home">Početna</span></a></li>
+      <li><a href="edukacije.html"><span data-hr="Edukacije" data-en="Education">Edukacije</span></a></li>
+      <li><a href="blog.html"><span data-hr="Članci" data-en="Articles">Članci</span></a></li>
+      <li><a href="clanstvo.html"><span data-hr="Članstvo" data-en="Membership">Članstvo</span></a></li>
+      <li><a href="o-nama.html"><span data-hr="O nama" data-en="About">O nama</span></a></li>
+      <li><a href="kontakt.html"><span data-hr="Kontakt" data-en="Contact">Kontakt</span></a></li>
+      <li class="nav-link-donate"><a href="donacije.html"><span data-hr="Doniraj" data-en="Donate">Doniraj</span></a></li>
     </ul>
-    <button class="menu-toggle" onclick="var nl=document.querySelector('.nav-links');nl.classList.toggle('show');this.classList.toggle('open')" aria-label="Menu">
+    <button class="menu-toggle" onclick="usfToggleNav(this)" aria-label="Menu">
       <span></span><span></span><span></span>
     </button>
     <div class="lang-switch">
@@ -230,7 +428,7 @@
       <button data-lang="en" onclick="switchLang('en')"><svg class="lang-flag" viewBox="0 0 640 480"><rect width="640" height="480" fill="#012169"/><path d="M0 0l640 480M640 0L0 480" stroke="#fff" stroke-width="60"/><path d="M0 0l640 480M640 0L0 480" stroke="#C8102E" stroke-width="40"/><path d="M320 0v480M0 240h640" stroke="#fff" stroke-width="100"/><path d="M320 0v480M0 240h640" stroke="#C8102E" stroke-width="60"/></svg></button>
     </div>
     <div class="nav-auth" id="navAuth">
-      <a href="login.html" class="nav-auth-login-btn"><span data-hr="Prijava" data-en="Login">Prijava</span></a>
+      <a href="login.html" class="nav-auth-login-btn"><span data-hr="Pridruži se" data-en="Join now">Pridruži se</span></a>
     </div>
   </nav>
   <script>
@@ -246,9 +444,9 @@
   </script>
 
   <div class="page-hero">
-    <div class="section-label">Učlani se</div>
-    <h1>Postani dio zajednice</h1>
-    <p class="section-sub" style="margin:0 auto">Učlanjenje u USF je jednostavno. Slijedi korake ispod i pridruži se rastućoj mreži sportskih fizioterapeuta u Hrvatskoj.</p>
+    <div class="section-label" data-hr="Učlani se" data-en="Join us">Učlani se</div>
+    <h1 data-hr="Postani dio zajednice" data-en="Become part of the community">Postani dio zajednice</h1>
+    <p class="section-sub" style="margin:0 auto" data-hr="Učlanjenje u USF je jednostavno. Slijedi korake ispod i pridruži se rastućoj mreži sportskih fizioterapeuta u Hrvatskoj." data-en="Joining USF is simple. Follow the steps below and become part of a growing network of sports physiotherapists in Croatia.">Učlanjenje u USF je jednostavno. Slijedi korake ispod i pridruži se rastućoj mreži sportskih fizioterapeuta u Hrvatskoj.</p>
   </div>
 
   <div class="content">
@@ -256,72 +454,72 @@
     <!-- Steps -->
     <div class="steps-grid">
       <div class="step-card">
-        <h3>Pravni akti i privola</h3>
-        <p>Pročitaj i prihvati pravne akte udruge: Statut, Pravilnik o članstvu i Izjavu o privoli za obradu osobnih podataka sukladno GDPR-u.</p>
+        <h3 data-hr="Pravni akti i privola" data-en="Legal documents and consent">Pravni akti i privola</h3>
+        <p data-hr="Pročitaj i prihvati pravne akte udruge: Statut, Pravilnik o članstvu i Izjavu o privoli za obradu osobnih podataka sukladno GDPR-u." data-en="Read and accept the association's legal documents: the Statute, the Membership Rules and the GDPR consent statement.">Pročitaj i prihvati pravne akte udruge: Statut, Pravilnik o članstvu i Izjavu o privoli za obradu osobnih podataka sukladno GDPR-u.</p>
       </div>
       <div class="step-card">
-        <h3>Ispuni pristupnicu</h3>
-        <p>Preuzmi pristupnicu u PDF formatu, ispuni je i pošalji na e-mail info@usf.hr ili poštom na adresu sjedišta udruge. Također nas možeš kontaktirati za pomoć pri učlanjenju.</p>
+        <h3 data-hr="Ispuni pristupnicu" data-en="Fill in the application form">Ispuni pristupnicu</h3>
+        <p data-hr="Preuzmi pristupnicu u PDF formatu, ispuni je i pošalji na e-mail info@usf.hr ili poštom na adresu sjedišta udruge. Također nas možeš kontaktirati za pomoć pri učlanjenju." data-en="Download the application form as a PDF, fill it in and send it to info@usf.hr or by post to the association's registered address. You can also contact us for help with joining.">Preuzmi pristupnicu u PDF formatu, ispuni je i pošalji na e-mail info@usf.hr ili poštom na adresu sjedišta udruge. Također nas možeš kontaktirati za pomoć pri učlanjenju.</p>
       </div>
       <div class="step-card">
-        <h3>Uplati članarinu</h3>
-        <p>Godišnja članarina se plaća uplatom na žiro račun udruge ili online. Nakon evidentirane uplate, dobivate potvrdu o članstvu.</p>
+        <h3 data-hr="Uplati članarinu" data-en="Pay the membership fee">Uplati članarinu</h3>
+        <p data-hr="Godišnja članarina se plaća uplatom na žiro račun udruge ili online. Nakon evidentirane uplate, dobivate potvrdu o članstvu." data-en="The annual fee is paid by bank transfer to the association's account or online. Once the payment is recorded, you receive a confirmation of membership.">Godišnja članarina se plaća uplatom na žiro račun udruge ili online. Nakon evidentirane uplate, dobivate potvrdu o članstvu.</p>
       </div>
       <div class="step-card">
-        <h3>Pristup pogodnostima</h3>
-        <p>Kao član, dobivate pristup članskoj zoni, popuste na edukacije, ekskluzivne materijale i pristup mreži stručnjaka.</p>
+        <h3 data-hr="Pristup pogodnostima" data-en="Access the benefits">Pristup pogodnostima</h3>
+        <p data-hr="Kao član, dobivate pristup članskoj zoni, popuste na edukacije, ekskluzivne materijale i pristup mreži stručnjaka." data-en="As a member you get access to the members' area, discounts on education programs, exclusive materials and a network of experts.">Kao član, dobivate pristup članskoj zoni, popuste na edukacije, ekskluzivne materijale i pristup mreži stručnjaka.</p>
       </div>
     </div>
 
     <!-- Fee -->
     <div class="fee-box">
-      <div class="fee-amount">130 &euro; / godišnje</div>
-      <div class="fee-label">Godišnja članarina &middot; Uključuje pristup svim pogodnostima članstva</div>
+      <div class="fee-amount" data-hr="150 € / 200 € godišnje" data-en="€150 / €200 per year">150 € / 200 € godišnje</div>
+      <div class="fee-label" data-hr="Studentsko članstvo 150 € · Standardno članstvo 200 € · Dostupna i mjesečna opcija (15 € / 20 € mjesečno) · Uključuje sve pogodnosti članstva" data-en="Student membership €150 · Standard membership €200 · Monthly option available (€15 / €20 per month) · Includes every membership benefit">Studentsko članstvo 150 € · Standardno članstvo 200 € · Dostupna i mjesečna opcija (15 € / 20 € mjesečno) · Uključuje sve pogodnosti članstva</div>
     </div>
 
     <!-- Documents -->
-    <div class="docs-label">Dokumenti</div>
-    <h2 class="docs-heading">Pravni akti i dokumenti</h2>
+    <div class="docs-label" data-hr="Dokumenti" data-en="Documents">Dokumenti</div>
+    <h2 class="docs-heading" data-hr="Pravni akti i dokumenti" data-en="Legal documents">Pravni akti i dokumenti</h2>
     <ul class="doc-list">
       <li class="doc-item">
         <div class="doc-item-info">
           <svg class="doc-item-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           <div>
-            <div class="doc-item-name">Statut udruge</div>
-            <div class="doc-item-desc">Temeljni pravni akt — ciljevi, djelovanje, prava i obveze članova</div>
+            <div class="doc-item-name" data-hr="Statut udruge" data-en="Statute of the association">Statut udruge</div>
+            <div class="doc-item-desc" data-hr="Temeljni pravni akt — ciljevi, djelovanje, prava i obveze članova" data-en="The founding document — goals, activities, members' rights and duties">Temeljni pravni akt — ciljevi, djelovanje, prava i obveze članova</div>
           </div>
         </div>
-        <a href="#" class="doc-btn">Preuzmi PDF &darr;</a>
+        <a href="#" class="doc-btn" data-hr="Preuzmi PDF ↓" data-en="Download PDF ↓">Preuzmi PDF ↓</a>
       </li>
       <li class="doc-item">
         <div class="doc-item-info">
           <svg class="doc-item-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           <div>
-            <div class="doc-item-name">Pravilnik o članstvu</div>
-            <div class="doc-item-desc">Uvjeti za članstvo, kategorije, postupak prijema i prestanka</div>
+            <div class="doc-item-name" data-hr="Pravilnik o članstvu" data-en="Membership Rules">Pravilnik o članstvu</div>
+            <div class="doc-item-desc" data-hr="Uvjeti za članstvo, kategorije, postupak prijema i prestanka" data-en="Membership conditions, categories, admission and termination">Uvjeti za članstvo, kategorije, postupak prijema i prestanka</div>
           </div>
         </div>
-        <a href="#" class="doc-btn">Preuzmi PDF &darr;</a>
+        <a href="#" class="doc-btn" data-hr="Preuzmi PDF ↓" data-en="Download PDF ↓">Preuzmi PDF ↓</a>
       </li>
       <li class="doc-item">
         <div class="doc-item-info">
           <svg class="doc-item-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           <div>
-            <div class="doc-item-name">Izjava o privoli (GDPR)</div>
-            <div class="doc-item-desc">Privola za obradu osobnih podataka u skladu s GDPR-om</div>
+            <div class="doc-item-name" data-hr="Izjava o privoli (GDPR)" data-en="Consent statement (GDPR)">Izjava o privoli (GDPR)</div>
+            <div class="doc-item-desc" data-hr="Privola za obradu osobnih podataka u skladu s GDPR-om" data-en="Consent to the processing of personal data under the GDPR">Privola za obradu osobnih podataka u skladu s GDPR-om</div>
           </div>
         </div>
-        <a href="#" class="doc-btn">Preuzmi PDF &darr;</a>
+        <a href="#" class="doc-btn" data-hr="Preuzmi PDF ↓" data-en="Download PDF ↓">Preuzmi PDF ↓</a>
       </li>
       <li class="doc-item">
         <div class="doc-item-info">
           <svg class="doc-item-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
           <div>
-            <div class="doc-item-name">Pristupnica</div>
-            <div class="doc-item-desc">Obrazac za učlanjenje u udrugu — ispuni i pošalji</div>
+            <div class="doc-item-name" data-hr="Pristupnica" data-en="Application form">Pristupnica</div>
+            <div class="doc-item-desc" data-hr="Obrazac za učlanjenje u udrugu — ispuni i pošalji" data-en="The form for joining the association — fill in and send">Obrazac za učlanjenje u udrugu — ispuni i pošalji</div>
           </div>
         </div>
-        <a href="#" class="doc-btn">Preuzmi PDF &darr;</a>
+        <a href="#" class="doc-btn" data-hr="Preuzmi PDF ↓" data-en="Download PDF ↓">Preuzmi PDF ↓</a>
       </li>
     </ul>
 
@@ -329,16 +527,60 @@
 
   <!-- CTA -->
   <div class="join-cta">
-    <h2>Spreman/na za učlanjenje?</h2>
-    <p>Nakon što ste se upoznali s dokumentima, ispunite pristupnicu ili nas kontaktirajte za više informacija.</p>
-    <a href="#" class="btn-fill" style="background:#fff;color:#3B5BFF;">Preuzmi pristupnicu</a>
-    <a href="index.html#kontakt" class="btn-ghost" style="border-color:rgba(255,255,255,0.4);color:#fff;">Kontaktiraj nas</a>
+    <h2 data-hr="Spreman/na za učlanjenje?" data-en="Ready to join?">Spreman/na za učlanjenje?</h2>
+    <p data-hr="Nakon što ste se upoznali s dokumentima, ispunite pristupnicu ili nas kontaktirajte za više informacija." data-en="Once you have read the documents, fill in the application form or contact us for more information.">Nakon što ste se upoznali s dokumentima, ispunite pristupnicu ili nas kontaktirajte za više informacija.</p>
+    <a href="#" class="btn-fill" style="background:#fff;color:#3B5BFF;"><span data-hr="Preuzmi pristupnicu" data-en="Download the application form">Preuzmi pristupnicu</span></a>
+    <a href="kontakt.html" class="btn-ghost" style="border-color:rgba(255,255,255,0.4);color:#fff;"><span data-hr="Kontaktiraj nas" data-en="Contact us">Kontaktiraj nas</span></a>
   </div>
 
-  <footer class="footer">
+  <footer class="footer" style="position:relative;z-index:1;">
+
+    <div class="footer-inner">
+    <div class="footer-grid">
+      <!-- Col 1: Logo + description + socials -->
+      <div class="footer-col">
+        <a href="index.html" class="footer-logo" style="margin-bottom:16px;display:inline-block;">
+          <svg width="50" height="24" viewBox="0 0 50 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M49.7738 4.31636L42.0684 4.95287L41.8768 8.25898L49.5822 7.58349L49.356 11.8998L41.6506 12.5753L41.2208 21.0053L35.8397 21.4874L36.7292 5.43369L27.0818 6.19803C26.3994 6.26961 26.2083 6.30437 25.8923 6.40624C25.5394 6.51634 25.2728 6.68022 25.094 6.89573C24.9152 7.11179 24.8146 7.36621 24.793 7.65491C24.7679 7.8914 24.8397 8.12208 24.9257 8.31948C25.0187 8.51114 25.1723 8.68926 25.3826 8.85486C25.593 9.0138 25.8647 9.16305 26.1982 9.30275C26.5322 9.44261 26.9315 9.57448 27.3953 9.69539L28.9956 10.1269C30.0752 10.4153 30.9945 10.7683 31.7518 11.1879C32.5091 11.6076 33.1216 12.0884 33.5892 12.6281C34.0572 13.1615 34.3899 13.7528 34.5878 14.4008C34.7919 15.0488 34.8782 15.7484 34.8453 16.4998C34.7709 17.797 34.3883 18.8797 33.6988 19.7452C33.0094 20.6105 32.0565 21.1271 30.8375 21.5333C29.6258 21.9394 26.5168 22.1313 26.5111 22.1317C26.5111 22.1317 15.2865 23.0198 10.7197 23.3748C10.1194 23.473 9.48793 23.521 8.82536 23.5189C8.82346 23.519 8.8222 23.5192 8.82166 23.5192V23.5189C8.59995 23.5181 8.37475 23.5121 8.14607 23.5001C6.44395 23.4109 4.96929 23.0373 3.72206 22.3794C2.47516 21.715 1.52387 20.8182 0.868127 19.6889C0.219151 18.5535-0.065976 17.2344 0.0127857 15.7314L0.619679 4.05953L6.00202 3.57365L5.39386 15.5496C5.36188 16.1598 5.46823 16.7129 5.71275 17.2087C5.95761 17.6982 6.31057 18.0902 6.77172 18.3849C7.23932 18.6799 7.77828 18.8434 8.38848 18.8754C9.00508 18.9077 9.55809 18.8014 10.0475 18.5566C10.537 18.3117 10.929 17.9587 11.2237 17.4975C11.5187 17.0299 11.6823 16.491 11.7143 15.8809L12.3746 3.02502L17.7324 2.55151L17.0469 16.6241C17.0111 17.3079 16.9027 17.9459 16.7223 18.5382C21.375 18.1801 26.4588 17.7876 26.6641 17.773C27.3172 17.7088 27.7198 17.7183 28.1126 17.5972C28.505 17.4761 28.8078 17.2956 29.0199 17.0558C29.2322 16.8157 29.3486 16.5338 29.3719 16.213C29.3811 15.911 29.296 15.6417 29.1152 15.407C28.941 15.1662 28.6429 14.9446 28.2224 14.7424C27.8018 14.5336 27.2288 14.3311 26.5053 14.1322L24.5624 13.6053C22.8353 13.1347 21.4905 12.429 20.5286 11.4898C19.5735 10.5445 19.0973 9.28733 19.1845 7.7462C19.2438 6.49344 19.6356 5.41565 20.3592 4.51327C21.0894 3.60513 22.0682 2.91909 23.2965 2.45544C24.479 2.01178 25.6752 1.99987 27.2921 1.87661L40.2368 0.844721L50 0L49.7738 4.31636Z" fill="rgba(255,255,255,0.35)"/></svg>
+        </a>
+        <p><span data-hr="Prva hrvatska udruga posvećena isključivo sportskoj fizioterapiji osnovana 2026. Okupljamo stručnjake, educiramo zajednicu i podižemo standarde profesije." data-en="Croatia's first association dedicated exclusively to sports physiotherapy, founded in 2026. We gather experts, educate the community, and raise professional standards.">Prva hrvatska udruga posvećena isključivo sportskoj fizioterapiji osnovana 2026. Okupljamo stručnjake, educiramo zajednicu i podižemo standarde profesije.</span></p>
+        <div class="footer-socials">
+          <a href="https://instagram.com/usf.hr" target="_blank" rel="noopener" aria-label="Instagram"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+          <a href="https://facebook.com/usf" target="_blank" rel="noopener" aria-label="Facebook"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+          <a href="https://linkedin.com/company/usf.hr" target="_blank" rel="noopener" aria-label="LinkedIn"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+          <a href="https://youtube.com/@usf.hr" target="_blank" rel="noopener" aria-label="YouTube"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+        </div>
+      </div>
+      <!-- Col 2: Payment details (donations) -->
+      <div class="footer-col footer-col-pay">
+        <h4><span data-hr="Podaci za uplatu" data-en="Payment details">Podaci za uplatu</span></h4>
+        <ul>
+          <li id="usfPayName">Udruga sportskih fizioterapeuta</li>
+          <li id="usfPayAddress">Lojenov prilaz 4, Zagreb</li>
+          <li>IBAN: <span id="usfPayIban">HR4623600001103297330</span></li>
+          <li>SWIFT: <span id="usfPaySwift">ZABAHR2X</span></li>
+                  </ul>
+        <script>try{var _op=JSON.parse(localStorage.getItem('usf_org_payment')||'null');if(_op){if(_op.name)document.getElementById('usfPayName').textContent=_op.name;if(_op.iban)document.getElementById('usfPayIban').textContent=_op.iban;if(_op.swift)document.getElementById('usfPaySwift').textContent=_op.swift;var _a=document.getElementById('usfPayAddress');if(_a&&_op.address)_a.textContent=_op.address;}}catch(e){}</script>
+      </div>
+
+      <!-- Col 2: Nav links (single column) -->
+      <div class="footer-col footer-col-nav">
+        <ul style="grid-template-columns:1fr;"><li><a href="edukacije.html"><span data-hr="Edukacije" data-en="Education">Edukacije</span></a></li><li><a href="blog.html"><span data-hr="Članci" data-en="Articles">Članci</span></a></li><li><a href="clanstvo.html"><span data-hr="Članstvo" data-en="Membership">Članstvo</span></a></li><li><a href="o-nama.html"><span data-hr="O nama" data-en="About">O nama</span></a></li><li><a href="donacije.html"><span data-hr="Donacije" data-en="Donate">Donacije</span></a></li><li><a href="kontakt.html"><span data-hr="Kontakt" data-en="Contact">Kontakt</span></a></li><li><a href="https://jelena-m.github.io/usf-smjernice/" target="_blank" rel="noopener"><span data-hr="Brand smjernice" data-en="Brand guidelines">Brand smjernice</span></a></li></ul>
+      </div>
+      <!-- Col 3: Newsletter -->
+      <div class="footer-col">
+        <p style="font-size:0.88rem;font-weight:400;color:var(--text-muted);margin-bottom:14px;"><span data-hr="Pretplati se na newsletter" data-en="Subscribe to our newsletter">Pretplati se na newsletter</span></p>
+        <form onsubmit="usfNewsletterSubmit(event, this)" style="display:flex;flex-direction:column;gap:8px;">
+          <input type="text" placeholder="Ime" data-hr-placeholder="Ime" data-en-placeholder="Name" style="background:rgba(255,255,255,0.06);border:none;border-radius:10px;padding:10px 16px;color:#fff;font-size:0.82rem;font-family:inherit;outline:none;" required>
+          <input type="email" placeholder="Email" data-hr-placeholder="Email" data-en-placeholder="Email" style="background:rgba(255,255,255,0.06);border:none;border-radius:10px;padding:10px 16px;color:#fff;font-size:0.82rem;font-family:inherit;outline:none;" required>
+          <p style="font-size:0.72rem;color:var(--text-faint);line-height:1.5;margin-top:4px;"><span data-hr="Pretplatom pristajete na našu " data-en="By subscribing you agree to our ">Pretplatom pristajete na našu </span><a href="legal.html" style="color:var(--text-faint);text-decoration:underline;transition:color 0.3s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text-faint)'"><span data-hr="politiku privatnosti" data-en="Privacy Policy">politiku privatnosti</span></a>.</p>
+          <button type="submit" style="background:rgba(255,255,255,0.08);color:var(--text-muted);border:none;border-radius:10px;padding:10px 20px;font-size:0.85rem;font-weight:400;font-family:inherit;cursor:pointer;transition:all 0.3s;white-space:nowrap;width:100%;margin-top:4px;" onmouseover="this.style.background='rgba(255,255,255,0.15)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.08)';this.style.color='var(--text-muted)'"><span data-hr="Pretplati se" data-en="Subscribe">Pretplati se</span></button>
+        </form>
+      </div>
+    </div>
     <div class="footer-bottom">
-      <span>&copy; 2026 Udruga sportskih fizioterapeuta. Sva prava pridržana.</span>
-      <span><a href="index.html" style="color: #3B5BFF;">&larr; Povratak na naslovnicu</a></span>
+      <span><span data-hr="© 2026 Udruga sportskih fizioterapeuta" data-en="© 2026 Association of Sports Physiotherapists">© 2026 Udruga sportskih fizioterapeuta</span> <span class="footer-sep" style="display:inline-block;width:24px;"></span> <a href="legal.html" class="footer-legal" style="color:var(--text-faint);transition:color 0.3s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text-faint)'"><span data-hr="Pravne informacije" data-en="Legal">Pravne informacije</span></a></span>
+      <span>Website by <a href="https://pegula.studio" target="_blank" style="color:var(--text-faint);transition:color 0.3s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text-faint)'">pegula.studio</a></span>
+    </div>
     </div>
   </footer>
 
@@ -355,5 +597,70 @@
     })();
   </script>
 
+  <script>
+  /* The menu only shows and hides now. Nothing moves in or out of it, so
+     nothing can be left in the wrong place. */
+  function usfToggleNav(btn) {
+    var nl = document.querySelector('.nav-links');
+    if (!nl) return;
+    var open = !nl.classList.contains('show');
+    nl.classList.toggle('show', open);
+    if (btn) btn.classList.toggle('open', open);
+    document.documentElement.classList.toggle('usf-nav-open', open);
+  }
+  
+  /* A wide window must never be left holding the menu open. */
+  window.addEventListener('resize', function () {
+    if (window.innerWidth > 768) {
+      var nl = document.querySelector('.nav-links');
+      var t = document.querySelector('.menu-toggle');
+      if (nl) nl.classList.remove('show');
+      if (t) t.classList.remove('open');
+      document.documentElement.classList.remove('usf-nav-open');
+    }
+  });
+  </script>
+  <!-- ROUND 123 — sigurnosna mreža za pomicanje stranice -->
+  <script>
+  (function () {
+    var html = document.documentElement;
+    var unlock = function () { html.classList.remove('loading'); };
+    /* Kartica koja se tek sad vidi: animacija je možda stajala. */
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) setTimeout(unlock, 900);
+    });
+    /* Povratak na stranicu iz povijesti preglednika. */
+    window.addEventListener('pageshow', function () { setTimeout(unlock, 1200); });
+    /* Zadnja crta: nakon tri sekunde ništa više ne smije držati bravu. */
+    setTimeout(unlock, 3000);
+    /* Klik na stavku izbornika zatvara izbornik — i skida bravu s njim. */
+    document.addEventListener('click', function (e) {
+      var t = e.target;
+      if (t && t.closest && t.closest('.nav-links a')) html.classList.remove('usf-nav-open');
+    }, true);
+  })();
+  </script>
+  <!-- ROUND 136 — pretplata se pamti; prije se bacala uz alert prozorcic -->
+  <script>
+  function usfNewsletterSubmit(e, form) {
+    e.preventDefault();
+    var f = form.querySelectorAll('input');
+    var ime = (f[0] && f[0].value || '').trim();
+    var mail = (f[1] && f[1].value || '').trim();
+    if (!mail) return;
+    try {
+      var list = JSON.parse(localStorage.getItem('usf_newsletter') || '[]');
+      if (!list.some(function (x) { return (x.email || '').toLowerCase() === mail.toLowerCase(); })) {
+        list.push({ name: ime, email: mail, date: new Date().toISOString(),
+                    source: (location.pathname.split('/').pop() || 'index.html'),
+                    lang: document.documentElement.lang === 'en' ? 'en' : 'hr' });   /* ROUND 169: jezik mailova */
+        localStorage.setItem('usf_newsletter', JSON.stringify(list));
+      }
+    } catch (err) {}
+    var en = document.documentElement.lang === 'en';
+    form.innerHTML = '<p style="font-size:0.88rem;color:rgba(255,255,255,0.7);line-height:1.6;margin:0;">' +
+      (en ? 'Thank you \u2014 you are on the list.' : 'Hvala \u2014 na popisu ste.') + '</p>';
+  }
+  </script>
 </body>
 </html>

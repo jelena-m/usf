@@ -8,6 +8,7 @@ USFHANDOFF.md
 
 # Brand materijali — objavljeni zasebno na jelena-m/usf-smjernice
 USF-Brand-Mockups.html
+potpis.html
 USF-Brand-Mockups.pptx
 USF-Logo-Files.zip
 USF-Logo-Files/
@@ -21,3 +22,9 @@ mockups/
 # Ne koristi ih nijedna javna stranica
 admin.html
 email-template.html
+
+# Lokalni alat za pregled — ne ide u javni repozitorij
+_pregled.html
+
+# Interne snimke zaslona iz rada s Claudeom — ne idu u javni repozitorij
+Claude outputs/
