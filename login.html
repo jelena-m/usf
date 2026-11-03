@@ -4,7 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <title>USF — Prijava</title>
+  <!-- ROUND 112: prikaz lozinke i centrirana poveznica --><!-- ROUND 113: prijava otvara početni zaslon --><!-- ROUND 132: mis nad okom za lozinku --><!-- ROUND 137: lozinka kao sazetak --><title>USF — Prijava</title>
+  <!-- ROUND 192: preview linka — bijeli USF logo na plavoj pozadini (og-image.png) -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="USF - Udruga sportskih fizioterapeuta">
+  <meta property="og:locale" content="hr_HR">
+  <meta property="og:url" content="https://jelena-m.github.io/usf/login.html">
+  <meta property="og:title" content="USF — Prijava">
+  <meta property="og:description" content="Službena stranica Udruge sportskih fizioterapeuta. Edukacije, članstvo, blog i resursi za sportske fizioterapeute u Hrvatskoj.">
+  <meta property="og:image" content="https://jelena-m.github.io/usf/og-image.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="USF">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="USF — Prijava">
+  <meta name="twitter:description" content="Službena stranica Udruge sportskih fizioterapeuta. Edukacije, članstvo, blog i resursi za sportske fizioterapeute u Hrvatskoj.">
+  <meta name="twitter:image" content="https://jelena-m.github.io/usf/og-image.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;700;800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -246,6 +262,13 @@
     }
 
     /* SUBMIT BUTTON */
+    /* ROUND 156: ista visina gumba kao u aplikaciji (42 px, na mobitelu 44) */
+    .submit-btn, .social-btn, .verify-btn, .tab {
+      box-sizing: border-box; min-height: 42px; padding-top: 0 !important; padding-bottom: 0 !important;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .submit-btn, .social-btn { display: flex; }
+    @media (max-width: 768px) { .submit-btn, .social-btn, .verify-btn, .tab { min-height: 44px; } }
     .submit-btn {
       width: 100%;
       padding: 14px;
@@ -264,16 +287,46 @@
 
     /* MEMBERSHIP PAYMENT INFO */
 
+    /* ===== ROUND 112 — oko za lozinku ===== */
+    .pw-wrap { position: relative; display: block; }
+    /* mjesta za oko, da se tekst lozinke ne podvuče pod njega */
+    .pw-wrap .form-input { padding-right: 52px; }
+    .pw-toggle {
+      position: absolute; right: 2px; top: 50%; transform: translateY(-50%);
+      min-width: 44px; min-height: 44px;
+      display: flex; align-items: center; justify-content: center;
+      background: none; border: none; padding: 0; border-radius: 10px;
+      /* ROUND 132: bilo je cursor: none, pa je mis nestajao nad okom */
+      color: rgba(255,255,255,0.4); cursor: pointer;
+      transition: color 0.2s;
+    }
+    .pw-toggle:hover { color: #fff; }
+    .pw-toggle svg { width: 20px; height: 20px; display: block; }
+    /* zatvoreno oko se vidi tek kad je lozinka otkrivena */
+    .pw-toggle .pw-eye-off { display: none; }
+    .pw-toggle.is-shown .pw-eye { display: none; }
+    .pw-toggle.is-shown .pw-eye-off { display: block; }
+    .pw-toggle.is-shown { color: #fff; }
+
     /* FORGOT PASSWORD LINK */
     .forgot-link {
+      /* Centrirana i odmaknuta od gumba, a dodirna površina je 44 px visoka
+         bez da je link razvučen preko cijele širine. */
       display: block;
+      width: fit-content;
+      margin: 12px auto 0;
+      padding: 14px 10px;
       text-align: center;
-      margin-top: 20px;
       font-size: 14px;
       color: rgba(255,255,255,0.4);
       transition: color 0.2s;
     }
     .forgot-link:hover { color: var(--blue); }
+    /* ROUND 137: prototip to i kaze, ondje gdje se upisuje lozinka */
+    .usf-proto-note {
+      margin: 22px auto 0; max-width: 380px; text-align: center;
+      font-size: 13px; line-height: 1.55; color: rgba(255,255,255,0.42);
+    }
 
     /* CHECKBOXES */
     .checkbox-group { margin-bottom: 14px; }
@@ -384,6 +437,15 @@
       .form-row { flex-direction: column; gap: 0; }
       .tab { padding: 10px 24px; font-size: 13px; }
 
+      /* iOS zooms into a field under 16px the moment it is focused */
+      input:not([type=checkbox]):not([type=radio]), select, textarea { font-size: 16px !important; }
+      /* a thumb needs about 44px: the two tabs, the forgot link, the links in
+         the registration text, the caret of the occupation picker */
+      .tab { min-height: 44px; }
+      /* ROUND 112: pravilo iz runde 103 uzimalo je linku centriranje
+         (inline-block) i privlačilo ga uz gumb (negativne margine). */
+      .terms-text a, .register-terms a, label a, p a { display: inline-block; padding: 10px 0; margin: -10px 0; }
+      .usf-combo-caret { padding: 13px 12px; right: 0; }
     }
   </style>
 </head>
@@ -454,12 +516,14 @@
           </div>
           <div class="form-group">
             <label class="form-label" data-hr="Lozinka" data-en="Password">Lozinka</label>
-            <input type="password" id="loginPassword" class="form-input" placeholder="••••••" required autocomplete="current-password">
+            <div class="pw-wrap"><input type="password" id="loginPassword" class="form-input" placeholder="••••••" required autocomplete="current-password"><button type="button" class="pw-toggle" tabindex="-1" onclick="usfTogglePassword(this)" aria-label="Prikaži lozinku"><svg class="pw-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="pw-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button></div>
           </div>
           <div id="loginError" class="error-msg"></div>
           <button type="submit" class="submit-btn" data-hr="Prijavi se" data-en="Log in">Prijavi se</button>
         </form>
         <a href="#" class="forgot-link" onclick="showToast(document.documentElement.lang==='en'?'Password reset coming soon':'Resetiranje lozinke uskoro dostupno');return false;" data-hr="Zaboravljena lozinka?" data-en="Forgot password?">Zaboravljena lozinka?</a>
+        <!-- ROUND 137 -->
+        <p class="usf-proto-note" data-hr="Ovo je prototip: računi i lozinke spremaju se samo u ovom pregledniku. Ne koristite lozinku koju imate negdje drugdje." data-en="This is a prototype: accounts and passwords are stored only in this browser. Don&#39;t use a password you use anywhere else.">Ovo je prototip: računi i lozinke spremaju se samo u ovom pregledniku. Ne koristite lozinku koju imate negdje drugdje.</p>
       </div>
 
       <!-- REGISTER VIEW -->
@@ -514,11 +578,11 @@
           </div>
           <div class="form-group">
             <label class="form-label" data-hr="Lozinka" data-en="Password">Lozinka</label>
-            <input type="password" id="regPassword" class="form-input" placeholder="Min. 6 znakova" required minlength="6" autocomplete="new-password">
+            <div class="pw-wrap"><input type="password" id="regPassword" class="form-input" placeholder="Min. 6 znakova" required minlength="6" autocomplete="new-password"><button type="button" class="pw-toggle" tabindex="-1" onclick="usfTogglePassword(this)" aria-label="Prikaži lozinku"><svg class="pw-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="pw-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button></div>
           </div>
           <div class="form-group">
             <label class="form-label" data-hr="Potvrdi lozinku" data-en="Confirm password">Potvrdi lozinku</label>
-            <input type="password" id="regPasswordConfirm" class="form-input" placeholder="Ponovi lozinku" required minlength="6" autocomplete="new-password">
+            <div class="pw-wrap"><input type="password" id="regPasswordConfirm" class="form-input" placeholder="Ponovi lozinku" required minlength="6" autocomplete="new-password"><button type="button" class="pw-toggle" tabindex="-1" onclick="usfTogglePassword(this)" aria-label="Prikaži lozinku"><svg class="pw-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="pw-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button></div>
           </div>
 
           <!-- Consents -->
@@ -570,6 +634,8 @@
           <div id="registerError" class="error-msg"></div>
           <button type="submit" class="submit-btn" data-hr="Registriraj se" data-en="Register">Registriraj se</button>
         </form>
+        <!-- ROUND 137 -->
+        <p class="usf-proto-note" data-hr="Ovo je prototip: računi i lozinke spremaju se samo u ovom pregledniku. Ne koristite lozinku koju imate negdje drugdje." data-en="This is a prototype: accounts and passwords are stored only in this browser. Don&#39;t use a password you use anywhere else.">Ovo je prototip: računi i lozinke spremaju se samo u ovom pregledniku. Ne koristite lozinku koju imate negdje drugdje.</p>
       </div>
 
     </div>
@@ -681,15 +747,25 @@
       users.forEach(u => { have[String(u.email).toLowerCase()] = true; });
       let maxId = users.reduce((m, u) => Math.max(m, u.id || 0), 0);
       let added = 0;
-      [{ firstName: 'Demo', lastName: 'Admin', email: 'demo.admin@usf.hr', role: 'admin' },
-       { firstName: 'Demo', lastName: 'Član', email: 'demo.clan@usf.hr', role: 'user' }
+      [{ firstName: 'Demo', lastName: 'Admin', email: 'demo.admin@usf.hr', role: 'admin', pw: 'usf2026' },
+       { firstName: 'Demo', lastName: 'Član', email: 'demo.clan@usf.hr', role: 'user', pw: 'usf2026' },
+       /* the walk-through set; the app fills in what each one owns */
+       { firstName: 'Novi', lastName: 'Clan', email: 'test.novi@usf.hr', role: 'user', pw: 'test2026' },
+       { firstName: 'Aktivni', lastName: 'Clan', email: 'test.clan@usf.hr', role: 'user', pw: 'test2026' },
+       { firstName: 'Uskoro', lastName: 'Istjece', email: 'test.uskoro@usf.hr', role: 'user', pw: 'test2026' },
+       { firstName: 'Istekla', lastName: 'Clanarina', email: 'test.istekla@usf.hr', role: 'user', pw: 'test2026' },
+       { firstName: 'Uplatnica', lastName: 'Ceka', email: 'test.uplatnica@usf.hr', role: 'user', pw: 'test2026' },
+       { firstName: 'Ima', lastName: 'Certifikat', email: 'test.certifikat@usf.hr', role: 'user', pw: 'test2026' },
+       { firstName: 'Glavni', lastName: 'Admin', email: 'test.admin@usf.hr', role: 'admin', pw: 'test2026' },
+       { firstName: 'Admin', lastName: 'Edukacija', email: 'test.admin.edu@usf.hr', role: 'user', pw: 'test2026' },
+       { firstName: 'Admin', lastName: 'Uplata', email: 'test.admin.uplate@usf.hr', role: 'user', pw: 'test2026' }
       ].forEach(a => {
         if (have[a.email]) return;
         maxId += 1; added += 1;
         users.push({
           id: maxId, firstName: a.firstName, lastName: a.lastName, email: a.email,
           phone: '+385 91 000 00' + maxId, specialization: 'Sportska fizioterapija',
-          password: 'usf2026', role: a.role,
+          password: a.pw || 'usf2026', role: a.role,
           membershipStatus: 'active', membershipExpiry: '2027-12-31',
           registeredAt: '2026-01-05T09:00:00.000Z',
           enrolledEvents: [], attendedEvents: [], payments: [],
@@ -701,14 +777,100 @@
       if (added) localStorage.setItem('usf_users', JSON.stringify(users));
     }
 
+
+    /* ===== ROUND 137 — lozinka se sprema kao sazetak =====================
+       SHA-256 napisan ovdje, a ne crypto.subtle, jer crypto.subtle ne radi
+       kad je stranica otvorena izravno s diska (file://). */
+    function usfSha256(str) {
+      var bytes = new TextEncoder().encode(String(str));
+      var K = [0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+               0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+               0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+               0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+               0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+               0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+               0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+               0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+      var H = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+      var l = bytes.length;
+      var total = Math.ceil((l + 9) / 64) * 64;
+      var m = new Uint8Array(total);
+      m.set(bytes); m[l] = 0x80;
+      var dv = new DataView(m.buffer);
+      var bits = l * 8;
+      dv.setUint32(total - 8, Math.floor(bits / 0x100000000));
+      dv.setUint32(total - 4, bits >>> 0);
+      var W = new Uint32Array(64);
+      for (var off = 0; off < total; off += 64) {
+        var t;
+        for (t = 0; t < 16; t++) W[t] = dv.getUint32(off + t * 4);
+        for (t = 16; t < 64; t++) {
+          var x = W[t - 15], y = W[t - 2];
+          var s0 = ((x >>> 7) | (x << 25)) ^ ((x >>> 18) | (x << 14)) ^ (x >>> 3);
+          var s1 = ((y >>> 17) | (y << 15)) ^ ((y >>> 19) | (y << 13)) ^ (y >>> 10);
+          W[t] = (W[t - 16] + s0 + W[t - 7] + s1) >>> 0;
+        }
+        var a = H[0], b = H[1], c = H[2], d = H[3], e = H[4], f = H[5], g = H[6], h = H[7];
+        for (t = 0; t < 64; t++) {
+          var S1 = ((e >>> 6) | (e << 26)) ^ ((e >>> 11) | (e << 21)) ^ ((e >>> 25) | (e << 7));
+          var ch = (e & f) ^ (~e & g);
+          var t1 = (h + S1 + ch + K[t] + W[t]) >>> 0;
+          var S0 = ((a >>> 2) | (a << 30)) ^ ((a >>> 13) | (a << 19)) ^ ((a >>> 22) | (a << 10));
+          var mj = (a & b) ^ (a & c) ^ (b & c);
+          var t2 = (S0 + mj) >>> 0;
+          h = g; g = f; f = e; e = (d + t1) >>> 0; d = c; c = b; b = a; a = (t1 + t2) >>> 0;
+        }
+        H[0] = (H[0] + a) >>> 0; H[1] = (H[1] + b) >>> 0; H[2] = (H[2] + c) >>> 0; H[3] = (H[3] + d) >>> 0;
+        H[4] = (H[4] + e) >>> 0; H[5] = (H[5] + f) >>> 0; H[6] = (H[6] + g) >>> 0; H[7] = (H[7] + h) >>> 0;
+      }
+      return H.map(function (v) { return ('00000000' + v.toString(16)).slice(-8); }).join('');
+    }
+    /* Email ulazi u sazetak, pa dvije iste lozinke ne daju isti zapis. */
+    function usfPwHash(email, pw) {
+      return 's1:' + usfSha256('usf|' + String(email || '').trim().toLowerCase() + '|' + String(pw || ''));
+    }
+    function usfPwMatches(user, email, pw) {
+      if (!user) return false;
+      if (user.passwordHash) return user.passwordHash === usfPwHash(email, pw);
+      return typeof user.password === 'string' && user.password === pw;   // stari zapis
+    }
+    /* Svaka citljiva lozinka u spremistu postaje sazetak. */
+    function usfScrubPasswords() {
+      var fix = function (u) {
+        if (!u || typeof u.password !== 'string') return false;
+        if (!u.passwordHash) u.passwordHash = usfPwHash(u.email, u.password);
+        delete u.password;
+        return true;
+      };
+      try {
+        var users = JSON.parse(localStorage.getItem('usf_users') || '[]');
+        var changed = false;
+        users.forEach(function (u) { if (fix(u)) changed = true; });
+        if (changed) localStorage.setItem('usf_users', JSON.stringify(users));
+      } catch (e) {}
+      try {
+        var cu = JSON.parse(localStorage.getItem('usf_current_user') || 'null');
+        if (fix(cu)) localStorage.setItem('usf_current_user', JSON.stringify(cu));
+      } catch (e) {}
+    }
+
     // ===== INIT =====
     seedData();
     usfEnsureClientAccounts();
+    usfScrubPasswords();
+
+    /* ROUND 153: link iz maila (npr. na edukaciju) vodi tamo i nakon prijave */
+    function usfNextHash() {
+      try {
+        var n = new URLSearchParams(location.search).get('next') || '';
+        return /^#\/[A-Za-z0-9\/\-_.@%]+$/.test(n) ? n : '';
+      } catch (e) { return ''; }
+    }
 
     // Redirect if already logged in
     const currentUser = localStorage.getItem('usf_current_user');
     if (currentUser) {
-      window.location.href = 'dashboard.html';
+      window.location.replace('dashboard.html' + usfNextHash());   /* ROUND 161: bez zapisa u povijesti */
     }
 
     // ===== TAB SWITCHING =====
@@ -745,7 +907,13 @@
       const isEn = document.documentElement.lang === 'en';
 
       const users = JSON.parse(localStorage.getItem('usf_users') || '[]');
-      const user = users.find(u => u.email === email && u.password === password);
+      /* ROUND 137: usporeduju se sazeci; stari citljivi zapis jos se
+         prihvaca jednom, pa se odmah pretvori. */
+      const user = users.find(u => u.email === email && usfPwMatches(u, email, password));
+      if (user && typeof user.password === 'string') {
+        user.passwordHash = usfPwHash(email, password);
+        delete user.password;
+      }
 
       if (!user) {
         errorEl.textContent = isEn ? 'Invalid email or password.' : 'Neispravna email adresa ili lozinka.';
@@ -759,7 +927,10 @@
       users[idx] = user;
       localStorage.setItem('usf_users', JSON.stringify(users));
       localStorage.setItem('usf_current_user', JSON.stringify(user));
-      window.location.href = 'dashboard.html';
+      /* Nova prijava ne nastavlja ondje gdje je netko stao: zapamćeni panel
+         se briše, pa aplikacija otvara svoj početni zaslon. */
+      try { Object.keys(localStorage).forEach(function(k) { if (k.indexOf('usf_active_panel') === 0) localStorage.removeItem(k); }); } catch (e) {}   /* ROUND 161: kljuc je po racunu od runde 159 */
+      window.location.replace('dashboard.html' + usfNextHash());   /* ROUND 161: bez zapisa u povijesti */
     }
 
     // ===== REGISTER =====
@@ -834,7 +1005,8 @@
         studentDocFileName: null,
         emailVerified: emailVerified,
         consentTransactional: true,
-        password,
+        /* ROUND 137: samo sazetak, nikad upisana lozinka */
+        passwordHash: usfPwHash(email, password),
         role: 'user',
         membershipStatus: 'inactive',
         membershipExpiry: null,
@@ -846,13 +1018,17 @@
         lastLogin: null,
         consentStatute: true,
         consentPrivacy: true,
-        consentEmail: consentEmailVal
+        consentEmail: consentEmailVal,
+        lang: document.documentElement.lang === 'en' ? 'en' : 'hr'   /* ROUND 161: jezik mailova = jezik stranice pri registraciji */
       };
 
       users.push(newUser);
       localStorage.setItem('usf_users', JSON.stringify(users));
       localStorage.setItem('usf_current_user', JSON.stringify(newUser));
-      window.location.href = 'dashboard.html';
+      /* Nova prijava ne nastavlja ondje gdje je netko stao: zapamćeni panel
+         se briše, pa aplikacija otvara svoj početni zaslon. */
+      try { Object.keys(localStorage).forEach(function(k) { if (k.indexOf('usf_active_panel') === 0) localStorage.removeItem(k); }); } catch (e) {}   /* ROUND 161: kljuc je po racunu od runde 159 */
+      window.location.replace('dashboard.html' + usfNextHash());   /* ROUND 161: bez zapisa u povijesti */
     }
 
     // ===== SOCIAL LOGIN (SIMULATED) =====
@@ -954,6 +1130,20 @@
           }
         }
       });
+    }
+
+    /* Oko pokraj lozinke: polje se prebacuje između password i text. */
+    function usfTogglePassword(btn) {
+      var input = btn.parentElement && btn.parentElement.querySelector('input');
+      if (!input) return;
+      var show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.classList.toggle('is-shown', show);
+      var en = document.documentElement.lang === 'en';
+      btn.setAttribute('aria-label', show ? (en ? 'Hide password' : 'Sakrij lozinku')
+                                          : (en ? 'Show password' : 'Prikaži lozinku'));
+      /* fokus se vraća u polje, na isto mjesto u tekstu */
+      try { var p = input.selectionStart; input.focus(); if (p !== null) input.setSelectionRange(p, p); } catch (e) {}
     }
 
     function switchLang(lang) {
@@ -1180,5 +1370,25 @@
   })();
   </script>
 
+  <!-- ROUND 123 — sigurnosna mreža za pomicanje stranice -->
+  <script>
+  (function () {
+    var html = document.documentElement;
+    var unlock = function () { html.classList.remove('loading'); };
+    /* Kartica koja se tek sad vidi: animacija je možda stajala. */
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) setTimeout(unlock, 900);
+    });
+    /* Povratak na stranicu iz povijesti preglednika. */
+    window.addEventListener('pageshow', function () { setTimeout(unlock, 1200); });
+    /* Zadnja crta: nakon tri sekunde ništa više ne smije držati bravu. */
+    setTimeout(unlock, 3000);
+    /* Klik na stavku izbornika zatvara izbornik — i skida bravu s njim. */
+    document.addEventListener('click', function (e) {
+      var t = e.target;
+      if (t && t.closest && t.closest('.nav-links a')) html.classList.remove('usf-nav-open');
+    }, true);
+  })();
+  </script>
 </body>
 </html>

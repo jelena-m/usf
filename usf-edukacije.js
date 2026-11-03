@@ -704,3 +704,122 @@ var USF_EDUCATIONS = [
     descriptionHr: "", descriptionEn: ""
   }
 ];
+
+/* ROUND 131 — Predavaci.
+   Isti zapis koji je dosad stajao u predavac.html. Ovdje ga citaju i javna
+   stranica i aplikacija, pa profil predavaca izgleda isto na oba mjesta.
+   Admin ih u aplikaciji moze nadpisati (usf_instructors); ovo je polaziste. */
+var USF_SPEAKERS = {
+      1: {
+        name: 'Dr. Marko Petrović',
+        photo: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=400&fit=crop&crop=faces',
+        titleHr: 'Specijalist sportske fizioterapije',
+        titleEn: 'Sports Physiotherapy Specialist',
+        bioHr: 'Dr. Marko Petrović je vodeći stručnjak za sportsku fizioterapiju u Hrvatskoj s više od 15 godina iskustva u radu s profesionalnim sportašima. Doktorirao je na Kineziološkom fakultetu u Zagrebu s temom o prevenciji ozljeda ACL-a. Trenutno radi kao glavni fizioterapeut u jednom od vodećih hrvatskih sportskih klubova i redoviti je predavač na međunarodnim konferencijama.',
+        bioEn: 'Dr. Marko Petrović is a leading sports physiotherapy expert in Croatia with over 15 years of experience working with professional athletes. He earned his PhD from the Faculty of Kinesiology in Zagreb, focusing on ACL injury prevention. He currently serves as the head physiotherapist at one of Croatia\'s top sports clubs and is a regular speaker at international conferences.',
+        certificatesHr: ['Doktorat kineziologije — Kineziološki fakultet Zagreb', 'PDTR certifikat — Level 3', 'FIFA Medical Certificate', 'Dry Needling — Advanced Practitioner'],
+        certificatesEn: ['PhD in Kinesiology — Faculty of Kinesiology Zagreb', 'PDTR Certificate — Level 3', 'FIFA Medical Certificate', 'Dry Needling — Advanced Practitioner'],
+        specializationsHr: ['Prevencija ozljeda ACL-a', 'Rehabilitacija sportskih ozljeda', 'Manualna terapija', 'Sportska biomehanika'],
+        specializationsEn: ['ACL injury prevention', 'Sports injury rehabilitation', 'Manual therapy', 'Sports biomechanics'],
+        contactEmail: 'marko.petrovic@usf.hr',
+        educationIds: [1, 2]
+      },
+      2: {
+        name: 'Ana Horvat, mag. physioth.',
+        photo: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=400&fit=crop&crop=faces',
+        titleHr: 'Magistra fizioterapije',
+        titleEn: 'Master of Physiotherapy',
+        bioHr: 'Ana Horvat je magistra fizioterapije s posebnim interesom za dry needling i miofascijalnu terapiju. Radi u privatnoj praksi u Zagrebu i aktivna je članica međunarodnih stručnih udruženja. Redovito pohađa konferencije i radionice diljem Europe kako bi bila u toku s najnovijim istraživanjima i tehnikama.',
+        bioEn: 'Ana Horvat holds a Master\'s degree in physiotherapy with a special interest in dry needling and myofascial therapy. She works in private practice in Zagreb and is an active member of international professional associations. She regularly attends conferences and workshops across Europe to stay current with the latest research and techniques.',
+        certificatesHr: ['Magistra fizioterapije — Zdravstveno veleučilište Zagreb', 'Dry Needling — Certified Practitioner', 'Myofascial Release Certification'],
+        certificatesEn: ['MSc Physiotherapy — Zagreb Health Polytechnic', 'Dry Needling — Certified Practitioner', 'Myofascial Release Certification'],
+        specializationsHr: ['Dry needling', 'Miofascijalna terapija', 'Trigger point terapija', 'Sportska rehabilitacija'],
+        specializationsEn: ['Dry needling', 'Myofascial therapy', 'Trigger point therapy', 'Sports rehabilitation'],
+        contactEmail: 'ana.horvat@usf.hr',
+        educationIds: [1]
+      },
+      3: {
+        name: 'Prof. dr. sc. Thomas Weber',
+        photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=faces',
+        titleHr: 'Profesor sportske medicine — Sveučilište u Münchenu',
+        titleEn: 'Professor of Sports Medicine — University of Munich',
+        bioHr: 'Prof. Thomas Weber je priznati njemački stručnjak za sportsku medicinu i fizioterapiju. Predaje na Sveučilištu u Münchenu i autor je brojnih znanstvenih radova o rehabilitaciji koljena. Surađuje s vodećim europskim sportskim klubovima i nacionalnim timovima.',
+        bioEn: 'Prof. Thomas Weber is a renowned German expert in sports medicine and physiotherapy. He teaches at the University of Munich and has authored numerous scientific papers on knee rehabilitation. He collaborates with leading European sports clubs and national teams.',
+        certificatesHr: ['Doktorat sportske medicine — LMU München', 'Europski specijalist sportske fizioterapije', 'DFB Medical Certificate'],
+        certificatesEn: ['PhD in Sports Medicine — LMU Munich', 'European Sports Physiotherapy Specialist', 'DFB Medical Certificate'],
+        specializationsHr: ['Rehabilitacija koljena', 'Sportska medicina', 'Biomehanika', 'Istraživanje u fizioterapiji'],
+        specializationsEn: ['Knee rehabilitation', 'Sports medicine', 'Biomechanics', 'Physiotherapy research'],
+        contactEmail: 'thomas.weber@usf.hr',
+        educationIds: [2]
+      },
+      4: {
+        name: 'Prof. Ivan Šimunović',
+        photo: 'https://images.unsplash.com/photo-1607990281513-2c110a25bd8c?w=400&h=400&fit=crop&crop=faces',
+        titleHr: 'Profesor fizioterapije',
+        titleEn: 'Professor of Physiotherapy',
+        bioHr: 'Prof. Ivan Šimunović je iskusni fizioterapeut i profesor s dugogodišnjim radom u području ultrazvučne dijagnostike mišićno-koštanog sustava. Predaje na više fakulteta u Hrvatskoj i autor je udžbenika iz fizioterapije.',
+        bioEn: 'Prof. Ivan Šimunović is an experienced physiotherapist and professor with extensive work in musculoskeletal ultrasound diagnostics. He teaches at multiple faculties in Croatia and has authored physiotherapy textbooks.',
+        certificatesHr: ['Profesor fizioterapije', 'EFSUMB Ultrasound Certificate', 'Certified MSK Sonographer'],
+        certificatesEn: ['Professor of Physiotherapy', 'EFSUMB Ultrasound Certificate', 'Certified MSK Sonographer'],
+        specializationsHr: ['MSK ultrazvuk', 'Dijagnostika ozljeda', 'Rehabilitacija ramena', 'Edukacija u fizioterapiji'],
+        specializationsEn: ['MSK ultrasound', 'Injury diagnostics', 'Shoulder rehabilitation', 'Physiotherapy education'],
+        contactEmail: 'ivan.simunovic@usf.hr',
+        educationIds: [3]
+      },
+      5: {
+        name: 'Prof. Clare Ardern, PhD',
+        photo: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=400&fit=crop&crop=faces',
+        titleHr: 'Profesorica sportske fizioterapije — Linköping University',
+        titleEn: 'Professor of Sports Physiotherapy — Linköping University',
+        bioHr: 'Prof. Clare Ardern je jedna od najcitiranijih istraživačica u području sportske fizioterapije na svijetu. Njezin rad na temu povratka u sport nakon ozljede ACL-a promijenio je kliničku praksu globalno. Predaje na Linköping University u Švedskoj.',
+        bioEn: 'Prof. Clare Ardern is one of the most cited researchers in sports physiotherapy globally. Her work on return-to-sport after ACL injury has changed clinical practice worldwide. She teaches at Linköping University in Sweden.',
+        certificatesHr: ['PhD Physiotherapy — University of Melbourne', 'JOSPT Editor', 'BJSM Associate Editor'],
+        certificatesEn: ['PhD Physiotherapy — University of Melbourne', 'JOSPT Editor', 'BJSM Associate Editor'],
+        specializationsHr: ['Povratak u sport', 'ACL rehabilitacija', 'Kliničko istraživanje', 'Evidence-based praksa'],
+        specializationsEn: ['Return to sport', 'ACL rehabilitation', 'Clinical research', 'Evidence-based practice'],
+        contactEmail: 'clare.ardern@usf.hr',
+        educationIds: [4]
+      },
+      6: {
+        name: 'Dr. Erik Meira, DPT',
+        photo: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400&h=400&fit=crop&crop=faces',
+        titleHr: 'Doktor fizioterapije — Portland, SAD',
+        titleEn: 'Doctor of Physical Therapy — Portland, USA',
+        bioHr: 'Dr. Erik Meira je fizioterapeut iz Portlanda, SAD, poznat po svom radu u sportskoj rehabilitaciji i edukaciji. Osnivač je The Science PT klinike i popularan je edukator na društvenim mrežama gdje dijeli evidence-based pristup fizioterapiji.',
+        bioEn: 'Dr. Erik Meira is a physical therapist from Portland, USA, known for his work in sports rehabilitation and education. He is the founder of The Science PT clinic and a popular educator on social media, sharing evidence-based approaches to physiotherapy.',
+        certificatesHr: ['DPT — Pacific University', 'OCS — Orthopedic Clinical Specialist', 'CSCS — Certified Strength and Conditioning Specialist'],
+        certificatesEn: ['DPT — Pacific University', 'OCS — Orthopedic Clinical Specialist', 'CSCS — Certified Strength and Conditioning Specialist'],
+        specializationsHr: ['Sportska rehabilitacija', 'Strength & conditioning', 'ACL rehabilitacija', 'Edukacija fizioterapeuta'],
+        specializationsEn: ['Sports rehabilitation', 'Strength & conditioning', 'ACL rehabilitation', 'Physiotherapist education'],
+        contactEmail: 'erik.meira@usf.hr',
+        educationIds: [4]
+      },
+      7: {
+        name: 'Marina Kos, mag. physioth.',
+        photo: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400&h=400&fit=crop&crop=faces',
+        titleHr: 'Magistra fizioterapije — specijalistkinja za ženski sport',
+        titleEn: 'Master of Physiotherapy — Women\'s Sports Specialist',
+        bioHr: 'Marina Kos je magistra fizioterapije specijalizirana za rad sa sportašicama. Njezin fokus je na specifičnostima ženskog sporta, prevenciji ozljeda kod sportašica i rehabilitaciji s obzirom na hormonalne cikluse. Aktivna je zagovarašica veće zastupljenosti žena u sportskoj fizioterapiji.',
+        bioEn: 'Marina Kos holds a Master\'s degree in physiotherapy specializing in working with female athletes. Her focus is on the specifics of women\'s sports, injury prevention in female athletes, and rehabilitation considering hormonal cycles. She actively advocates for greater representation of women in sports physiotherapy.',
+        certificatesHr: ['Magistra fizioterapije — Zdravstveno veleučilište Zagreb', 'Women in Sport Certificate — IOC', 'Pelvic Health Certification'],
+        certificatesEn: ['MSc Physiotherapy — Zagreb Health Polytechnic', 'Women in Sport Certificate — IOC', 'Pelvic Health Certification'],
+        specializationsHr: ['Ženski sport', 'Prevencija ozljeda sportašica', 'Hormonalni ciklus i sport', 'Zdjelično zdravlje'],
+        specializationsEn: ['Women\'s sports', 'Female athlete injury prevention', 'Hormonal cycle and sport', 'Pelvic health'],
+        contactEmail: 'marina.kos@usf.hr',
+        educationIds: [5]
+      },
+      8: {
+        name: 'Prof. dr. sc. Luka Đurić',
+        photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=faces',
+        titleHr: 'Profesor rehabilitacijskih znanosti',
+        titleEn: 'Professor of Rehabilitation Sciences',
+        bioHr: 'Prof. Luka Đurić je profesor na Medicinskom fakultetu u Zagrebu, specijaliziran za rehabilitacijske znanosti i sportsku traumatologiju. Vodi istraživačku grupu koja se bavi novim metodama rehabilitacije sportskih ozljeda i objavio je preko 50 znanstvenih radova.',
+        bioEn: 'Prof. Luka Đurić is a professor at the School of Medicine in Zagreb, specializing in rehabilitation sciences and sports traumatology. He leads a research group focused on new methods of sports injury rehabilitation and has published over 50 scientific papers.',
+        certificatesHr: ['Doktorat rehabilitacijskih znanosti — Medicinski fakultet Zagreb', 'Europski specijalist sportske traumatologije', 'ESSKA Member'],
+        certificatesEn: ['PhD Rehabilitation Sciences — Zagreb School of Medicine', 'European Sports Traumatology Specialist', 'ESSKA Member'],
+        specializationsHr: ['Sportska traumatologija', 'Rehabilitacijske znanosti', 'Istraživanje ozljeda', 'Klinička praksa'],
+        specializationsEn: ['Sports traumatology', 'Rehabilitation sciences', 'Injury research', 'Clinical practice'],
+        contactEmail: 'luka.djuric@usf.hr',
+        educationIds: [6]
+      }
+    };
