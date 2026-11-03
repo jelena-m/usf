@@ -734,6 +734,25 @@
       #enrollModal .usf-modal-x:active { background: rgba(255,255,255,0.08); color: #fff; }
     }
 
+    /* ===== ROUND 195: gumbi prijave na dnu ekrana; okviri jace vidljivi =====
+       Na mobitelu su gumbi prijave preko cijele sirine, jedan ispod drugog
+       (glavni gore), i stoje na dnu ekrana; sadrzaj se skrola iznad njih.
+       Na racunalu .usf-mbtns ne postoji kao okvir — gumbi stoje kao prije. */
+    .usf-mbtns { display: contents; }
+    @media (max-width: 768px) {
+      #enrollModal > .modal, #enrollModal > .modal.modal-wide { padding-bottom: calc(160px + env(safe-area-inset-bottom)); }
+      #enrollModal .modal-actions, #enrollModal .usf-mbtns {
+        display: flex; flex-direction: column; justify-content: flex-start; gap: 10px;
+        position: fixed; left: 0; right: 0; bottom: 0; z-index: 2; background: #141414;
+        margin: 0; padding: 16px 20px calc(16px + env(safe-area-inset-bottom));
+      }
+      #enrollModal .modal-actions .btn, #enrollModal .usf-mbtns .btn { width: 100%; margin: 0; justify-content: center; }
+      #enrollModal .modal-actions .btn-primary, #enrollModal .usf-mbtns .btn-primary { order: -1; }
+      /* Predavaci, Cijena, Detalji: pozadina kao kartice — 3 % bijele na crnom
+         se na mobitelu gotovo nije vidjelo */
+      .lead-box { background: var(--card); }
+    }
+
     /* ===== ENROLLMENT MODAL EXTENDED ===== */
     .modal.modal-wide { max-width: 560px; text-align: left; }
     .modal-wide h3 { text-align: center; }
@@ -2744,8 +2763,10 @@
         content.innerHTML =
           '<h3>' + (lang === 'hr' ? 'Potrebna prijava' : 'Login required') + '</h3>' +
           '<p>' + (lang === 'hr' ? 'Za prijavu na edukaciju potrebno je prijaviti se u svoj račun ili se registrirati.' : 'To sign up for this education, you need to log in or register.') + '</p>' +
+          '<div class="usf-mbtns">' +   /* ROUND 195 */
           '<button class="btn btn-primary" onclick="window.location.href=\'login.html\'">' + (lang === 'hr' ? 'Prijava' : 'Login') + '</button>' +
-          '<button class="btn btn-secondary" onclick="closeModal()">' + (lang === 'hr' ? 'Odustani' : 'Cancel') + '</button>';
+          '<button class="btn btn-secondary" onclick="closeModal()">' + (lang === 'hr' ? 'Odustani' : 'Cancel') + '</button>' +
+          '</div>';
       } else {
         // Logged in — show confirmation
         var evTitle = lang === 'hr' ? window._currentEvent.titleHr : window._currentEvent.titleEn;
@@ -2753,8 +2774,10 @@
           content.innerHTML =
             '<h3>' + (lang === 'hr' ? 'Prijava zainteresiranosti' : 'Register interest') + '</h3>' +
             '<p>' + (lang === 'hr' ? 'Želite li prijaviti zainteresiranost za edukaciju "' + evTitle + '"? Obavijestit ćemo vas kad se otvore nova mjesta ili novi termin.' : 'Would you like to register interest for "' + evTitle + '"? We will notify you when new spots open or a new term is available.') + '</p>' +
+            '<div class="usf-mbtns">' +   /* ROUND 195 */
             '<button class="btn btn-primary" onclick="confirmEnrollment(true)">' + (lang === 'hr' ? 'Prijavi me' : 'Register me') + '</button>' +
-            '<button class="btn btn-secondary" onclick="closeModal()">' + (lang === 'hr' ? 'Odustani' : 'Cancel') + '</button>';
+            '<button class="btn btn-secondary" onclick="closeModal()">' + (lang === 'hr' ? 'Odustani' : 'Cancel') + '</button>' +
+            '</div>';
         } else {
           // Same width as the payment step that follows it, so the flow doesn't jump.
           content.classList.add('modal-wide');
@@ -2797,8 +2820,12 @@
           '<div class="modal-success-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>' +
           '<h3>' + (lang === 'hr' ? 'Zainteresiranost zabilježena!' : 'Interest registered!') + '</h3>' +
           '<p>' + (lang === 'hr' ? 'Obavijestit ćemo vas čim se otvore nova mjesta ili novi termin za ovu edukaciju.' : 'We will notify you as soon as new spots open or a new term is available for this education.') + '</p>' +
-          '<button class="btn btn-primary" onclick="closeModal()">' + (lang === 'hr' ? 'U redu' : 'OK') + '</button>';
+          '<div class="usf-mbtns"><button class="btn btn-primary" onclick="closeModal()">' + (lang === 'hr' ? 'U redu' : 'OK') + '</button></div>';   /* ROUND 195 */
       } else {
+        /* ROUND 195: nema se sto platiti (ukljuceno u clanarinu, ili termin bez
+           kotizacije) — bez koraka s podacima za uplatu, odmah Prijava zavrsena */
+        var _fee95 = usfVisitorFee();
+        if (_fee95 === null || _fee95 === 0) { usfEnrolledNoPay(lang); return; }
         // Show payment info modal
         var ev = window._currentEvent;
         var memberPrice = lang === 'hr' ? ev.memberPriceHr : ev.memberPriceEn;
@@ -3322,6 +3349,33 @@
       }
     }
 
+    /* ===== ROUND 195: koliko ovaj posjetitelj placa za odabrani termin =====
+       Clan placa clansku cijenu, ostali cijenu za neclanove. Cijena koja nije
+       broj ("Ukljuceno u clanarinu", "Besplatno") znaci da nema sto platiti. */
+    function usfVisitorFee() {
+      var ev = window._currentEvent;
+      if (!ev) return null;
+      var lang = document.documentElement.lang || 'hr';
+      var t = window._activeTerm || {};
+      var mp = lang === 'hr' ? (t.memberPriceHr || ev.memberPriceHr) : (t.memberPriceEn || ev.memberPriceEn);
+      var np = lang === 'hr' ? (t.nonMemberPriceHr || ev.nonMemberPriceHr) : (t.nonMemberPriceEn || ev.nonMemberPriceEn);
+      return parsePriceNum(usfIsActiveMember() ? mp : np);
+    }
+    function usfEnrolledNoPay(lang) {
+      var content = document.getElementById('modalContent');
+      var member = usfIsActiveMember();
+      content.classList.remove('modal-wide');
+      content.innerHTML =
+        '<div class="modal-success-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>' +
+        '<h3>' + (lang === 'hr' ? 'Prijava završena!' : 'You are enrolled!') + '</h3>' +
+        '<p>' + (member
+          ? (lang === 'hr' ? 'Edukacija je uključena u vašu članarinu, pa ne trebate ništa platiti. Prijavu vidite u aplikaciji, pod Moja edukacija.'
+                           : 'This education is included in your membership, so there is nothing to pay. You will find it in the app, under My Education.')
+          : (lang === 'hr' ? 'Za ovaj termin nema kotizacije, pa ne trebate ništa platiti. Prijavu vidite u aplikaciji, pod Moja edukacija.'
+                           : 'There is no fee for this term, so there is nothing to pay. You will find it in the app, under My Education.')) + '</p>' +
+        '<div class="usf-mbtns"><button class="btn btn-primary" onclick="closeModal()">' + (lang === 'hr' ? 'U redu' : 'OK') + '</button></div>';
+    }
+
     function finalizeEnrollment() {
       var lang = document.documentElement.lang || 'hr';
       var content = document.getElementById('modalContent');
@@ -3330,7 +3384,7 @@
         '<div class="modal-success-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>' +
         '<h3>' + (lang === 'hr' ? 'Prijava završena!' : 'Enrollment complete!') + '</h3>' +
         '<p>' + (lang === 'hr' ? 'Vaša prijava je zaprimljena. Status možete pratiti u dashboardu pod "Moje edukacije". Ako niste uploadali potvrdu, možete to napraviti naknadno.' : 'Your enrollment has been received. You can track the status in your dashboard under "My educations". If you haven\'t uploaded the confirmation, you can do so later.') + '</p>' +
-        '<button class="btn btn-primary" onclick="closeModal()">' + (lang === 'hr' ? 'U redu' : 'OK') + '</button>';
+        '<div class="usf-mbtns"><button class="btn btn-primary" onclick="closeModal()">' + (lang === 'hr' ? 'U redu' : 'OK') + '</button></div>';   /* ROUND 195 */
     }
 
     function closeModal() {
