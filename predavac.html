@@ -801,8 +801,28 @@
      pointer cannot apply to paints that happen before the script runs, and
      that gap is where the two cursors are visible at once. If the cursor
      itself fails to start, the script at the bottom takes this back off. */
-  document.documentElement.classList.add('has-custom-cursor');
+  /* ROUND 194: vlastiti kursor samo uz mis na vecem ekranu. Na mobitelu,
+     tabletu i dodirom nema strelice ni natpisa koji iskoce gdje se dodirne
+     (dodir salje i misje dogadjaje, pa ih je kursor pratio). */
+  (function () {
+    var d = document.documentElement, touch = false;
+    var mq = window.matchMedia ? window.matchMedia('(hover: none), (pointer: coarse), (max-width: 768px)') : null;
+    function set() {
+      var off = touch || !!(mq && mq.matches);
+      d.classList.toggle('has-custom-cursor', !off);
+      d.classList.toggle('usf-no-cursor', off);
+    }
+    set();
+    if (mq) { if (mq.addEventListener) mq.addEventListener('change', set); else if (mq.addListener) mq.addListener(set); }
+    function pt(e) { var t = e.pointerType === 'touch' || e.pointerType === 'pen'; if (t !== touch) { touch = t; set(); } }
+    window.addEventListener('pointerdown', pt, true);
+    window.addEventListener('pointermove', pt, true);
+  })();
   </script>
+  <style>
+    /* ROUND 194: bez vlastitog kursora na dodir i na malom ekranu */
+    html.usf-no-cursor .custom-cursor { display: none !important; }
+  </style>
 <!-- ROUND 148: Pocetna u izborniku -->
   <style>
     /* Doniraj i Pridruzi se su par: blizu, ali se ne dodiruju */

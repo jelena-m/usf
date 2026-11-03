@@ -704,6 +704,36 @@
     }
     .modal-success-icon svg { width: 28px; height: 28px; color: var(--blue); }
 
+    /* ===== ROUND 194: prijava na edukaciju preko cijelog ekrana na mobitelu =====
+       Na malom ekranu prozor je stranica: zauzima cijeli ekran, sadrzaj se
+       skrola, a X gore desno ga zatvara. Gornja traka s X-om nije pozadina,
+       pa dodir na nju ne zatvara prijavu. */
+    .usf-modal-top { display: none; }
+    @media (max-width: 768px) {
+      #enrollModal {
+        padding: calc(56px + env(safe-area-inset-top)) 0 0;
+        align-items: stretch; justify-content: stretch; overflow: hidden;
+        background: #141414; -webkit-backdrop-filter: none; backdrop-filter: none;
+      }
+      #enrollModal > .modal, #enrollModal > .modal.modal-wide {
+        width: 100%; max-width: none; height: 100%; max-height: none; margin: 0;
+        border-radius: 0; padding: 8px 20px calc(32px + env(safe-area-inset-bottom));
+        overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+      }
+      #enrollModal .usf-modal-top {
+        display: flex; justify-content: flex-end; align-items: center;
+        position: absolute; left: 0; right: 0; top: 0;
+        height: calc(56px + env(safe-area-inset-top)); padding: env(safe-area-inset-top) 6px 0;
+      }
+      #enrollModal .usf-modal-x {
+        display: flex; align-items: center; justify-content: center;
+        width: 44px; height: 44px; padding: 0; border: none; border-radius: 10px;
+        background: none; color: rgba(255,255,255,0.6); font-size: 30px; line-height: 1;
+        font-family: inherit; cursor: pointer;
+      }
+      #enrollModal .usf-modal-x:active { background: rgba(255,255,255,0.08); color: #fff; }
+    }
+
     /* ===== ENROLLMENT MODAL EXTENDED ===== */
     .modal.modal-wide { max-width: 560px; text-align: left; }
     .modal-wide h3 { text-align: center; }
@@ -1864,8 +1894,28 @@
      pointer cannot apply to paints that happen before the script runs, and
      that gap is where the two cursors are visible at once. If the cursor
      itself fails to start, the script at the bottom takes this back off. */
-  document.documentElement.classList.add('has-custom-cursor');
+  /* ROUND 194: vlastiti kursor samo uz mis na vecem ekranu. Na mobitelu,
+     tabletu i dodirom nema strelice ni natpisa koji iskoce gdje se dodirne
+     (dodir salje i misje dogadjaje, pa ih je kursor pratio). */
+  (function () {
+    var d = document.documentElement, touch = false;
+    var mq = window.matchMedia ? window.matchMedia('(hover: none), (pointer: coarse), (max-width: 768px)') : null;
+    function set() {
+      var off = touch || !!(mq && mq.matches);
+      d.classList.toggle('has-custom-cursor', !off);
+      d.classList.toggle('usf-no-cursor', off);
+    }
+    set();
+    if (mq) { if (mq.addEventListener) mq.addEventListener('change', set); else if (mq.addListener) mq.addListener(set); }
+    function pt(e) { var t = e.pointerType === 'touch' || e.pointerType === 'pen'; if (t !== touch) { touch = t; set(); } }
+    window.addEventListener('pointerdown', pt, true);
+    window.addEventListener('pointermove', pt, true);
+  })();
   </script>
+  <style>
+    /* ROUND 194: bez vlastitog kursora na dodir i na malom ekranu */
+    html.usf-no-cursor .custom-cursor { display: none !important; }
+  </style>
 <!-- ROUND 148: Pocetna u izborniku -->
   <style>
     /* Doniraj i Pridruzi se su par: blizu, ali se ne dodiruju */
@@ -2082,6 +2132,8 @@
 
   <!-- ENROLLMENT MODAL (outside page-content-wrap for z-index) -->
   <div class="modal-overlay" id="enrollModal">
+    <!-- ROUND 194: na mobitelu je prijava preko cijelog ekrana, pa ima svoj X -->
+    <div class="usf-modal-top"><button type="button" class="usf-modal-x" id="enrollModalX" onclick="closeModal()" aria-label="Zatvori">&times;</button></div>
     <div class="modal" id="modalContent"></div>
   </div>
 
@@ -2685,6 +2737,7 @@
       var content = document.getElementById('modalContent');
       // reset width from any previous payment step
       content.classList.remove('modal-wide');
+      try { document.getElementById('enrollModalX').setAttribute('aria-label', lang === 'hr' ? 'Zatvori' : 'Close'); } catch (e) {}   /* ROUND 194 */
 
       if (!user) {
         // Not logged in — show login prompt
